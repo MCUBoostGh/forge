@@ -25,6 +25,33 @@ It currently supports a minimal command set and is designed to be extended with 
 go run main.go build
 ```
 
+## Install Forge to `/usr/bin`
+
+To install the `forge` binary system-wide, build it and move it into `/usr/bin`.
+
+```bash
+go build -o forge .
+sudo mv forge /usr/bin/
+```
+
+If your Go environment is set up for module-aware installs, you can also use:
+
+```bash
+go install .
+```
+
+Then copy the resulting binary to `/usr/bin`:
+
+```bash
+sudo cp $(go env GOPATH)/bin/forge /usr/bin/
+```
+
+After installation, run `forge` from any directory:
+
+```bash
+forge help
+```
+
 ## Notes
 
 The build logic is currently a placeholder and should be implemented with project-specific build steps.
