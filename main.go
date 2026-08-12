@@ -30,7 +30,14 @@ func main(){
 	}
 
 	switch os.Args[1] {
-
+	case "init":
+		if len(os.Args) < 3 {
+			log.Fatal("Usage: forge init <project_name>")
+		}
+		err := cmd.Init(os.Args[2])
+		if err != nil {
+			log.Fatal(err)
+		}
 	case "build":
 		err := cmd.Build()
 		if err != nil {
