@@ -2,15 +2,13 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 )
 
 func Init(nameProject string) error {
 
-	logError := log.New(os.Stderr, "ERROR: ", log.Ldate|log.Ltime)
-	logSuccess := log.New(os.Stderr, "Success: ", log.Ldate|log.Ltime)
+	setProjectDir(nameProject)
 
 	fmt.Println("Initializing a new project:", nameProject)
 
@@ -21,6 +19,7 @@ func Init(nameProject string) error {
 		logError.Println("Project directory already exists.")
 		return fmt.Errorf("project directory already exists")
 	}
+
 	// If we got an error that is not "not exist", return it
 	if err != nil && !os.IsNotExist(err) {
 		logError.Println("Failed to check project directory:", err)
@@ -33,43 +32,21 @@ func Init(nameProject string) error {
 		return err
 	}
 
-	err = os.MkdirAll(filepath.Join(nameProject, "src"), 0755)
-	if err != nil {
-		logError.Println("Failed to create project directory.", err)
-		return err
+	for _, nameFolder := range listFolders {
+		err := os.MkdirAll(filepath.Join(nameProject, nameFolder), 0755)
+		if err != nil {
+			logError.Println("Failed to create folder:", nameFolder, err)
+			return err
+		}
 	}
 
-	err = os.MkdirAll(filepath.Join(nameProject, "include"), 0755)
-	if err != nil {
-		logError.Println("Failed to create project directory.", err)
-		return err
+	for _, nameFile := range listFiles {
+		_, err := os.Create(filepath.Join(nameProject, nameFile))
+		if err != nil {
+			logError.Println("Failed to create ", nameFile, " file.", err)
+			return err
+		}
 	}
-
-	_, err = os.Create(filepath.Join(nameProject, "main.c"))
-	if err != nil {
-		logError.Println("Failed to create main.c file.", err)
-		return err
-	}
-
-	_, err = os.Create(filepath.Join(nameProject, "CMakeLists.txt"))
-	if err != nil {
-		logError.Println("Failed to create CMakeLists.txt file.", err)
-		return err
-	}
-
-	_, err = os.Create(filepath.Join(nameProject, "Forge.toml"))
-	if err != nil {
-		logError.Println("Failed to create Forge.toml file.", err)
-		return err
-	}
-
-	_, err = os.Create(filepath.Join(nameProject, "CMakePresets.json"))
-	if err != nil {
-		logError.Println("Failed to create CMakePresets.json file.", err)
-		return err
-	}
-
-	logSuccess.Println("Project directory created successfully at", nameProject)
 
 	return nil
 }
