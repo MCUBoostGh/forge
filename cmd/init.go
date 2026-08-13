@@ -40,10 +40,15 @@ func Init(nameProject string) error {
 		}
 	}
 
-	for _, nameFile := range listFiles {
-		_, err := os.Create(filepath.Join(nameProject, nameFile))
+	for name, Content := range listFilesContentMap {
+		_, err := os.Create(filepath.Join(nameProject, name))
 		if err != nil {
-			logError.Println("Failed to create ", nameFile, " file.", err)
+			logError.Println("Failed to create ", name, " file.", err)
+			return err
+		}
+		err = os.WriteFile(filepath.Join(nameProject, name), []byte(Content), 0644)
+		if err != nil {
+			logError.Println("Failed to write to ", name, " file.", err)
 			return err
 		}
 	}

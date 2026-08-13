@@ -4,27 +4,23 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"forge/contents"
 )
 
 var logError = log.New(os.Stderr, "ERROR: ", 0)
 
-var listFolders = []string {"src","include"}
-var listFiles = []string {"Forge.toml","main.c","CMakeLists.txt","CMakePresets.json"}
+var listFolders = []string{"src", "include"}
+
+var listFilesContentMap = map[string]string{
+	"Forge.toml":     contents.ForgeTOMLContent,
+	"main.c":         contents.MainCContent,
+	"CMakeLists.txt": contents.CMakeListsContent,
+	"CMakePresets.json": contents.CMakePresetsContent,
+}
 
 const buildDir = "build"
 
-const forgeTOMLContent = `
-[project]
-name = "MyProject"
-version = "0.1.0"
-
-[build]
-system = "cmake"
-build_dir = buildDir
-
-`
-
-
+var projectDir string
 
 func runCommand(command string, args ...string) error {
 	cmd := exec.Command(command, args...)
@@ -34,12 +30,6 @@ func runCommand(command string, args ...string) error {
 	return cmd.Run()
 }
 
-var projectDir string
-
 func setProjectDir(path string) {
 	projectDir = path
 }
-
-
-
-
