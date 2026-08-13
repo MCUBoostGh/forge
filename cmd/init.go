@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"forge/contents"
 )
 
-func Init(nameProject string) error {
+func New(nameProject string) error {
 
 	setProjectDir(nameProject)
 
@@ -32,8 +33,24 @@ func Init(nameProject string) error {
 		return err
 	}
 
+	forgeTOMLName:="Forge.toml"
+	_, err = os.Create(filepath.Join(projectDir, forgeTOMLName))
+	if err != nil {
+		logError.Println("Failed to create ", forgeTOMLName, " file.", err)
+		return err
+	}
+	err = os.WriteFile(filepath.Join(projectDir, forgeTOMLName), []byte(contents.ForgeTOMLContent), 0644)
+	if err != nil {
+		logError.Println("Failed to write to ", forgeTOMLName, " file.", err)
+		return err
+	}
+	return nil
+}
+
+func Init() error {
+
 	for _, nameFolder := range listFolders {
-		err := os.MkdirAll(filepath.Join(nameProject, nameFolder), 0755)
+		err := os.MkdirAll(filepath.Join(projectDir, nameFolder), 0755)
 		if err != nil {
 			logError.Println("Failed to create folder:", nameFolder, err)
 			return err
@@ -41,17 +58,16 @@ func Init(nameProject string) error {
 	}
 
 	for name, Content := range listFilesContentMap {
-		_, err := os.Create(filepath.Join(nameProject, name))
+		_, err := os.Create(filepath.Join(projectDir, name))
 		if err != nil {
 			logError.Println("Failed to create ", name, " file.", err)
 			return err
 		}
-		err = os.WriteFile(filepath.Join(nameProject, name), []byte(Content), 0644)
+		err = os.WriteFile(filepath.Join(projectDir, name), []byte(Content), 0644)
 		if err != nil {
 			logError.Println("Failed to write to ", name, " file.", err)
 			return err
 		}
 	}
-
 	return nil
 }

@@ -12,7 +12,6 @@ var logError = log.New(os.Stderr, "ERROR: ", 0)
 var listFolders = []string{"src", "include"}
 
 var listFilesContentMap = map[string]string{
-	"Forge.toml":     contents.ForgeTOMLContent,
 	"main.c":         contents.MainCContent,
 	"CMakeLists.txt": contents.CMakeListsContent,
 	"CMakePresets.json": contents.CMakePresetsContent,
