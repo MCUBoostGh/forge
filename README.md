@@ -100,6 +100,12 @@ forge init
 forge build
 ```
 
+## Roadmap
+
+Development is tracked in [ROADMAP.md](ROADMAP.md). The plan moves from the current **v0.1.0** prototype through incremental releases to **v1.0.0**, focused on STM32 bare-metal and host Linux development.
+
+Planned commands include `setup` (install toolchains and host tools from `Forge.toml`), `sync`, `docker`, `flash`, `monitor`, `test`, `lib`, `add`, `doc`, and `package`. v1.0.0 targets host Linux (`gcc`) and STM32 (`gcc-arm-none-eabi`) with CMake presets and Docker-based reproducible builds. Embedded Linux (Raspberry Pi) is planned for **v2.0.0** — see [ROADMAP.md](ROADMAP.md).
+
 ## Notes
 
-This repository is an early-stage starter project. Planned additions include embedded workflow tooling, test support, and more advanced build configuration.
+This repository is an early-stage starter project. See [ROADMAP.md](ROADMAP.md) for the full version plan.
