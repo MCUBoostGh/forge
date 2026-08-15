@@ -7,6 +7,14 @@ version = "0.1.0"
 
 [build]
 system = "cmake"
-build_dir = buildDir
+
+[toolchain]
+compiler = "gcc"
+
+[dependencies]
+# future Forge packages
+
+[cmake]
+version = "4.2.0"
 
 `

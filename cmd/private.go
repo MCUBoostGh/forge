@@ -1,10 +1,10 @@
 package cmd
 
 import (
+	"forge/contents"
 	"log"
 	"os"
 	"os/exec"
-	"forge/contents"
 )
 
 var logError = log.New(os.Stderr, "ERROR: ", 0)
@@ -12,15 +12,44 @@ var logError = log.New(os.Stderr, "ERROR: ", 0)
 var listFolders = []string{"src", "include"}
 
 var listFilesContentMap = map[string]string{
-	"main.c":         contents.MainCContent,
-	"CMakeLists.txt": contents.CMakeListsContent,
+	"main.c":            contents.MainCContent,
+	"CMakeLists.txt":    contents.CMakeListsContent,
 	"CMakePresets.json": contents.CMakePresetsContent,
 }
 
 const buildDir = "build"
 
-var projectDir string
+type Config struct {
+	Project struct {
+		Name    string `toml:"name"`
+		Version string `toml:"version"`
+	} `toml:"project"`
 
+	Build struct {
+		System string `toml:"system"`
+	} `toml:"build"`
+
+	Toolchain struct {
+		Compiler string `toml:"compiler"`
+	} `toml:"toolchain"`
+
+	Dependencies []string `toml:"dependencies"`
+
+	CMake struct {
+		Version string `toml:"version"`
+	} `toml:"cmake"`
+}
+
+var config = Config{}
+
+func setConfigDefaults() {
+	config.Project.Name = "MyProject"
+	config.Project.Version = "0.1.0"
+	config.Build.System = "cmake"
+	config.Toolchain.Compiler = "gcc"
+	config.Dependencies = []string{}
+	config.CMake.Version = "4.2.0"
+}
 func runCommand(command string, args ...string) error {
 	cmd := exec.Command(command, args...)
 	cmd.Stdout = os.Stdout
@@ -29,6 +58,6 @@ func runCommand(command string, args ...string) error {
 	return cmd.Run()
 }
 
-func setProjectDir(path string) {
-	projectDir = path
+func setConfig(path string) {
+	config.Project.Name = path
 }

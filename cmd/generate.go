@@ -2,14 +2,16 @@ package cmd
 
 import (
 	"fmt"
+	"forge/contents"
 	"os"
 	"path/filepath"
-	"forge/contents"
+	"strings"
 )
 
 func New(nameProject string) error {
 
-	setProjectDir(nameProject)
+	setConfigDefaults()
+	setConfig(nameProject)
 
 	fmt.Println("Initializing a new project:", nameProject)
 
@@ -33,13 +35,15 @@ func New(nameProject string) error {
 		return err
 	}
 
-	forgeTOMLName:="Forge.toml"
-	_, err = os.Create(filepath.Join(projectDir, forgeTOMLName))
+	forgeTOMLName := "Forge.toml"
+	forgeTOMLContents := strings.ReplaceAll(contents.ForgeTOMLContent, "MyProject", config.Project.Name)
+
+	_, err = os.Create(filepath.Join(config.Project.Name, forgeTOMLName))
 	if err != nil {
 		logError.Println("Failed to create ", forgeTOMLName, " file.", err)
 		return err
 	}
-	err = os.WriteFile(filepath.Join(projectDir, forgeTOMLName), []byte(contents.ForgeTOMLContent), 0644)
+	err = os.WriteFile(filepath.Join(config.Project.Name, forgeTOMLName), []byte(forgeTOMLContents), 0644)
 	if err != nil {
 		logError.Println("Failed to write to ", forgeTOMLName, " file.", err)
 		return err
@@ -50,7 +54,7 @@ func New(nameProject string) error {
 func Init() error {
 
 	for _, nameFolder := range listFolders {
-		err := os.MkdirAll(filepath.Join(projectDir, nameFolder), 0755)
+		err := os.MkdirAll(filepath.Join(config.Project.Name, nameFolder), 0755)
 		if err != nil {
 			logError.Println("Failed to create folder:", nameFolder, err)
 			return err
@@ -58,12 +62,12 @@ func Init() error {
 	}
 
 	for name, Content := range listFilesContentMap {
-		_, err := os.Create(filepath.Join(projectDir, name))
+		_, err := os.Create(filepath.Join(config.Project.Name, name))
 		if err != nil {
 			logError.Println("Failed to create ", name, " file.", err)
 			return err
 		}
-		err = os.WriteFile(filepath.Join(projectDir, name), []byte(Content), 0644)
+		err = os.WriteFile(filepath.Join(config.Project.Name, name), []byte(Content), 0644)
 		if err != nil {
 			logError.Println("Failed to write to ", name, " file.", err)
 			return err
