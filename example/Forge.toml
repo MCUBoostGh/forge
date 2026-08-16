@@ -1,0 +1,14 @@
+dependencies = []
+
+[project]
+name = 'example'
+version = '0.1.0'
+
+[build]
+system = 'cmake'
+
+[toolchain]
+compiler = 'gcc'
+
+[cmake]
+version = '4.2.0'
