@@ -7,9 +7,10 @@ import (
 	"path/filepath"
 )
 
-func New(nameProject string) error {
+func New(args ...string) error {
 
 	setConfigDefaults()
+	nameProject := args[0]
 	setConfig(nameProject)
 
 	fmt.Println("Initializing a new project:", nameProject)

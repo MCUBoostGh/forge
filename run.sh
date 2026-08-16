@@ -20,15 +20,16 @@ if [ -z "$PROJECT_NAME" ]; then
     fail "Project name is required."
 fi
 
-GO_PROJECT_DIR="examples/$PROJECT_NAME"
+GO_PROJECT_DIR="examples/"
 FORGE_ARGS=("$@")
 
 mkdir -p "$(dirname "$GO_PROJECT_DIR")" || fail "Unable to create examples directory"
 
 go build || fail "go build failed"
 go install || fail "go install failed"
-forge new "$GO_PROJECT_DIR" "${FORGE_ARGS[@]}" || fail "forge new failed for $GO_PROJECT_DIR"
 cd "$GO_PROJECT_DIR" || fail "Unable to enter $GO_PROJECT_DIR"
+forge new "$PROJECT_NAME" "${FORGE_ARGS[@]}" || fail "forge new failed for $GO_PROJECT_DIR"
+cd "$PROJECT_NAME" || fail "Unable to enter $GO_PROJECT_DIR"
 forge init || fail "forge init failed"
 forge build || fail "forge build failed"
 

@@ -32,7 +32,7 @@ func main(){
 	switch os.Args[1] {
 	case "new":
 		if len(os.Args) < 3 {
-			log.Fatal("Usage: forge new <project_name>")
+			log.Fatal("usage: forge new <project> --device <device>")
 		}
 		err := cmd.New(os.Args[2])
 		if err != nil {
