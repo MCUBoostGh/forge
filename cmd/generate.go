@@ -5,7 +5,16 @@ import (
 	"github.com/pelletier/go-toml/v2"
 	"os"
 	"path/filepath"
+	"strings"
 )
+
+func validateDevice(device string) error {
+	if !strings.HasPrefix(strings.ToUpper(device), "STM32") {
+		return fmt.Errorf("invalid device: %s", device)
+	}
+
+	return nil
+}
 
 func New(args ...string) error {
 
@@ -37,6 +46,23 @@ func New(args ...string) error {
 
 	forgeTOMLName := "Forge.toml"
 
+	if args[1] == "--device" {
+		if len(args) > 2 {
+			device := args[2]
+			err := validateDevice(device)
+			if err != nil {
+				logError.Println("Invalid device specified. ")
+				return err
+			}
+			fmt.Println("Target device set to:", device)
+
+			config.Target.Device = device
+			config.Toolchain.Compiler = args[2]
+		} else {
+			logError.Println("Device not specified. Use --device <device> to specify the target device.")
+			return fmt.Errorf("device not specified")
+		}
+	}
 	_, err = os.Create(filepath.Join(config.Project.Name, forgeTOMLName))
 	if err != nil {
 		logError.Println("Failed to create ", forgeTOMLName, " file.", err)

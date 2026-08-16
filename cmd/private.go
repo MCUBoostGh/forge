@@ -25,12 +25,17 @@ type Config struct {
 		Version string `toml:"version"`
 	} `toml:"project"`
 
+	Target struct {
+		Device string `toml:"device"`
+	} `toml:"target"`
+
 	Build struct {
-		System string `toml:"system"`
+		System string `toml:"system"` //cmake
+		Type   string `toml:"type"` // debug, release, relwithdebinfo, minsizerel
 	} `toml:"build"`
 
 	Toolchain struct {
-		Compiler string `toml:"compiler"`
+		Compiler string `toml:"compiler"` // gcc, clang, etc.
 	} `toml:"toolchain"`
 
 	Dependencies []string `toml:"dependencies"`

@@ -34,7 +34,8 @@ func main(){
 		if len(os.Args) < 3 {
 			log.Fatal("usage: forge new <project> --device <device>")
 		}
-		err := cmd.New(os.Args[2])
+		args:= os.Args[2:]
+		err := cmd.New(args...)
 		if err != nil {
 			log.Fatal(err)
 		}
