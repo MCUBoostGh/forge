@@ -9,12 +9,13 @@ import (
 
 var logError = log.New(os.Stderr, "ERROR: ", 0)
 
-var listFolders = []string{"src", "include"}
+var listFolders = []string{"src", "include","cmake"}
 
 var listFilesContentMap = map[string]string{
 	"main.c":            contents.MainCContent,
 	"CMakeLists.txt":    contents.CMakeListsContent,
 	"CMakePresets.json": contents.CMakePresetsContent,
+	"cmake/gcc-arm-none-eabi.cmake": contents.GccArmNoneEabiCmakeContent,
 }
 
 const buildDir = "build"
