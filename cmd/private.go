@@ -51,6 +51,7 @@ func setConfigDefaults() {
 	config.Project.Name = "MyProject"
 	config.Project.Version = "0.1.0"
 	config.Build.System = "cmake"
+	config.Build.Type = "debug"
 	config.Toolchain.Compiler = "gcc"
 	config.Dependencies = []string{}
 	config.CMake.Version = "4.2.0"

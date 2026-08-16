@@ -57,7 +57,7 @@ func New(args ...string) error {
 			fmt.Println("Target device set to:", device)
 
 			config.Target.Device = device
-			config.Toolchain.Compiler = args[2]
+			config.Toolchain.Compiler = "gcc-arm-none-eabi"
 		} else {
 			logError.Println("Device not specified. Use --device <device> to specify the target device.")
 			return fmt.Errorf("device not specified")
