@@ -1,3 +1,0 @@
-/home/amin/projects/forge/example/build/CMakeFiles/MyProject.dir
-/home/amin/projects/forge/example/build/CMakeFiles/edit_cache.dir
-/home/amin/projects/forge/example/build/CMakeFiles/rebuild_cache.dir

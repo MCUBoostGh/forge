@@ -1,0 +1,3 @@
+/home/amin/projects/forge/examples/blink/build/CMakeFiles/MyProject.dir
+/home/amin/projects/forge/examples/blink/build/CMakeFiles/edit_cache.dir
+/home/amin/projects/forge/examples/blink/build/CMakeFiles/rebuild_cache.dir

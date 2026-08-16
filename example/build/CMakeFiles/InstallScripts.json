@@ -1,7 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"/home/amin/projects/forge/example/build/cmake_install.cmake"
-	],
-	"Parallel" : false
-}

@@ -1,7 +1,7 @@
 dependencies = []
 
 [project]
-name = 'example'
+name = 'examples/blink'
 version = '0.1.0'
 
 [build]

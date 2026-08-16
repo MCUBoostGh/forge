@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/amin/projects/forge/example/main.c" "CMakeFiles/MyProject.dir/main.c.o" "gcc" "CMakeFiles/MyProject.dir/main.c.o.d"
+  "/home/amin/projects/forge/examples/blink/main.c" "CMakeFiles/MyProject.dir/main.c.o" "gcc" "CMakeFiles/MyProject.dir/main.c.o.d"
   "" "MyProject" "gcc" "CMakeFiles/MyProject.dir/link.d"
   )
 

@@ -7,7 +7,7 @@ set(CMAKE_DEPENDS_GENERATOR "Unix Makefiles")
 # The top level Makefile was generated from the following files:
 set(CMAKE_MAKEFILE_DEPENDS
   "CMakeCache.txt"
-  "/home/amin/projects/forge/example/CMakeLists.txt"
+  "/home/amin/projects/forge/examples/blink/CMakeLists.txt"
   "CMakeFiles/4.2.3/CMakeCCompiler.cmake"
   "CMakeFiles/4.2.3/CMakeSystem.cmake"
   "/usr/share/cmake-4.2/Modules/CMakeCCompiler.cmake.in"
