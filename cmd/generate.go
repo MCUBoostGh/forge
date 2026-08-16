@@ -2,10 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"forge/contents"
+	"github.com/pelletier/go-toml/v2"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 func New(nameProject string) error {
@@ -36,14 +35,18 @@ func New(nameProject string) error {
 	}
 
 	forgeTOMLName := "Forge.toml"
-	forgeTOMLContents := strings.ReplaceAll(contents.ForgeTOMLContent, "MyProject", config.Project.Name)
 
 	_, err = os.Create(filepath.Join(config.Project.Name, forgeTOMLName))
 	if err != nil {
 		logError.Println("Failed to create ", forgeTOMLName, " file.", err)
 		return err
 	}
-	err = os.WriteFile(filepath.Join(config.Project.Name, forgeTOMLName), []byte(forgeTOMLContents), 0644)
+
+	data, err := toml.Marshal(config)
+	if err != nil {
+		logError.Fatal(err)
+	}
+	err = os.WriteFile(filepath.Join(config.Project.Name, forgeTOMLName), data, 0644)
 	if err != nil {
 		logError.Println("Failed to write to ", forgeTOMLName, " file.", err)
 		return err
