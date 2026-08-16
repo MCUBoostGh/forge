@@ -10,11 +10,11 @@ func Build() error{
 	if err != nil {
 		return err
 	}
-	err = runCommand("cmake", "-S", ".", "-B", "build")
+	err = runCommand("cmake", "--preset", "default")
 	if err != nil {
 		return err
 	}
-	err = runCommand("cmake", "--build", "build")
+	err = runCommand("cmake", "--build", "--preset", "default")
 	if err != nil {
 		return err
 	}

@@ -9,9 +9,15 @@ const CMakePresetsContent = `{
   "configurePresets": [
 	{
 	  "name": "default",
-	  "hidden": true,
-	  "generator": "Ninja",
+	  "hidden": false,
+	  "generator": "Unix Makefiles",
 	  "binaryDir": "${sourceDir}/build"
+	}
+  ],
+  "buildPresets": [
+	{
+		"name": "default",
+		"configurePreset": "default"
 	}
   ]
 }
