@@ -59,5 +59,7 @@ func runCommand(command string, args ...string) error {
 }
 
 func setConfig(path string) {
+
 	config.Project.Name = path
+
 }
