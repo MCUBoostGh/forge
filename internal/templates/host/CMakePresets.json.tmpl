@@ -1,10 +1,8 @@
-package contents
-
-const CMakePresetsContent = `{
+{
   "version": 3,
   "cmakeMinimumRequired": {
-    "major": 3,
-    "minor": 20
+    "major": {{.CMakeMinimumRequiredMajor}},
+    "minor": {{.CMakeMinimumRequiredMinor}}
   },
   "configurePresets": [
     {
@@ -12,8 +10,15 @@ const CMakePresetsContent = `{
       "hidden": true,
       "generator": "Unix Makefiles",
       "binaryDir": "${sourceDir}/build/${presetName}",
+      "toolchainFile": "${sourceDir}/cmake/{{.ToolchainCompiler}}.cmake",
       "cacheVariables": {
+        "CMAKE_PROJECT_NAME": "{{.ProjectName}}"
+        "CMAKE_PROJECT_VERSION": "{{.ProjectVersion}}"
+        "CMAKE_PROJECT_DESCRIPTION": "{{.ProjectDescription}}"
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+        "CMAKE_C_STANDARD": "{{.CStandard}}"
+        "CMAKE_C_STANDARD_REQUIRED": "ON"
+
       }
     },
     {
@@ -77,4 +82,3 @@ const CMakePresetsContent = `{
     }
   ]
 }
-`
