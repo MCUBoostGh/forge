@@ -49,14 +49,14 @@ func New(args ...string) error {
 	setConfig(nameProject)
 	msgErr := fmt.Errorf("Falied to generate new project.")
 
-	logger.Infof("Initializing a new project:", nameProject)
+	logger.Infof("Initializing a new project: %s", nameProject)
 
 	_, err := os.Stat(nameProject)
 
 	// If no error, the path already exists
 	if err == nil {
 		logger.Error("Project directory already exists.")
-		return err
+		return msgErr
 	}
 
 	// If we got an error that is not "not exist", return it

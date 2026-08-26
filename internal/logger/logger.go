@@ -3,6 +3,7 @@ package logger
 import (
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"strings"
 )
@@ -51,6 +52,10 @@ func Errorf(format string, v ...any) {
 func Fatal(v ...any) {
 	printLine(os.Stderr, bold+red, "FATAL:", v...)
 	os.Exit(1)
+}
+
+func Println(v ...any){
+	log.Println(v...)
 }
 
 func Fatalf(format string, v ...any) {
