@@ -12,6 +12,28 @@ import (
 	"github.com/pelletier/go-toml/v2"
 )
 
+func createNewProject(nameProject string) error {
+
+	err := os.MkdirAll(nameProject, 0755)
+	if err != nil {
+		return err
+	}
+
+	_, err = os.Create(filepath.Join(config.Project.Name, forgeTOMLName))
+	if err != nil {
+		return err
+	}
+
+	data, err := toml.Marshal(config)
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(filepath.Join(config.Project.Name, forgeTOMLName), data, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func updateProjectData(cfg *tomlConfig) (projectData, error) {
 	pd := projectData{
 		Name:      cfg.Project.Name,
@@ -45,66 +67,49 @@ func New(args ...string) error {
 
 	msgErr := fmt.Errorf("Falied to generate new project.")
 
-	if len(args) < 2 {
+	if len(args) < 3 {
 		logger.Error("Device not specified. Use --device <device> to specify the target device.")
-		logger.Info("To list supported devices, run 'forge list'.")
 		return msgErr
 	}
-	setConfigDefaults()
+
 	nameProject := args[0]
-	setConfig(nameProject)
-
 	logger.Infof("Initializing a new project: %s", nameProject)
-
 	_, err := os.Stat(nameProject)
-
 	// If no error, the path already exists
 	if err == nil {
 		logger.Error("Project directory already exists.")
 		return msgErr
 	}
 
-	// If we got an error that is not "not exist", return it
-	if err != nil && !os.IsNotExist(err) {
-		logger.Error(err)
-		return msgErr
-	}
+	setConfigDefaults()
+	setConfig(nameProject)
 
-	err = os.MkdirAll(nameProject, 0755)
-	if err != nil {
-		logger.Error(err)
-		return msgErr
-	}
+	subArgs := args[1]
 
-	if args[1] == "--device" {
-		if len(args) > 2 {
-			device := args[2]
-			catalog, err := devices.Lookup(device)
-			if err != nil {
-				logger.Error(err)
-				return msgErr
-			}
-
-			config.Target.Device = catalog.ID
-			config.Target.Kind = "mcu"
+	switch subArgs {
+	case "--device":
+		devicePartNumber := args[2]
+		catalog, err := devices.Lookup(devicePartNumber)
+		if err != nil {
+			logger.Error(err)
+			return msgErr
 		}
-	}
-	_, err = os.Create(filepath.Join(config.Project.Name, forgeTOMLName))
-	if err != nil {
-		logger.Error(err)
+		configPtr := getConfig()
+		configPtr.Target.Device = catalog.ID
+		configPtr.Toolchain.Compiler = compilersMap[catalog.CPU]
+		updateProjectData(configPtr)
+		err = createNewProject(nameProject)
+		if err != nil {
+			logger.Error(err)
+			return msgErr
+		}
+
+		break
+	default:
+		logger.Error("Invalid arguments")
 		return msgErr
 	}
 
-	data, err := toml.Marshal(config)
-	if err != nil {
-		logger.Error(err)
-		return msgErr
-	}
-	err = os.WriteFile(filepath.Join(config.Project.Name, forgeTOMLName), data, 0644)
-	if err != nil {
-		logger.Error(err)
-		return msgErr
-	}
 	return nil
 }
 

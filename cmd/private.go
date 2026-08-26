@@ -17,6 +17,7 @@ var listFilesContentMap = map[string]string{
 
 var compilersMap = map[string]string{
 	"cortex-m0": "gcc-arm-none-eabi",
+	"cortex-m3": "gcc-arm-none-eabi",
 	"x86_64":  "gcc",
 }
 
@@ -69,7 +70,9 @@ type tomlConfig struct {
 
 var forgeTOMLName string = "Forge.toml"
 var config = tomlConfig{}
-
+func getConfig() *tomlConfig {
+	return &config
+}
 func setConfigDefaults() {
 	config.Project.Name = "MyProject"
 	config.Project.Version = "0.1.0"
