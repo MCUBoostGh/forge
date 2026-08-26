@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"forge/internal/devices"
 	"forge/internal/logger"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -44,10 +43,16 @@ func updateProjectData(cfg *tomlConfig) (projectData, error) {
 
 func New(args ...string) error {
 
+	msgErr := fmt.Errorf("Falied to generate new project.")
+
+	if len(args) < 2 {
+		logger.Error("Device not specified. Use --device <device> to specify the target device.")
+		logger.Info("To list supported devices, run 'forge list'.")
+		return msgErr
+	}
 	setConfigDefaults()
 	nameProject := args[0]
 	setConfig(nameProject)
-	msgErr := fmt.Errorf("Falied to generate new project.")
 
 	logger.Infof("Initializing a new project: %s", nameProject)
 
@@ -82,10 +87,6 @@ func New(args ...string) error {
 
 			config.Target.Device = catalog.ID
 			config.Target.Kind = "mcu"
-		} else {
-			logger.Error("Device not specified. Use --device <device> to specify the target device.")
-			log.Println("To list supported devices, run 'forge list'.")
-			return msgErr
 		}
 	}
 	_, err = os.Create(filepath.Join(config.Project.Name, forgeTOMLName))

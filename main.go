@@ -1,42 +1,50 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"forge/cmd"
 	"forge/internal/logger"
-	"log"
-	"os"
 )
 
 func help() {
-	logger.Println("Forge is a tool for managing your embedded c/c++ projects.")
-	logger.Println("Usage: forge <command> [arguments]")
-	logger.Println("Commands:")
-	logger.Println("  init      Initialize a new project")
-	logger.Println("  build     Build the project")
-	logger.Println("  run       Run the project")
-	logger.Println("  test      Run tests for the project")
-	logger.Println("  help      Show this help message")
-	logger.Println("  list 	 Show list of supported devices")
+	fmt.Print(`Forge is a tool for managing your embedded C/C++ projects.
+
+Usage:
+  forge <command> [arguments]
+
+Commands:
+  new       Create a new project: forge new <name> --device <device>
+  init      Generate project structure and files
+  build     Build the project
+  run       Run the project
+  test      Run tests for the project
+  list      List supported devices
+  help      Show this help message
+  version   Print the version
+`)
 }
 
 func main() {
-
 	if len(os.Args) < 2 {
 		help()
-		logger.Fatal("Usage: forge <command> [arguments]")
+		os.Exit(1)
 	}
 
 	switch os.Args[1] {
 	case "new":
-		if len(os.Args) < 3 {
-			log.Fatal("usage: forge new <project> --device <device>")
+		if len(os.Args) < 4 {
+			logger.Error("Invalid argument")
+			help()
+			os.Exit(1)
 		}
 		args := os.Args[2:]
 		err := cmd.New(args...)
 		if err != nil {
 			logger.Fatal(err)
 		}
-		log.Println("Use forge init to generate project structure and files.")
+		logger.Info("Use forge init to generate project structure and files.")
 
 	case "init":
 		err := cmd.Init()
@@ -51,7 +59,7 @@ func main() {
 	case "help":
 		help()
 	case "version":
-		logger.Println("Forge version 0.1.0")
+		logger.Info("Forge version 0.1.0")
 	default:
 		logger.Fatal("Unknown command. Use 'forge help' to see available commands.")
 	}
