@@ -1,10 +1,9 @@
 package main
 
-
-import(
-	"os"
-	"log"
+import (
 	"forge/cmd"
+	"log"
+	"os"
 )
 
 func help() {
@@ -16,13 +15,13 @@ func help() {
 	log.Println("  run       Run the project")
 	log.Println("  test      Run tests for the project")
 	log.Println("  help      Show this help message")
-}	
+	log.Println("  list 	 Show list of supported devices")
+}
 
-func main(){
-	
+func main() {
+
 	log.SetPrefix("")
 	log.SetFlags(0)
-
 
 	if len(os.Args) < 2 {
 		help()
@@ -32,14 +31,16 @@ func main(){
 	switch os.Args[1] {
 	case "new":
 		if len(os.Args) < 3 {
-			log.Fatal("usage: forge new <project> --device <device>")
+			log.Fatalln("usage: forge new <project> --device <device>")
 		}
-		args:= os.Args[2:]
+		args := os.Args[2:]
 		err := cmd.New(args...)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			log.Fatalln("Failed to generate new project.")
 		}
 		log.Println("Use forge init to generate project structure and files.")
+
 	case "init":
 		err := cmd.Init()
 		if err != nil {

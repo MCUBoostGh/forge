@@ -14,6 +14,8 @@ go.work.sum
 # IDE
 .vscode/
 .idea/
+.cache/
+.zed
 
 # OS
 .DS_Store

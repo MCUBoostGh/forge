@@ -3,7 +3,7 @@
 set -u
 
 fail() {
-    echo "Error: $1" >&2
+    echo "run.sh: $1" >&2
     exit 1
 }
 

@@ -1,0 +1,23 @@
+# internal/devices/st/f1.yaml
+stm32f103r8:
+  id: stm32f103r8
+  vendor: ST
+  family: STM32F1
+  series: STM32F103
+  architecture: cortex-m3
+  cpu: cortex-m3
+  fpu: ""
+  float_abi: soft
+  flash_kb: 64
+  ram_kb: 20
+  pins: 64
+  package: LQFP64
+  stm32_device: STM32F103xB      # CMAKE -DSTM32_DEVICE
+  linker_script: STM32F103R8Tx_FLASH.ld
+  openocd_target: stm32f1x
+  presets:
+    debug: { build_type: Debug }
+    release: { build_type: Release }
+  aliases:
+    - stm32f103r
+    - bluepill
