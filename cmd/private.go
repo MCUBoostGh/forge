@@ -1,18 +1,18 @@
 package cmd
 
 import (
-	"forge/contents"
 	"os"
 	"os/exec"
 )
 
 var listFolders = []string{"src", "include", "cmake"}
 
+
 var listFilesContentMap = map[string]string{
-	"main.c":                        contents.MainCContent,
-	"CMakeLists.txt":                contents.CMakeListsContent,
-	"CMakePresets.json":             contents.CMakePresetsContent,
-	"cmake/gcc-arm-none-eabi.cmake": contents.GccArmNoneEabiCmakeContent,
+	"main.c":                        "main.txt.tmpl",
+	"CMakeLists.txt":                "host/CMakeLists.txt.tmpl",
+	"CMakePresets.json":             "host/CMakePresets.json.tmpl",
+	// "cmake/gcc-arm-none-eabi.cmake": contents.GccArmNoneEabiCmakeContent,
 }
 
 var compilersMap = map[string]string{

@@ -1,10 +1,13 @@
 package cmd
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"forge/internal/devices"
 	"forge/internal/logger"
+	"forge/internal/templates"
+	"html/template"
 	"os"
 	"path/filepath"
 	"strings"
@@ -63,6 +66,27 @@ func updateProjectData(cfg *tomlConfig) (projectData, error) {
 	return pd, nil
 }
 
+func newTemplateData(cfg *tomlConfig) (templates.TemplateData, error) {
+	minVer := cfg.CMake.MinimumRequiredVersion
+	if minVer == "" {
+		minVer = "3.20"
+	}
+
+	desc := cfg.Project.Name // or a real description field later
+	cStd := "11"
+
+	return templates.TemplateData{
+		ProjectName:                 cfg.Project.Name,
+		ProjectVersion:              cfg.Project.Version,
+		ProjectDescription:          desc,
+		CStandard:                   cStd,
+		CMakeMinimumRequiredVersion: minVer,
+		ToolchainCompiler:           cfg.Toolchain.Compiler,
+		BuildType:                   cfg.Build.Type,
+	}, nil
+}
+
+
 func New(args ...string) error {
 
 	msgErr := fmt.Errorf("Falied to generate new project.")
@@ -104,7 +128,6 @@ func New(args ...string) error {
 			return msgErr
 		}
 
-		break
 	default:
 		logger.Error("Invalid arguments")
 		return msgErr
@@ -114,12 +137,15 @@ func New(args ...string) error {
 }
 
 func Init() error {
+
 	msgErr := fmt.Errorf("Failed to initializing project.")
+	
 	_, err := os.Stat(forgeTOMLName)
 	if errors.Is(err, os.ErrNotExist) {
 		logger.Error(err)
 		return msgErr
 	}
+
 	for _, nameFolder := range listFolders {
 		err := os.MkdirAll(filepath.Join(config.Project.Name, nameFolder), 0755)
 		if err != nil {
@@ -128,15 +154,45 @@ func Init() error {
 		}
 	}
 
-	for name, Content := range listFilesContentMap {
-		_, err := os.Create(filepath.Join(config.Project.Name, name))
+	for outName, tmplPath := range listFilesContentMap {
+
+		//create file
+		_, err := os.Create(filepath.Join(config.Project.Name, outName))
 		if err != nil {
-			logger.Error("Failed to create ", name, " file.", err)
-			return err
+			logger.Error("Failed to create ", outName, " file.")
+			logger.Error(err)
+			return msgErr
 		}
-		err = os.WriteFile(filepath.Join(config.Project.Name, name), []byte(Content), 0644)
+
+		//read template
+		raw ,err := templates.FS.ReadFile(tmplPath)
+		if err != nil{
+			logger.Error("Failed to load template files:",outName);
+			logger.Error(err)
+			return msgErr
+		}
+
+		tmpl,err := template.New(outName).Parse(string(raw))
+
+		if err != nil{
+			logger.Error("Failed to parse template file:",outName)
+			logger.Error(err)
+			return msgErr
+		}
+
+		data,_:=newTemplateData(getConfig())
+		
+		var buf bytes.Buffer;
+		err = tmpl.Execute(&buf,data)
+		if err != nil{
+			logger.Error("Failed to execute template file:",outName)
+			logger.Error(err)
+			return msgErr
+		}
+		
+		err = os.WriteFile(filepath.Join(config.Project.Name, outName), buf.Bytes(), 0644)
 		if err != nil {
-			logger.Error("Failed to write to ", name, " file.", err)
+			logger.Error("Failed to write to ", outName, " file.", err)
 			return err
 		}
 	}

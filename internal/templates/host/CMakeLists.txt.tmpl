@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION {{.CMakeMinimumRequiredVersion}})
 
-project("${CMAKE_PROJECT_NAME}" 
-    LANGUAGES C CXX ASM 
+project("${CMAKE_PROJECT_NAME}"
+    LANGUAGES C CXX ASM
     VERSION "${CMAKE_PROJECT_VERSION}"
     DESCRIPTION "${CMAKE_PROJECT_DESCRIPTION}"
 )
@@ -10,7 +10,6 @@ set(CMAKE_C_STANDARD {{.CStandard}})
 
 add_executable(CMAKE_PROJECT_NAME main.c)
 
-
 if(COMMAND forge_post_build_hex_size)
-	forge_post_build_hex_size(CMAKE_PROJECT_NAME)
+  forge_post_build_hex_size(CMAKE_PROJECT_NAME)
 endif()
