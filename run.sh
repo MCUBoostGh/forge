@@ -9,28 +9,90 @@ fail() {
 
 trap 'fail "command failed on line $LINENO"' ERR
 
-if [ "$#" -gt 0 ]; then
-    PROJECT_NAME="$1"
-    shift
-else
-    read -p "Enter project name: " PROJECT_NAME
+usage() {
+    cat <<'EOF'
+Usage: ./run.sh <project_name> [--device <device>]
+
+Examples:
+  ./run.sh blink
+  ./run.sh blink --device stm32f103r8
+  ./run.sh blink --device bluepill
+
+Default device is stm32f103r8 when --device is omitted.
+EOF
+}
+
+EXAMPLES_DIR="examples"
+DEFAULT_DEVICE="stm32f103r8"
+
+PROJECT_NAME=""
+DEVICE="$DEFAULT_DEVICE"
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        --device)
+            if [ "$#" -lt 2 ]; then
+                fail "--device requires a device id (e.g. stm32f103r8)"
+            fi
+            DEVICE="$2"
+            shift 2
+            ;;
+        -*)
+            fail "unknown option: $1 (try --help)"
+            ;;
+        *)
+            if [ -n "$PROJECT_NAME" ]; then
+                fail "unexpected argument: $1"
+            fi
+            PROJECT_NAME="$1"
+            shift
+            ;;
+    esac
+done
+
+if [ -z "$PROJECT_NAME" ]; then
+    read -r -p "Enter project name: " PROJECT_NAME
 fi
 
 if [ -z "$PROJECT_NAME" ]; then
-    fail "Project name is required."
+    fail "project name is required"
 fi
 
-GO_PROJECT_DIR="examples/"
-FORGE_ARGS=("$@")
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR" || fail "unable to enter repo root $SCRIPT_DIR"
 
-mkdir -p "$(dirname "$GO_PROJECT_DIR")" || fail "Unable to create examples directory"
+mkdir -p "$EXAMPLES_DIR" || fail "unable to create $EXAMPLES_DIR"
 
-go build || fail "go build failed"
-go install || fail "go install failed"
-cd "$GO_PROJECT_DIR" || fail "Unable to enter $GO_PROJECT_DIR"
-forge new "$PROJECT_NAME" "${FORGE_ARGS[@]}" || fail "forge new failed for $GO_PROJECT_DIR"
-cd "$PROJECT_NAME" || fail "Unable to enter $GO_PROJECT_DIR"
-forge init || fail "forge init failed"
-forge build || fail "forge build failed"
+go build -o forge . || fail "go build failed"
+go install . || fail "go install failed"
 
-echo "Project '$PROJECT_NAME' created successfully in '$GO_PROJECT_DIR'"
+# Prefer the freshly built binary; fall back to PATH (go install).
+if [ -x "$SCRIPT_DIR/forge" ]; then
+    FORGE="$SCRIPT_DIR/forge"
+elif command -v forge >/dev/null 2>&1; then
+    FORGE="$(command -v forge)"
+else
+    fail "forge binary not found after build/install"
+fi
+
+PROJECT_DIR="$EXAMPLES_DIR/$PROJECT_NAME"
+if [ -e "$PROJECT_DIR" ]; then
+    fail "project already exists: $PROJECT_DIR"
+fi
+
+(
+    cd "$EXAMPLES_DIR" || fail "unable to enter $EXAMPLES_DIR"
+    "$FORGE" new "$PROJECT_NAME" --device "$DEVICE" || fail "forge new failed"
+)
+
+(
+    cd "$PROJECT_DIR" || fail "unable to enter $PROJECT_DIR"
+    "$FORGE" init || fail "forge init failed"
+    "$FORGE" build || fail "forge build failed"
+)
+
+echo "Project '$PROJECT_NAME' (device: $DEVICE) created in '$PROJECT_DIR'"
