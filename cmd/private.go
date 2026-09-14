@@ -81,6 +81,7 @@ func setConfigDefaults() {
 	config.Toolchain.Compiler = "gcc"
 	config.Dependencies = []string{}
 	config.CMake.Version = "3.30"
+	config.CMake.MinimumRequiredVersion = "3.20"
 }
 func runCommand(command string, args ...string) error {
 	cmd := exec.Command(command, args...)

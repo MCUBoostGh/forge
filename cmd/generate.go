@@ -86,6 +86,16 @@ func newTemplateData(cfg *tomlConfig) (templates.TemplateData, error) {
 	}, nil
 }
 
+func loadConfig(path string) error {
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	if err := toml.Unmarshal(raw, &config); err != nil {
+		return err
+	}
+	return nil
+}
 
 func New(args ...string) error {
 
@@ -139,15 +149,23 @@ func New(args ...string) error {
 func Init() error {
 
 	msgErr := fmt.Errorf("Failed to initializing project.")
-	
+
 	_, err := os.Stat(forgeTOMLName)
 	if errors.Is(err, os.ErrNotExist) {
 		logger.Error(err)
 		return msgErr
 	}
 
+	err = loadConfig(forgeTOMLName)
+	if err != nil {
+		logger.Error("Failed to load config file.")
+		logger.Error(err)
+		return msgErr
+	}
+
+	// Scaffold into the project cwd (where Forge.toml lives), not Project.Name.
 	for _, nameFolder := range listFolders {
-		err := os.MkdirAll(filepath.Join(config.Project.Name, nameFolder), 0755)
+		err := os.MkdirAll(nameFolder, 0755)
 		if err != nil {
 			logger.Error("Failed to create folder:", nameFolder, err)
 			return msgErr
@@ -155,42 +173,42 @@ func Init() error {
 	}
 
 	for outName, tmplPath := range listFilesContentMap {
+		if err := os.MkdirAll(filepath.Dir(outName), 0755); err != nil && filepath.Dir(outName) != "." {
+			logger.Error("Failed to create parent dir for ", outName)
+			logger.Error(err)
+			return msgErr
+		}
 
-		//create file
-		_, err := os.Create(filepath.Join(config.Project.Name, outName))
+		raw, err := templates.FS.ReadFile(tmplPath)
 		if err != nil {
-			logger.Error("Failed to create ", outName, " file.")
+			logger.Error("Failed to load template files:", outName)
 			logger.Error(err)
 			return msgErr
 		}
 
-		//read template
-		raw ,err := templates.FS.ReadFile(tmplPath)
-		if err != nil{
-			logger.Error("Failed to load template files:",outName);
+		tmpl, err := template.New(outName).Parse(string(raw))
+		if err != nil {
+			logger.Error("Failed to parse template file:", outName)
 			logger.Error(err)
 			return msgErr
 		}
 
-		tmpl,err := template.New(outName).Parse(string(raw))
-
-		if err != nil{
-			logger.Error("Failed to parse template file:",outName)
+		data, err := newTemplateData(getConfig())
+		if err != nil {
+			logger.Error("Failed to build template data")
 			logger.Error(err)
 			return msgErr
 		}
 
-		data,_:=newTemplateData(getConfig())
-		
-		var buf bytes.Buffer;
-		err = tmpl.Execute(&buf,data)
-		if err != nil{
-			logger.Error("Failed to execute template file:",outName)
+		var buf bytes.Buffer
+		err = tmpl.Execute(&buf, data)
+		if err != nil {
+			logger.Error("Failed to execute template file:", outName)
 			logger.Error(err)
 			return msgErr
 		}
-		
-		err = os.WriteFile(filepath.Join(config.Project.Name, outName), buf.Bytes(), 0644)
+
+		err = os.WriteFile(outName, buf.Bytes(), 0644)
 		if err != nil {
 			logger.Error("Failed to write to ", outName, " file.", err)
 			return err
