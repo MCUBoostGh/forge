@@ -70,7 +70,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
   - [ ] Usage/examples: `forge new blink stm32f103r8`
 
 - [ ] **T3 — `forge init` reads `Forge.toml`**
-  - [ ] Load and validate `Forge.toml` from cwd (replace in-memory-only path)
+  - [x] Load and validate `Forge.toml` from cwd (replace in-memory-only path)
   - [ ] Generate STM32-aware tree (startup/linker refs as planned)
   - [ ] Board-specific CMake generation from config
   - [ ] Keep host/generic path working for non-STM32 projects

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"forge/internal/config"
 )
 
 func Build() error {
@@ -10,11 +11,10 @@ func Build() error {
 		return err
 	}
 
-	if err := loadConfig(forgeTOMLName); err != nil {
-		return err
-	}
+	
 
-	preset := config.Build.Type
+	preset := config.Get().Build.Type
+	
 	if preset == "" {
 		preset = "debug"
 	}

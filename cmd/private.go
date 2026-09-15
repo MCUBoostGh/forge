@@ -39,50 +39,8 @@ type targetData struct {
 	Series string
 }
 
-type tomlConfig struct {
-	Project struct {
-		Name    string `toml:"name"`
-		Version string `toml:"version"`
-	} `toml:"project"`
 
-	Target struct {
-		Kind   string `toml:"kind"`   // mcu, fpga, etc.
-		Device string `toml:"device"` // stm32f407vg, etc.
-		Board  string `toml:"board"`  // stm32f407vg, etc.
-	} `toml:"target"`
 
-	Build struct {
-		System string `toml:"system"` //cmake
-		Type   string `toml:"type"`   // debug, release, relwithdebinfo, minsizerel
-	} `toml:"build"`
-
-	Toolchain struct {
-		Compiler string `toml:"compiler"` // gcc, clang, etc.
-	} `toml:"toolchain"`
-
-	Dependencies []string `toml:"dependencies"`
-
-	CMake struct {
-		Version                string `toml:"version"`
-		MinimumRequiredVersion string `toml:"minimum_required_version"`
-	} `toml:"cmake"`
-}
-
-var forgeTOMLName string = "Forge.toml"
-var config = tomlConfig{}
-func getConfig() *tomlConfig {
-	return &config
-}
-func setConfigDefaults() {
-	config.Project.Name = "MyProject"
-	config.Project.Version = "0.1.0"
-	config.Build.System = "cmake"
-	config.Build.Type = "debug"
-	config.Toolchain.Compiler = "gcc"
-	config.Dependencies = []string{}
-	config.CMake.Version = "3.30"
-	config.CMake.MinimumRequiredVersion = "3.20"
-}
 func runCommand(command string, args ...string) error {
 	cmd := exec.Command(command, args...)
 	cmd.Stdout = os.Stdout
@@ -91,8 +49,3 @@ func runCommand(command string, args ...string) error {
 	return cmd.Run()
 }
 
-func setConfig(path string) {
-
-	config.Project.Name = path
-
-}

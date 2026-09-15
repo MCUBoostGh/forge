@@ -16,6 +16,7 @@ go.work.sum
 .idea/
 .cache/
 .zed
+.cursor
 
 # OS
 .DS_Store

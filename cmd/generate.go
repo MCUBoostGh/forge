@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
+	"forge/internal/config"
 	"forge/internal/devices"
 	"forge/internal/logger"
 	"forge/internal/templates"
@@ -11,8 +11,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/pelletier/go-toml/v2"
 )
 
 func createNewProject(nameProject string) error {
@@ -22,22 +20,10 @@ func createNewProject(nameProject string) error {
 		return err
 	}
 
-	_, err = os.Create(filepath.Join(config.Project.Name, forgeTOMLName))
-	if err != nil {
-		return err
-	}
-
-	data, err := toml.Marshal(config)
-	if err != nil {
-		return err
-	}
-	err = os.WriteFile(filepath.Join(config.Project.Name, forgeTOMLName), data, 0644)
-	if err != nil {
-		return err
-	}
 	return nil
 }
-func updateProjectData(cfg *tomlConfig) (projectData, error) {
+
+func updateProjectData(cfg *config.Config) (projectData, error) {
 	pd := projectData{
 		Name:      cfg.Project.Name,
 		Version:   cfg.Project.Version,
@@ -66,7 +52,7 @@ func updateProjectData(cfg *tomlConfig) (projectData, error) {
 	return pd, nil
 }
 
-func newTemplateData(cfg *tomlConfig) (templates.TemplateData, error) {
+func newTemplateData(cfg *config.Config) (templates.TemplateData, error) {
 	minVer := cfg.CMake.MinimumRequiredVersion
 	if minVer == "" {
 		minVer = "3.20"
@@ -86,17 +72,6 @@ func newTemplateData(cfg *tomlConfig) (templates.TemplateData, error) {
 	}, nil
 }
 
-func loadConfig(path string) error {
-	raw, err := os.ReadFile(path)
-	if err != nil {
-		return err
-	}
-	if err := toml.Unmarshal(raw, &config); err != nil {
-		return err
-	}
-	return nil
-}
-
 func New(args ...string) error {
 
 	msgErr := fmt.Errorf("Falied to generate new project.")
@@ -107,16 +82,20 @@ func New(args ...string) error {
 	}
 
 	nameProject := args[0]
+
 	logger.Infof("Initializing a new project: %s", nameProject)
+	
 	_, err := os.Stat(nameProject)
 	// If no error, the path already exists
 	if err == nil {
-		logger.Error("Project directory already exists.")
+		logger.Error(err)
 		return msgErr
 	}
 
-	setConfigDefaults()
-	setConfig(nameProject)
+	cfg := config.Get()
+	cfg.Project.Name = nameProject
+	config.Set(cfg)
+
 
 	subArgs := args[1]
 
@@ -128,12 +107,20 @@ func New(args ...string) error {
 			logger.Error(err)
 			return msgErr
 		}
-		configPtr := getConfig()
+		configPtr := config.Get()
 		configPtr.Target.Device = catalog.ID
 		configPtr.Toolchain.Compiler = compilersMap[catalog.CPU]
-		updateProjectData(configPtr)
+		updateProjectData(&configPtr)
+		config.Set(configPtr)
+
 		err = createNewProject(nameProject)
 		if err != nil {
+			logger.Error(err)
+			return msgErr
+		}
+
+		err=config.New(nameProject)
+		if err!=nil{
 			logger.Error(err)
 			return msgErr
 		}
@@ -150,13 +137,7 @@ func Init() error {
 
 	msgErr := fmt.Errorf("Failed to initializing project.")
 
-	_, err := os.Stat(forgeTOMLName)
-	if errors.Is(err, os.ErrNotExist) {
-		logger.Error(err)
-		return msgErr
-	}
-
-	err = loadConfig(forgeTOMLName)
+	err := config.Read()
 	if err != nil {
 		logger.Error("Failed to load config file.")
 		logger.Error(err)
@@ -192,8 +173,8 @@ func Init() error {
 			logger.Error(err)
 			return msgErr
 		}
-
-		data, err := newTemplateData(getConfig())
+		cfg := config.Get()
+		data, err := newTemplateData(&cfg)
 		if err != nil {
 			logger.Error("Failed to build template data")
 			logger.Error(err)
