@@ -9,10 +9,10 @@ var listFolders = []string{"src", "include", "cmake"}
 
 
 var listFilesContentMap = map[string]string{
-	"main.c":                        "main.txt.tmpl",
-	"CMakeLists.txt":                "host/CMakeLists.txt.tmpl",
-	"CMakePresets.json":             "host/CMakePresets.json.tmpl",
-	// "cmake/gcc-arm-none-eabi.cmake": contents.GccArmNoneEabiCmakeContent,
+	"main.c":                           "main.txt.tmpl",
+	"CMakeLists.txt":                   "cmake/CMakeLists.txt.tmpl",
+	"CMakePresets.json":                "cmake/CMakePresets.json.tmpl",
+	"cmake/gcc-arm-none-eabi.cmake":    "cmake/gcc-arm-none-eabi.cmake.tmpl",
 }
 
 var compilersMap = map[string]string{

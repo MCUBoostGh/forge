@@ -4,7 +4,7 @@ import (
 	"embed"
 )
 
-//go:embed *.tmpl host/*.tmpl
+//go:embed *.tmpl cmake/*.tmpl
 var FS embed.FS
 
 type TemplateData struct {
@@ -17,5 +17,11 @@ type TemplateData struct {
 	CMakeMinimumRequiredMinor   int
 	ToolchainCompiler           string
 	BuildType                   string
+	TargetDevice                string
+	TargetCPU                   string
+	TargetFPU                   string
+	TargetVendor                string
+	TargetFamily                string
+	TargetSeries                string
 	// keep Target etc. if MCU tmpls need them later
 }

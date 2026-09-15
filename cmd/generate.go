@@ -52,7 +52,16 @@ func updateProjectData(cfg *config.Config) (projectData, error) {
 	return pd, nil
 }
 
-func newTemplateData(cfg *config.Config) (templates.TemplateData, error) {
+func syncTemplateData(cfg *config.Config) (templates.TemplateData, error) {
+
+
+	catalog, err := devices.Lookup(cfg.Target.Device)
+	if err != nil {
+		logger.Error(err)
+		return templates.TemplateData{},fmt.Errorf("Failed to load device catalog.")
+	}
+
+	
 	minVer := cfg.CMake.MinimumRequiredVersion
 	if minVer == "" {
 		minVer = "3.20"
@@ -61,7 +70,7 @@ func newTemplateData(cfg *config.Config) (templates.TemplateData, error) {
 	desc := cfg.Project.Name // or a real description field later
 	cStd := "11"
 
-	return templates.TemplateData{
+	var tmplData = templates.TemplateData{
 		ProjectName:                 cfg.Project.Name,
 		ProjectVersion:              cfg.Project.Version,
 		ProjectDescription:          desc,
@@ -69,7 +78,21 @@ func newTemplateData(cfg *config.Config) (templates.TemplateData, error) {
 		CMakeMinimumRequiredVersion: minVer,
 		ToolchainCompiler:           cfg.Toolchain.Compiler,
 		BuildType:                   cfg.Build.Type,
-	}, nil
+	}
+
+	
+	switch {
+	case cfg.Target.Kind == "mcu" && strings.HasPrefix(strings.ToUpper(catalog.ID), "STM32"):
+		tmplData.TargetDevice = catalog.ID
+		tmplData.TargetVendor = catalog.Vendor
+	 	tmplData.TargetFamily = catalog.Family
+		tmplData.TargetSeries = strings.ToUpper(catalog.ID)
+		tmplData.TargetCPU = catalog.CPU
+		tmplData.TargetFPU = catalog.FPU
+	default:
+		return templates.TemplateData{}, fmt.Errorf("invalid target kind")
+	}
+	return tmplData,nil
 }
 
 func New(args ...string) error {
@@ -107,18 +130,21 @@ func New(args ...string) error {
 			logger.Error(err)
 			return msgErr
 		}
-		configPtr := config.Get()
-		configPtr.Target.Device = catalog.ID
-		configPtr.Toolchain.Compiler = compilersMap[catalog.CPU]
-		updateProjectData(&configPtr)
-		config.Set(configPtr)
 
+
+		cfg.Target.Device = catalog.ID
+		cfg.Toolchain.Compiler = compilersMap[catalog.CPU]
+		cfg.Target.Kind="mcu"
+		config.Set(cfg)
+
+	
 		err = createNewProject(nameProject)
 		if err != nil {
 			logger.Error(err)
 			return msgErr
 		}
 
+		
 		err=config.New(nameProject)
 		if err!=nil{
 			logger.Error(err)
@@ -143,6 +169,7 @@ func Init() error {
 		logger.Error(err)
 		return msgErr
 	}
+	cfg := config.Get()
 
 	// Scaffold into the project cwd (where Forge.toml lives), not Project.Name.
 	for _, nameFolder := range listFolders {
@@ -173,8 +200,8 @@ func Init() error {
 			logger.Error(err)
 			return msgErr
 		}
-		cfg := config.Get()
-		data, err := newTemplateData(&cfg)
+		
+		data, err := syncTemplateData(&cfg)
 		if err != nil {
 			logger.Error("Failed to build template data")
 			logger.Error(err)

@@ -1,4 +1,4 @@
-# Arm bare-metal toolchain (gcc-arm-none-eabi) for STM32 / Cortex-M.
+# Arm bare-metal toolchain (gcc-arm-none-eabi) for Cortex-M.
 # Configure with -DCPU=..., -DFPU=..., -DFLOAT_ABI=..., -DSTM32_DEVICE=...
 # Example: cmake --preset stm32 -DCPU=cortex-m3 -DSTM32_DEVICE=STM32F103xB
 
@@ -23,10 +23,8 @@ set(CMAKE_OBJDUMP      "${TOOLCHAIN_PREFIX}objdump" CACHE FILEPATH "" FORCE)
 set(CMAKE_SIZE         "${TOOLCHAIN_PREFIX}size"  CACHE FILEPATH "" FORCE)
 set(CMAKE_STRIP        "${TOOLCHAIN_PREFIX}strip" CACHE FILEPATH "" FORCE)
 
-# CPU / FPU (override per board; defaults suit STM32F1 Cortex-M3)
-if(NOT DEFINED CPU)
-	set(CPU "cortex-m3" CACHE STRING "ARM CPU core (e.g. cortex-m0, cortex-m3, cortex-m4, cortex-m7)")
-endif()
+set(CPU "{{.TargetCPU}}")
+set(FPU "{{.TargetFPU}}")
 
 set(_ARM_FLAGS "-mcpu=${CPU} -mthumb")
 
