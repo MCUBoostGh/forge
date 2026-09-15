@@ -1,111 +1,77 @@
 # Forge
 
-Forge is a lightweight Go CLI for scaffolding simple embedded C/C++ projects and generating a basic CMake-based build setup.
+**A unified development workflow for modern embedded C/C++.**
 
-## Overview
+## What is Forge?
 
-Forge creates a minimal project structure for new embedded or bare-metal style applications. It currently supports a two-step project setup (`new` then `init`) and a basic CMake build step.
+Forge is a lightweight CLI for embedded C/C++ projects. It ties project creation, configuration, and CMake-based builds into one consistent workflow so firmware work starts from a clear, repeatable baseline instead of ad-hoc copy-paste setups.
 
-## Commands
+At the center is `Forge.toml`: the project’s source of truth. Forge commands read it to scaffold sources, generate CMake files, and drive builds.
 
-| Command | Description |
-|---------|-------------|
-| `forge new <project_name>` | Create a new project directory and `Forge.toml` |
-| `forge init` | Generate starter folders and source/build files |
-| `forge build` | Configure and build the project with CMake |
-| `forge help` | Print CLI usage information |
-| `forge version` | Print the current version string |
+## Why does it exist?
 
-`run` and `test` are listed in the help output but are not implemented yet.
+Embedded projects often begin with fragile CMake snippets, unclear toolchain paths, and board-specific one-offs that are hard to reproduce. Forge exists to make that setup a first-class workflow:
 
-## Repository layout
+- **One config** — project and target settings live in `Forge.toml`
+- **One scaffold** — generate a clean, readable CMake layout from that config
+- **One build path** — configure and build through CMake presets
+- **Device-aware** — start from a named device (for example STM32) instead of a blank folder
 
-- `main.go` — CLI entry point and command dispatch
-- `cmd/generate.go` — `new` and `init` scaffolding logic
-- `cmd/build.go` — build command implementation
-- `cmd/private.go` — shared config and helpers
-- `contents/` — template content used to generate project files
-- `go.mod` — Go module definition
+The goal is not to hide CMake or replace vendor ecosystems. It is to give embedded engineers a unified path from an empty directory to a buildable project — and eventually through flash and monitor.
 
-## Generated project layout
+## What does it currently do?
 
-After running `forge new` and `forge init`, a project looks like this:
+Forge is early-stage (**v0.2.0**). Today it supports:
 
-```text
-my_project/
-├── src/
-├── include/
-├── Forge.toml
-├── main.c
-├── CMakeLists.txt
-└── CMakePresets.json
-```
+| Capability | Details |
+|------------|---------|
+| Project creation | `forge new <name> [--device <device>]` writes a project dir and `Forge.toml` |
+| Scaffolding | `forge init` generates `src/`, `include/`, `cmake/`, `main.c`, CMake files |
+| Builds | `forge build` loads config and runs CMake presets |
+| Targets in progress | Host Linux (`gcc`) and early STM32 bare-metal (`gcc-arm-none-eabi`) |
+| Device catalog | STM32 YAML profiles under `internal/devices/` (still expanding) |
 
-Generated projects include a Hello World `main.c`, a minimal `CMakeLists.txt`, and a `Forge.toml` with project metadata (name, version, toolchain, CMake settings).
+**Not ready yet:** `run`, `test`, `list`, `setup`, `flash`, `monitor`, and related roadmap commands.
 
-## Usage
+For command details, see [docs/commands.md](docs/commands.md).
 
-### Build the CLI
+## Where is it going?
 
-Requires Go 1.26 or later.
+Near-term work focuses on a reliable **STM32 bootstrap**: complete board profiles, arm-none-eabi toolchain files, and correct CMake presets.
+
+Toward **v1.0.0**:
+
+- Stable host Linux + STM32 bare-metal support
+- `setup`, `sync`, `flash`, `monitor`, and related workflow commands
+- CMake library targets and Docker-based reproducible environments
+
+**v2.0.0** looks at embedded Linux targets (for example Raspberry Pi).
+
+Full plan: [ROADMAP.md](ROADMAP.md). Task breakdown: [TODO.md](TODO.md).
+
+## How do I try it?
+
+Requires **Go 1.26+** and **CMake 3.20+**.
 
 ```bash
 go build -o forge .
-```
-
-### Install globally
-
-```bash
 sudo install -m 755 forge /usr/local/bin/forge
-```
 
-### Create a new project
-
-Project setup is a two-step process:
-
-```bash
-forge new demo_app
-cd demo_app
-forge init
-```
-
-1. `forge new` creates the project directory and writes `Forge.toml`.
-2. `forge init` generates `src/`, `include/`, `main.c`, `CMakeLists.txt`, and `CMakePresets.json`.
-
-### Build the generated project
-
-From the project directory (requires CMake 3.20+):
-
-```bash
-forge build
-```
-
-This runs `cmake -S . -B build` and then `cmake --build build`. Output is placed in `build/`.
-
-## Example
-
-```bash
-go run . new my_app
-cd my_app
-go run ../. init
-go run ../. build
-```
-
-Or, with the binary installed:
-
-```bash
-forge new my_app
-cd my_app
+forge new blink --device stm32f103r8
+cd blink
 forge init
 forge build
 ```
 
-## Roadmap
+### Tutorials and docs
 
-Development is tracked in [ROADMAP.md](ROADMAP.md). The plan moves from the current **v0.1.0** prototype through incremental releases to **v1.0.0**, focused on STM32 bare-metal and host Linux development.
+| Guide | Description |
+|-------|-------------|
+| [Getting started](docs/getting-started.md) | Install Forge and run your first project |
+| [Create a project](docs/create-a-project.md) | Walkthrough of `new` → `init` → `build` |
+| [Commands](docs/commands.md) | CLI reference |
+| [Docs index](docs/README.md) | All documentation |
 
-Planned commands include `setup` (install toolchains and host tools from `Forge.toml`), `sync`, `docker`, `flash`, `monitor`, `test`, `lib`, `add`, `doc`, and `package`. v1.0.0 targets host Linux (`gcc`) and STM32 (`gcc-arm-none-eabi`) with CMake presets and Docker-based reproducible builds. Embedded Linux (Raspberry Pi) is planned for **v2.0.0** — see [ROADMAP.md](ROADMAP.md).
+## License
 
-## Notes
-
-This repository is an early-stage starter project. See [ROADMAP.md](ROADMAP.md) for the full version plan.
+See [LICENSE](LICENSE).
