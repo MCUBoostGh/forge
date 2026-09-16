@@ -26,7 +26,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 - [x] **T2 — `forge new <project_name>`**
   - [x] Create project directory
-  - [x] Write generic `Forge.toml` from templates in `contents/`
+  - [x] Write generic `Forge.toml` (now via `internal/config.New`; legacy `contents/` removed)
   - [x] Project metadata defaults (name, version, toolchain, CMake settings)
 
 - [x] **T3 — `forge init`**
@@ -51,7 +51,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 ## Issue: v0.2.0 — STM32 project bootstrap
 
-> Phase 1 start. Device-aware creation for STM32 (first board: `stm32f103r8`). **In progress** — CLI reports `0.2.0`; catalog, `--device` new, `internal/config`, and arm-none-eabi template emission exist; STM32 presets / host path / install seeding still open.
+> Phase 1 start. Device-aware creation for STM32 (first board: `stm32f103r8`). **In progress** — catalog anchors, `--device` new, `internal/config`, arm-none-eabi + `LinkerScript.ld` emission exist; startup, STM32 presets, host path, and install seeding still open.
 
 ### Tasks
 
@@ -59,7 +59,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
   - [x] `internal/devices/` package skeleton
   - [x] Embed / load ST YAML catalog
   - [x] `Lookup` / `Resolve` / `List` APIs
-  - [x] First complete board profile: `stm32f103r8` (CPU, flash/RAM, linker, OpenOCD target, aliases)
+  - [x] First complete board profile: `stm32f103r8` (CPU, flash/RAM, linker, OpenOCD target, aliases) — plus YAML anchors + `stm32f103c8`
   - [ ] Document catalog keys and how to add a board
 
 - [ ] **T2 — Device-aware `forge new <name> <device>`**
@@ -71,15 +71,15 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 - [ ] **T3 — `forge init` reads `Forge.toml`**
   - [x] Load and validate `Forge.toml` from cwd (replace in-memory-only path)
-  - [ ] Generate STM32-aware tree (startup/linker refs as planned)
-  - [ ] Board-specific CMake generation from config (CPU/FPU templating started; linker/startup and STM32 presets not done)
+  - [ ] Generate STM32-aware tree (startup/linker refs as planned) — `LinkerScript.ld` emitted; startup `.s` not yet
+  - [ ] Board-specific CMake generation from config (CPU/FloatABI + flash/RAM templating started; STM32 presets / startup not done)
   - [ ] Keep host/generic path working for non-STM32 projects (`syncTemplateData` requires MCU/STM32; presets still arm-toolchain on `host-base`)
 
 - [ ] **T4 — gcc-arm-none-eabi + CMake presets**
-  - [x] Toolchain template content (`contents/GccArmNoneEabiCmakeContent.go` and `internal/templates/cmake/gcc-arm-none-eabi.cmake.tmpl`)
+  - [x] Toolchain template content (`internal/templates/cmake/gcc-arm-none-eabi.cmake.tmpl`)
   - [x] Emit CMake toolchain file for arm-none-eabi (`cmake/gcc-arm-none-eabi.cmake` on `init`)
   - [ ] `CMakePresets.json` entries: `stm32-debug` / `stm32-release` (still host-named `debug` / `release`)
-  - [ ] Wire presets to board catalog fields (CPU/FPU in toolchain tmpl only)
+  - [ ] Wire presets to board catalog fields (CPU/FloatABI in toolchain + flash/RAM in linker; catalog `presets:` unused)
 
 - [ ] **T5 — Config foundation**
   - [x] Harden `Forge.toml` load/save toward `internal/config/` (`New` / `Read` / `Write` / `Get` / `Set` + tests; little validation yet)
