@@ -34,7 +34,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
   - [x] Generate Hello World `main.c`
   - [x] Generate minimal `CMakeLists.txt`
   - [x] Generate `CMakePresets.json`
-  - [ ] Fix known limitation: init must read `Forge.toml` from disk (tracked / completed under v0.2.0)
+  - [x] Fix known limitation: init must read `Forge.toml` from disk (completed under v0.2.0)
 
 - [x] **T4 — `forge build`**
   - [x] `cmake -S . -B build`
@@ -51,7 +51,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 ## Issue: v0.2.0 — STM32 project bootstrap
 
-> Phase 1 start. Device-aware creation for STM32 (first board: `stm32f103r8`). **In progress** — CLI reports `0.2.0`; `internal/devices/` and device-aware `new` exist.
+> Phase 1 start. Device-aware creation for STM32 (first board: `stm32f103r8`). **In progress** — CLI reports `0.2.0`; catalog, `--device` new, `internal/config`, and arm-none-eabi template emission exist; STM32 presets / host path / install seeding still open.
 
 ### Tasks
 
@@ -59,34 +59,34 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
   - [x] `internal/devices/` package skeleton
   - [x] Embed / load ST YAML catalog
   - [x] `Lookup` / `Resolve` / `List` APIs
-  - [ ] First complete board profile: `stm32f103r8` (CPU, flash/RAM, linker, OpenOCD target, aliases)
+  - [x] First complete board profile: `stm32f103r8` (CPU, flash/RAM, linker, OpenOCD target, aliases)
   - [ ] Document catalog keys and how to add a board
 
 - [ ] **T2 — Device-aware `forge new <name> <device>`**
   - [x] Accept device argument / `--device` path
-  - [ ] Resolve device via catalog; fail clearly on unknown device
-  - [ ] Write device-aware `Forge.toml` (`[target]`, board, toolchain hints)
+  - [ ] Resolve device via catalog; fail clearly on unknown device (`Lookup` only today; aliases / `Resolve` not wired; positional `<device>` not supported)
+  - [ ] Write device-aware `Forge.toml` (`[target]`, board, toolchain hints) — `config.New` still resets via `setConfigDefaults()` and drops device fields
   - [ ] Seed `[install].packages` from target kind when applicable
-  - [ ] Usage/examples: `forge new blink stm32f103r8`
+  - [x] Usage/examples: docs/README use `forge new blink --device stm32f103r8` (flag form; positional form still open)
 
 - [ ] **T3 — `forge init` reads `Forge.toml`**
   - [x] Load and validate `Forge.toml` from cwd (replace in-memory-only path)
   - [ ] Generate STM32-aware tree (startup/linker refs as planned)
-  - [ ] Board-specific CMake generation from config
-  - [ ] Keep host/generic path working for non-STM32 projects
+  - [ ] Board-specific CMake generation from config (CPU/FPU templating started; linker/startup and STM32 presets not done)
+  - [ ] Keep host/generic path working for non-STM32 projects (`syncTemplateData` requires MCU/STM32; presets still arm-toolchain on `host-base`)
 
 - [ ] **T4 — gcc-arm-none-eabi + CMake presets**
-  - [x] Toolchain template content (`contents/GccArmNoneEabiCmakeContent.go`)
-  - [ ] Emit CMake toolchain file for arm-none-eabi
-  - [ ] `CMakePresets.json` entries: `stm32-debug` / `stm32-release`
-  - [ ] Wire presets to board catalog fields
+  - [x] Toolchain template content (`contents/GccArmNoneEabiCmakeContent.go` and `internal/templates/cmake/gcc-arm-none-eabi.cmake.tmpl`)
+  - [x] Emit CMake toolchain file for arm-none-eabi (`cmake/gcc-arm-none-eabi.cmake` on `init`)
+  - [ ] `CMakePresets.json` entries: `stm32-debug` / `stm32-release` (still host-named `debug` / `release`)
+  - [ ] Wire presets to board catalog fields (CPU/FPU in toolchain tmpl only)
 
 - [ ] **T5 — Config foundation**
-  - [ ] Harden `Forge.toml` load/save/validate toward `internal/config/`
-  - [ ] Align schema fields with ROADMAP (`target.kind`, `board`, toolchain)
+  - [x] Harden `Forge.toml` load/save toward `internal/config/` (`New` / `Read` / `Write` / `Get` / `Set` + tests; little validation yet)
+  - [ ] Align schema fields with ROADMAP (`target.kind`, `board`, toolchain, `[install]` / `[tools]`)
 
 - [ ] **T6 — Docs**
-  - [ ] Update README for device-aware `new` / STM32 init
+  - [x] Update README for device-aware `new` / STM32 init (getting-started + create-a-project docs)
   - [ ] Mark v0.2.0 delivered in ROADMAP when complete
 
 **Done when:** `forge new blink stm32f103r8` → `init` → CMake STM32 presets work; issue closed.

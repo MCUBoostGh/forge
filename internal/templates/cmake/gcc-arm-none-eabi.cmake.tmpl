@@ -23,17 +23,11 @@ set(CMAKE_OBJDUMP      "${TOOLCHAIN_PREFIX}objdump" CACHE FILEPATH "" FORCE)
 set(CMAKE_SIZE         "${TOOLCHAIN_PREFIX}size"  CACHE FILEPATH "" FORCE)
 set(CMAKE_STRIP        "${TOOLCHAIN_PREFIX}strip" CACHE FILEPATH "" FORCE)
 
-set(CPU "{{.TargetCPU}}")
-set(FPU "{{.TargetFPU}}")
 
-set(_ARM_FLAGS "-mcpu=${CPU} -mthumb")
+set(_ARM_FLAGS "-mcpu={{.TargetCPU}} -mthumb -mfloat-abi={{.TargetFloatABI}} ")
 
 if(DEFINED FPU AND NOT "${FPU}" STREQUAL "")
 	string(APPEND _ARM_FLAGS " -mfpu=${FPU}")
-endif()
-
-if(DEFINED FLOAT_ABI AND NOT "${FLOAT_ABI}" STREQUAL "")
-	string(APPEND _ARM_FLAGS " -mfloat-abi=${FLOAT_ABI}")
 endif()
 
 set(CMAKE_C_FLAGS_INIT   "${_ARM_FLAGS}")
@@ -52,6 +46,12 @@ set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
+set(CMAKE_EXE_LINKER_FLAGS "${_ARM_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T \"${CMAKE_SOURCE_DIR}/LinkerScript.ld\"")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=nano.specs")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Map=${CMAKE_PROJECT_NAME}.map -Wl,--gc-sections")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--print-memory-usage")
+
 # After linking: write .hex / .bin and print section sizes.
 function(forge_post_build_hex_size target)
 	add_custom_command(TARGET ${target} POST_BUILD
@@ -66,3 +66,5 @@ function(forge_post_build_hex_size target)
 		VERBATIM
 	)
 endfunction()
+
+

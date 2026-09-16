@@ -7,18 +7,18 @@ import (
 
 var listFolders = []string{"src", "include", "cmake"}
 
-
 var listFilesContentMap = map[string]string{
-	"main.c":                           "main.txt.tmpl",
-	"CMakeLists.txt":                   "cmake/CMakeLists.txt.tmpl",
-	"CMakePresets.json":                "cmake/CMakePresets.json.tmpl",
-	"cmake/gcc-arm-none-eabi.cmake":    "cmake/gcc-arm-none-eabi.cmake.tmpl",
+	"main.c":                        "main.txt.tmpl",
+	"CMakeLists.txt":                "cmake/CMakeLists.txt.tmpl",
+	"CMakePresets.json":             "cmake/CMakePresets.json.tmpl",
+	"cmake/gcc-arm-none-eabi.cmake": "cmake/gcc-arm-none-eabi.cmake.tmpl",
+	"LinkerScript.ld":               "ld/LinkerScript.ld.tmpl",
 }
 
 var compilersMap = map[string]string{
 	"cortex-m0": "gcc-arm-none-eabi",
 	"cortex-m3": "gcc-arm-none-eabi",
-	"x86_64":  "gcc",
+	"x86_64":    "gcc",
 }
 
 type projectData struct {
@@ -39,8 +39,6 @@ type targetData struct {
 	Series string
 }
 
-
-
 func runCommand(command string, args ...string) error {
 	cmd := exec.Command(command, args...)
 	cmd.Stdout = os.Stdout
@@ -48,4 +46,3 @@ func runCommand(command string, args ...string) error {
 	cmd.Stdin = os.Stdin
 	return cmd.Run()
 }
-

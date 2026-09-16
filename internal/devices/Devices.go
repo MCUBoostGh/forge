@@ -84,7 +84,11 @@ func loadCatalog() error {
 		if err != nil {
 			return err
 		}
+
 		for id, device := range devices {
+			if strings.HasPrefix(id, "x-") {
+				continue // anchor-only bases
+			}
 			device.ID = id
 			catalog[id] = device
 
