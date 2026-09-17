@@ -49,22 +49,17 @@ func syncTemplateData(cfg *config.Config) (templates.TemplateData, error) {
 		BuildType:                   cfg.Build.Type,
 	}
 
-	switch {
-	case cfg.Target.Kind == "mcu" && strings.HasPrefix(strings.ToUpper(catalog.ID), "STM32"):
-		tmplData.TargetDevice = catalog.ID
-		tmplData.TargetVendor = catalog.Vendor
-		tmplData.TargetFamily = catalog.Family
-		tmplData.TargetSeries = strings.ToUpper(catalog.ID)
-		tmplData.TargetCPU = catalog.CPU
-		tmplData.TargetFPU = catalog.FPU
-		tmplData.TargetSeries = catalog.Series
-		tmplData.TargetFlashKB = catalog.FlashKB
-		tmplData.TargetRAMKB = catalog.RAMKB
-		tmplData.TargetFloatABI = catalog.FloatABI
+	tmplData.TargetDevice = catalog.ID
+	tmplData.TargetVendor = catalog.Vendor
+	tmplData.TargetFamily = catalog.Family
+	tmplData.TargetSeries = strings.ToUpper(catalog.ID)
+	tmplData.TargetCPU = catalog.CPU
+	tmplData.TargetFPU = catalog.FPU
+	tmplData.TargetSeries = catalog.Series
+	tmplData.TargetFlashKB = catalog.FlashKB
+	tmplData.TargetRAMKB = catalog.RAMKB
+	tmplData.TargetFloatABI = catalog.FloatABI
 
-	default:
-		return templates.TemplateData{}, fmt.Errorf("invalid target kind")
-	}
 	return tmplData, nil
 }
 
@@ -196,5 +191,25 @@ func Init() error {
 		return msgErr
 	}
 
-	return nil
+	dep, ok := registry["cmsis"]
+	if !ok {
+		logger.Error("Failed to load registery")
+		return msgErr
+	}
+
+	logger.Info("Start downloading dependency.")
+
+	cacheDir, err := download(dep)
+	if err != nil {
+		logger.Error(err)
+		return msgErr
+	}
+
+	logger.Success(dep.Name + " downaloed in to " + cacheDir + " successfully.")
+
+	cfg = config.Get()
+	cfg.Dependencies = append(cfg.Dependencies, dep.Name+"@"+dep.Version)
+	config.Set(cfg)
+	return config.Write()
+
 }
