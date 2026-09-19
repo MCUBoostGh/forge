@@ -11,16 +11,19 @@ forge build → ELF / HEX / BIN
 ## 1. Create the project
 
 ```bash
+forge new <name> <device>
 forge new <name> --device <device>
 ```
 
 Examples:
 
 ```bash
+forge new blink stm32f103r8
 forge new blink --device stm32f103r8
+forge new blink --device bluepill
 ```
 
-`--device` is required. `Lookup` is by catalog id (`stm32f103r8`, `stm32f103c8`); aliases such as `bluepill` are not wired yet. Catalog keys and how to add a board: [Device catalog](device-catalog.md).
+A device is required. `Resolve` accepts the catalog id (`stm32f103r8`, `stm32f103c8`) or an alias (`bluepill`). Unknown names fail with a clear error. Catalog keys and how to add a board: [Device catalog](device-catalog.md).
 
 `new` creates `<name>/` and writes `Forge.toml` with project metadata and default dependencies:
 

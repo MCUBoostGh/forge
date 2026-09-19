@@ -9,7 +9,7 @@ Usage:
   forge <command> [arguments]
 
 Commands:
-  new       Create a new project: forge new <name> --device <device>
+  new       Create a new project: forge new <name> <device>
   init      Generate project structure and files
   build     Build the project: forge build <preset>
   run       Run the project

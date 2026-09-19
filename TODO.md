@@ -64,10 +64,10 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 - [ ] **T2 — Device-aware `forge new <name> <device>`**
   - [x] Accept device argument / `--device` path
-  - [ ] Resolve device via catalog; fail clearly on unknown device (`Lookup` only today; aliases / `Resolve` not wired; positional `<device>` not supported)
+  - [x] Resolve device via catalog; fail clearly on unknown device (positional `<device>` or `--device`; aliases via `Resolve`)
   - [x] Write device id and toolchain compiler into `Forge.toml` (`config.New` keeps fields set before defaults; board / extra catalog keys still open)
   - [ ] Seed `[install].packages` from target kind when applicable
-  - [x] Usage/examples: docs/README use `forge new blink --device stm32f103r8` (flag form; positional form still open)
+  - [x] Usage/examples: `forge new blink stm32f103r8` and `forge new blink --device stm32f103r8`
 
 - [ ] **T3 — `forge init` reads `Forge.toml`**
   - [x] Load and validate `Forge.toml` from cwd (replace in-memory-only path)

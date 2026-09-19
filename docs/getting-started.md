@@ -26,7 +26,7 @@ If you prefer not to install globally, run commands with `go run .` from the rep
 ## First project (STM32)
 
 ```bash
-forge new blink --device stm32f103r8
+forge new blink stm32f103r8
 cd blink
 forge init
 forge build debug
@@ -38,7 +38,7 @@ What happens:
 2. `init` downloads those packages into `~/.cache/forge/packages/` if needed, then scaffolds sources and CMake files
 3. `build debug` configures and builds the `debug` CMake preset
 
-`forge new` currently requires `--device`. A host-only `new` path is not implemented.
+`forge new` requires a catalog id or alias (`stm32f103r8`, `bluepill`). A host-only `new` path is not implemented.
 
 ## Helper script
 

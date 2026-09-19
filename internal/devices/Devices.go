@@ -102,14 +102,7 @@ func loadCatalog() error {
 }
 
 func Lookup(id string) (Catalog, error) {
-	if err := ensureCatalog(); err != nil {
-		return Catalog{}, err
-	}
-	device, ok := catalog[normalize(id)]
-	if !ok {
-		return Catalog{}, fmt.Errorf("device %s not found", id)
-	}
-	return device, nil
+	return Resolve(id)
 }
 
 func List(filter Filter) []Catalog {
@@ -145,9 +138,13 @@ func Resolve(input string) (Catalog, error) {
 	if err := ensureCatalog(); err != nil {
 		return Catalog{}, err
 	}
-	id, ok := aliasIndex[normalize(input)]
+	key := normalize(input)
+	if key == "" {
+		return Catalog{}, fmt.Errorf("device is empty")
+	}
+	id, ok := aliasIndex[key]
 	if !ok {
-		return Catalog{}, fmt.Errorf("device %s not found", input)
+		return Catalog{}, fmt.Errorf("unknown device %q (not a catalog id or alias)", input)
 	}
 	return catalog[id], nil
 }

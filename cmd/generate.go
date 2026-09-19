@@ -295,62 +295,79 @@ func generateFiles(cfg *config.Config) error {
 
 func New(args ...string) error {
 
-	msgErr := fmt.Errorf("Falied to generate new project.")
+	msgErr := fmt.Errorf("Failed to generate new project.")
 
-	if len(args) < 3 {
-		logger.Error("Device not specified. Use --device <device> to specify the target device.")
-		return msgErr
-	}
-
-	nameProject := args[0]
-
-	logger.Infof("Initializing a new project: %s", nameProject)
-
-	_, err := os.Stat(nameProject)
-	// If no error, the path already exists
-	if err == nil {
+	nameProject, deviceInput, err := parseNewArgs(args)
+	if err != nil {
 		logger.Error(err)
 		return msgErr
 	}
 
+	logger.Infof("Initializing a new project: %s", nameProject)
+
+	if _, err := os.Stat(nameProject); err == nil {
+		logger.Error("project directory already exists:", nameProject)
+		return msgErr
+	}
+
+	catalog, err := devices.Resolve(deviceInput)
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
+
+	compiler := compilersMap[catalog.CPU]
+	if compiler == "" {
+		err := fmt.Errorf("no toolchain mapping for cpu %q (device %s)", catalog.CPU, catalog.ID)
+		logger.Error(err)
+		return err
+	}
+
 	cfg := config.Get()
 	cfg.Project.Name = nameProject
+	cfg.Target.Device = catalog.ID
+	cfg.Target.Kind = "mcu"
+	cfg.Toolchain.Compiler = compiler
 	config.Set(cfg)
 
-	subArgs := args[1]
+	if err := createNewProject(nameProject); err != nil {
+		logger.Error(err)
+		return msgErr
+	}
 
-	switch subArgs {
-	case "--device":
-		devicePartNumber := args[2]
-		catalog, err := devices.Lookup(devicePartNumber)
-		if err != nil {
-			logger.Error(err)
-			return msgErr
-		}
-
-		cfg.Target.Device = catalog.ID
-		cfg.Toolchain.Compiler = compilersMap[catalog.CPU]
-		cfg.Target.Kind = "mcu"
-		config.Set(cfg)
-
-		err = createNewProject(nameProject)
-		if err != nil {
-			logger.Error(err)
-			return msgErr
-		}
-
-		err = config.New(nameProject)
-		if err != nil {
-			logger.Error(err)
-			return msgErr
-		}
-
-	default:
-		logger.Error("Invalid arguments")
+	if err := config.New(nameProject); err != nil {
+		logger.Error(err)
 		return msgErr
 	}
 
 	return nil
+}
+
+func parseNewArgs(args []string) (name, device string, err error) {
+	if len(args) == 0 || strings.TrimSpace(args[0]) == "" || strings.HasPrefix(args[0], "-") {
+		return "", "", fmt.Errorf("project name is required")
+	}
+	name = args[0]
+	rest := args[1:]
+	if len(rest) == 0 {
+		return "", "", fmt.Errorf("device not specified; use forge new <name> <device> or forge new <name> --device <device>")
+	}
+	if rest[0] == "--device" {
+		if len(rest) < 2 || strings.TrimSpace(rest[1]) == "" {
+			return "", "", fmt.Errorf("device not specified; use --device <device>")
+		}
+		if len(rest) > 2 {
+			return "", "", fmt.Errorf("unexpected arguments after --device")
+		}
+		return name, rest[1], nil
+	}
+	if strings.HasPrefix(rest[0], "-") {
+		return "", "", fmt.Errorf("unknown flag %s; use --device <device>", rest[0])
+	}
+	if len(rest) != 1 {
+		return "", "", fmt.Errorf("unexpected arguments; use forge new <name> <device> or forge new <name> --device <device>")
+	}
+	return name, rest[0], nil
 }
 
 func Init() error {

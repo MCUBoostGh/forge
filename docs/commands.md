@@ -8,7 +8,7 @@ forge <command> [arguments]
 
 | Command | Status | Description |
 |---------|--------|-------------|
-| `new` | Available | Create a project directory and `Forge.toml` (`--device` required) |
+| `new` | Available | Create a project directory and `Forge.toml` (`<device>` or `--device`) |
 | `init` | Available | Scaffold files, fetch `dependencies` into the user cache, generate `cmake/Package.cmake` |
 | `build` | Available | Configure and build a CMake preset (`forge build debug`) |
 | `help` | Available | Show usage |
@@ -20,15 +20,19 @@ forge <command> [arguments]
 ## `forge new`
 
 ```bash
+forge new <name> <device>
 forge new <name> --device <device>
 ```
 
-Creates `<name>/` and writes `Forge.toml`. `--device` is required.
+Creates `<name>/` and writes `Forge.toml`. A device is required (catalog id or alias).
 
 | Argument / flag | Description |
 |-----------------|-------------|
 | `<name>` | Project directory name (required) |
-| `--device <device>` | Device catalog id (for example `stm32f103r8`). See [Device catalog](device-catalog.md). |
+| `<device>` | Catalog id or alias (for example `stm32f103r8`, `bluepill`) |
+| `--device <device>` | Same as positional `<device>` |
+
+Unknown devices fail with `unknown device "..."`. See [Device catalog](device-catalog.md).
 
 Default `Forge.toml` includes `cmsis5@5.9.0`, `stm32f1-cmsis-device@4.3.5`, and `stm32f1-hal@1.1.10`.
 

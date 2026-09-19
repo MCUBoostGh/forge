@@ -1,10 +1,10 @@
 # Device catalog
 
-Board profiles live in YAML under `internal/devices/st/` and are embedded into the Forge binary (`//go:embed st/*.yaml`). `forge new --device` and `forge init` load them through `devices.Lookup`.
+Board profiles live in YAML under `internal/devices/st/` and are embedded into the Forge binary (`//go:embed st/*.yaml`). `forge new` and `forge init` resolve them through `devices.Resolve` (catalog id or alias).
 
-Shipped ids today: `stm32f103r8`, `stm32f103c8`.
+Shipped ids today: `stm32f103r8`, `stm32f103c8`. Alias example: `bluepill` → `stm32f103r8`.
 
-`forge list` is not implemented. Aliases (`bluepill`) are stored and indexed by `Resolve`, but the CLI calls `Lookup` only, so `--device` must be the YAML map key.
+`forge list` is not implemented. Unknown names fail at `forge new` / `init` with `unknown device "..."`.
 
 ## Catalog keys
 
@@ -12,7 +12,7 @@ Each selectable board is a YAML map key. That key is the catalog id (`device.ID`
 
 | Key | YAML field | Used by `new` / `init` today |
 |-----|------------|------------------------------|
-| Catalog id | map key | `--device` value; written to `Forge.toml` as `target.device` |
+| Catalog id | map key | `--device` / positional `<device>`; written to `Forge.toml` as `target.device` |
 | `id` | `id` | Optional in YAML; overwritten by the map key |
 | `vendor` | `vendor` | Copied into templates (`TargetVendor`) |
 | `family` | `family` | Copied into templates (`TargetFamily`) |
@@ -29,7 +29,7 @@ Each selectable board is a YAML map key. That key is the catalog id (`device.ID`
 | `linker_script` | `linker_script` | Stored only; init always emits `LinkerScript.ld` from the Forge template |
 | `openocd_target` | `openocd_target` | Stored only (`forge flash` is not implemented) |
 | `presets` | `presets` | `debug` / `release` `build_type` → `CMAKE_BUILD_TYPE` on the `debug` / `release` CMake presets |
-| `aliases` | `aliases` | Indexed by `Resolve`; not accepted by `forge new --device` |
+| `aliases` | `aliases` | Accepted by `forge new` via `Resolve` (for example `bluepill`); `Forge.toml` stores the canonical id |
 
 `cpu` must be a key in `compilersMap` (`cmd/private.go`). Currently that is `cortex-m0` and `cortex-m3` for `gcc-arm-none-eabi` (plus `x86_64` → `gcc`, unused by STM32 boards). An unknown `cpu` leaves the compiler unset and `Forge.toml` falls back to `gcc`.
 
@@ -74,17 +74,17 @@ New family files must match `st/*.yaml` (for example `st/f4.yaml`) so the embed 
 
 ## How to add a board
 
-1. Choose a lowercase catalog id. That string is `--device`.
+1. Choose a lowercase catalog id. That string is the positional device / `--device` value.
 2. Add an entry in the right `internal/devices/st/*.yaml` file. Reuse `x-` anchors when the MCU is in an existing family.
 3. Set at least `cpu`, `float_abi`, `flash_kb`, `ram_kb`, and `stm32_device` so init can emit a toolchain, linker script, and startup file.
 4. Rebuild Forge (`go build`). The catalog is compiled into the binary.
 5. Create a project with the new id:
 
 ```bash
-forge new blink --device stm32f103c8
+forge new blink stm32f103c8
 ```
 
-Unknown ids fail at `forge new` (`Lookup`). `init` also calls `Lookup` on `target.device` from `Forge.toml`.
+Unknown ids fail at `forge new` (`Resolve`). `init` also resolves `target.device` from `Forge.toml`.
 
 ### Example: another STM32F103 part
 

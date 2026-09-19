@@ -25,7 +25,7 @@ Forge is early-stage (**v0.2.0**). Today it supports:
 
 | Capability | Details |
 |------------|---------|
-| Project creation | `forge new <name> --device <device>` writes a project dir and `Forge.toml` |
+| Project creation | `forge new <name> <device>` (or `--device`) writes a project dir and `Forge.toml` |
 | Scaffolding | `forge init` generates CMake files, a Cortex-M smoke-test `main.c`, device `startup_*.s` / `system_*.c`, and `cmake/Package.cmake` |
 | Builds | `forge build <preset>` runs a CMake preset (`debug` or `release`); output under `build/debug` or `build/release` |
 | CMSIS | `cmsis5@5.9.0` is the default Core dependency; unpacked once under `~/.cache/forge/packages/` |
@@ -59,7 +59,7 @@ Requires **Go 1.26+**, **CMake 3.20+**, **`gcc-arm-none-eabi`**, and network acc
 go build -o forge .
 sudo install -m 755 forge /usr/local/bin/forge
 
-forge new blink --device stm32f103r8
+forge new blink stm32f103r8
 cd blink
 forge init
 forge build debug
