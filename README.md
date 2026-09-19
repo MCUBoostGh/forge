@@ -27,7 +27,7 @@ Forge is early-stage (**v0.2.0**). Today it supports:
 |------------|---------|
 | Project creation | `forge new <name> --device <device>` writes a project dir and `Forge.toml` |
 | Scaffolding | `forge init` generates CMake files, a Cortex-M smoke-test `main.c`, device `startup_*.s` / `system_*.c`, and `cmake/Package.cmake` |
-| Builds | `forge build` loads config and runs CMake presets |
+| Builds | `forge build <preset>` runs a CMake preset (`debug` or `release`); output under `build/debug` or `build/release` |
 | CMSIS | `cmsis5@5.9.0` is the default Core dependency; unpacked once under `~/.cache/forge/packages/` |
 | STM32 HAL | Default `stm32f1-hal@1.1.10` plus `stm32f1-cmsis-device@4.3.5`; HAL is a cached STATIC library; device headers stay INTERFACE |
 | Targets in progress | Early STM32 bare-metal (`gcc-arm-none-eabi`); host Linux path is not a separate `new` flow yet |
@@ -62,7 +62,7 @@ sudo install -m 755 forge /usr/local/bin/forge
 forge new blink --device stm32f103r8
 cd blink
 forge init
-forge build
+forge build debug
 ```
 
 ### Tutorials and docs

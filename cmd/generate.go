@@ -11,6 +11,7 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -57,6 +58,16 @@ func syncTemplateData(cfg *config.Config) (templates.TemplateData, error) {
 
 	desc := cfg.Project.Name // or a real description field later
 	cStd := "11"
+	major, minor := parseCMakeVersion(minVer)
+
+	debugBuildType := "Debug"
+	releaseBuildType := "Release"
+	if p, ok := catalog.Presets["debug"]; ok && p.BuildType != "" {
+		debugBuildType = p.BuildType
+	}
+	if p, ok := catalog.Presets["release"]; ok && p.BuildType != "" {
+		releaseBuildType = p.BuildType
+	}
 
 	var tmplData = templates.TemplateData{
 		ProjectName:                 cfg.Project.Name,
@@ -64,8 +75,11 @@ func syncTemplateData(cfg *config.Config) (templates.TemplateData, error) {
 		ProjectDescription:          desc,
 		CStandard:                   cStd,
 		CMakeMinimumRequiredVersion: minVer,
+		CMakeMinimumRequiredMajor:   major,
+		CMakeMinimumRequiredMinor:   minor,
 		ToolchainCompiler:           cfg.Toolchain.Compiler,
-		BuildType:                   cfg.Build.Type,
+		DebugBuildType:              debugBuildType,
+		ReleaseBuildType:            releaseBuildType,
 	}
 
 	tmplData.TargetDevice = catalog.ID
@@ -78,6 +92,7 @@ func syncTemplateData(cfg *config.Config) (templates.TemplateData, error) {
 	tmplData.TargetFlashKB = catalog.FlashKB
 	tmplData.TargetRAMKB = catalog.RAMKB
 	tmplData.TargetFloatABI = catalog.FloatABI
+	tmplData.STM32Device = catalog.STM32Device
 	tmplData.CMSISCoreHeader = cmsisCoreHeader(catalog.CPU)
 
 	cacheDir, err := thirdparty.PackagesDir()
@@ -122,6 +137,22 @@ func syncTemplateData(cfg *config.Config) (templates.TemplateData, error) {
 	}
 
 	return tmplData, nil
+}
+
+func parseCMakeVersion(v string) (major, minor int) {
+	major, minor = 3, 20
+	parts := strings.SplitN(strings.TrimSpace(v), ".", 3)
+	if len(parts) >= 1 {
+		if n, err := strconv.Atoi(parts[0]); err == nil && n > 0 {
+			major = n
+		}
+	}
+	if len(parts) >= 2 {
+		if n, err := strconv.Atoi(parts[1]); err == nil && n >= 0 {
+			minor = n
+		}
+	}
+	return major, minor
 }
 
 func relCachePaths(cacheDir string, paths []string) []string {

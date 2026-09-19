@@ -29,14 +29,14 @@ If you prefer not to install globally, run commands with `go run .` from the rep
 forge new blink --device stm32f103r8
 cd blink
 forge init
-forge build
+forge build debug
 ```
 
 What happens:
 
 1. `new` creates `blink/` and writes `Forge.toml` (including CMSIS Core, STM32F1 CMSIS-Device, and `stm32f1-hal`)
 2. `init` downloads those packages into `~/.cache/forge/packages/` if needed, then scaffolds sources and CMake files
-3. `build` configures and builds using CMake presets
+3. `build debug` configures and builds the `debug` CMake preset
 
 `forge new` currently requires `--device`. A host-only `new` path is not implemented.
 

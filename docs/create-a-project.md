@@ -79,12 +79,12 @@ A later project that uses `cmsis5@5.9.0` reuses that directory.
 ## 3. Build
 
 ```bash
-forge build
+forge build debug
 ```
 
-Forge loads the build type from `Forge.toml` (defaulting to `debug` when unset) and runs the matching CMake preset.
+`forge build <preset>` runs the CMake preset of that name (`debug`, `release`, …). `CMAKE_BUILD_TYPE` and catalog CPU/float ABI/`STM32_DEVICE`/`FLASH_KB`/`RAM_KB` come from `CMakePresets.json`, not from `Forge.toml`. The linker script already uses flash/RAM from the device catalog.
 
-Build output lands under the preset’s binary directory (typically under `build/`).
+Build output lands under `build/<preset>/` (for example `build/debug/`).
 
 For clangd / IDEs, point the compilation database at `build/debug/compile_commands.json` (or symlink it to the project root).
 
@@ -96,7 +96,7 @@ From a Forge checkout:
 go run . new my_app --device stm32f103r8
 cd my_app
 go run ../. init
-go run ../. build
+go run ../. build debug
 ```
 
 Or use the repo helper:

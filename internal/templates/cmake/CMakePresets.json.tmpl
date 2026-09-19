@@ -6,7 +6,7 @@
   },
   "configurePresets": [
     {
-      "name": "host-base",
+      "name": "stm32-base",
       "hidden": true,
       "generator": "Unix Makefiles",
       "binaryDir": "${sourceDir}/build/${presetName}",
@@ -17,45 +17,46 @@
         "CMAKE_PROJECT_DESCRIPTION": "{{.ProjectDescription}}",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CMAKE_C_STANDARD": "{{.CStandard}}",
-        "CMAKE_C_STANDARD_REQUIRED": "ON"
+        "CMAKE_C_STANDARD_REQUIRED": "ON",
+        "CPU": "{{.TargetCPU}}",
+        "FLOAT_ABI": "{{.TargetFloatABI}}",
+        "FPU": "{{.TargetFPU}}",
+        "STM32_DEVICE": "{{.STM32Device}}",
+        "FLASH_KB": "{{.TargetFlashKB}}",
+        "RAM_KB": "{{.TargetRAMKB}}"
       }
     },
     {
       "name": "debug",
-      "inherits": "host-base",
-      "displayName": "Host Debug",
+      "inherits": "stm32-base",
+      "displayName": "Debug",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "{{.DebugBuildType}}"
       }
     },
     {
       "name": "release",
-      "inherits": "host-base",
-      "displayName": "Host Release",
+      "inherits": "stm32-base",
+      "displayName": "Release",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
+        "CMAKE_BUILD_TYPE": "{{.ReleaseBuildType}}"
       }
     },
     {
       "name": "relwithdebinfo",
-      "inherits": "host-base",
-      "displayName": "Host RelWithDebInfo",
+      "inherits": "stm32-base",
+      "displayName": "RelWithDebInfo",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo"
       }
     },
     {
       "name": "minsizerel",
-      "inherits": "host-base",
-      "displayName": "Host MinSizeRel",
+      "inherits": "stm32-base",
+      "displayName": "MinSizeRel",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "MinSizeRel"
       }
-    },
-    {
-      "name": "default",
-      "inherits": "debug",
-      "hidden": true
     }
   ],
   "buildPresets": [
@@ -74,10 +75,6 @@
     {
       "name": "minsizerel",
       "configurePreset": "minsizerel"
-    },
-    {
-      "name": "default",
-      "configurePreset": "default"
     }
   ]
 }

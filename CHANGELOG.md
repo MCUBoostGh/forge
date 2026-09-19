@@ -12,12 +12,15 @@ All notable user-visible changes to Forge are listed here.
 - Generated `main.c` is a Cortex-M CMSIS smoke test (CMSIS version + `SCB->CPUID`), not Hello World.
 - Copy `stm32f1xx_hal_conf.h` into `include/` from the HAL template when missing.
 - Document device catalog YAML keys and how to add a board ([docs/device-catalog.md](docs/device-catalog.md)).
+- `CMakePresets.json` entries `debug` / `release` (plus relwithdebinfo/minsizerel), with catalog CPU, float ABI, FPU, `STM32_DEVICE`, `FLASH_KB`, and `RAM_KB`. Output directories are `build/debug` and `build/release`.
+- `forge build <preset>` runs that CMake preset (`forge build debug`). Build type is not stored in `Forge.toml`.
 
 ### Changed
 
 - CMSIS Core, CMSIS-Device headers, and HAL stay in the shared cache; CMake uses `${cache_dir}/...`.
 - Device `system_*.c` and GCC `startup_*.s` are copied into the project root (not compiled as a `cmsis-device` CMake library).
 - `forge init` reads `dependencies` from `Forge.toml` (`name@version`) before scaffolding.
+- Remove `build.type` from `Forge.toml`. `CMAKE_BUILD_TYPE` lives only in CMake presets.
 
 ### Notes
 

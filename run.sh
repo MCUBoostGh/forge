@@ -92,7 +92,7 @@ fi
 (
     cd "$PROJECT_DIR" || fail "unable to enter $PROJECT_DIR"
     "$FORGE" init || fail "forge init failed"
-    "$FORGE" build || fail "forge build failed"
+    "$FORGE" build debug || fail "forge build failed"
 )
 
 echo "Project '$PROJECT_NAME' (device: $DEVICE) created in '$PROJECT_DIR'"

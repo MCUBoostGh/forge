@@ -18,17 +18,17 @@ Each selectable board is a YAML map key. That key is the catalog id (`device.ID`
 | `family` | `family` | Copied into templates (`TargetFamily`) |
 | `series` | `series` | Linker-script comment (`TargetSeries`) |
 | `architecture` | `architecture` | Stored only |
-| `cpu` | `cpu` | `-mcpu` in `cmake/gcc-arm-none-eabi.cmake`; CMSIS core header; toolchain name via `compilersMap` |
-| `fpu` | `fpu` | Stored as `TargetFPU`; not written into the toolchain file yet (`-mfpu` only if CMake `FPU` is set) |
-| `float_abi` | `float_abi` | `-mfloat-abi` in the toolchain file |
-| `flash_kb` | `flash_kb` | `FLASH` length in `LinkerScript.ld` |
-| `ram_kb` | `ram_kb` | `RAM` length in `LinkerScript.ld` |
+| `cpu` | `cpu` | `-mcpu` via CMake `CPU` (preset + toolchain fallback); CMSIS core header; toolchain name via `compilersMap` |
+| `fpu` | `fpu` | CMake `FPU` on `stm32-base` (`-mfpu` when non-empty) |
+| `float_abi` | `float_abi` | `-mfloat-abi` via CMake `FLOAT_ABI` |
+| `flash_kb` | `flash_kb` | `FLASH` length in `LinkerScript.ld`; CMake `FLASH_KB` on the STM32 preset |
+| `ram_kb` | `ram_kb` | `RAM` length in `LinkerScript.ld`; CMake `RAM_KB` on the STM32 preset |
 | `pins` | `pins` | Stored only |
 | `package` | `package` | Stored only |
-| `stm32_device` | `stm32_device` | `USE_HAL_DRIVER` + device define; GCC startup file `startup_<lowercase>.s` |
+| `stm32_device` | `stm32_device` | `USE_HAL_DRIVER` + device define; GCC startup file `startup_<lowercase>.s`; CMake `STM32_DEVICE` |
 | `linker_script` | `linker_script` | Stored only; init always emits `LinkerScript.ld` from the Forge template |
 | `openocd_target` | `openocd_target` | Stored only (`forge flash` is not implemented) |
-| `presets` | `presets` | Stored only (CMake presets are still named `debug` / `release`) |
+| `presets` | `presets` | `debug` / `release` `build_type` → `CMAKE_BUILD_TYPE` on the `debug` / `release` CMake presets |
 | `aliases` | `aliases` | Indexed by `Resolve`; not accepted by `forge new --device` |
 
 `cpu` must be a key in `compilersMap` (`cmd/private.go`). Currently that is `cortex-m0` and `cortex-m3` for `gcc-arm-none-eabi` (plus `x86_64` → `gcc`, unused by STM32 boards). An unknown `cpu` leaves the compiler unset and `Forge.toml` falls back to `gcc`.

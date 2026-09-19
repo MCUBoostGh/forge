@@ -27,7 +27,7 @@ cd blink
 forge init
 forge setup    # install missing toolchains + host tools
 forge sync     # detect paths, write into Forge.toml
-forge build
+forge build debug
 forge flash
 forge monitor
 ```
@@ -211,7 +211,7 @@ Known limitation: `forge init` uses in-memory config and does not read `Forge.to
 
 1. **`forge new <name> <device>`** — device-aware `Forge.toml` (first board: `stm32f103r8`; e.g. `forge new blink stm32f103r8`)
 2. **`forge init`** — read `Forge.toml` from cwd; generate STM32 project tree (linker + CMake; GCC `startup_*.s` and `system_*.c` copied from CMSIS-Device); fetch remaining `dependencies` into `~/.cache/forge/packages/` and emit `cmake/Package.cmake` (CMSIS INTERFACE, STM32F1 HAL STATIC)
-3. **gcc-arm-none-eabi + CMake preset** — toolchain file and `CMakePresets.json` entries for `stm32-debug` / `stm32-release` (presets still use host-named `debug` / `release`)
+3. **gcc-arm-none-eabi + CMake preset** — toolchain file and `CMakePresets.json` entries `debug` / `release` (CPU/FloatABI/`STM32_DEVICE` from the device catalog; `FLASH_KB`/`RAM_KB` on the preset; flash/RAM in `LinkerScript.ld`; `forge build debug`)
 
 ---
 

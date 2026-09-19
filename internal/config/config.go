@@ -23,8 +23,7 @@ type Config struct {
 	} `toml:"target"`
 
 	Build struct {
-		System string `toml:"system"` //cmake
-		Type   string `toml:"type"`   // debug, release, relwithdebinfo, minsizerel
+		System string `toml:"system"` // cmake
 	} `toml:"build"`
 
 	Toolchain struct {
@@ -46,7 +45,6 @@ func setConfigDefaults() {
 	config.Project.Name = "MyProject"
 	config.Project.Version = "0.1.0"
 	config.Build.System = "cmake"
-	config.Build.Type = "debug"
 	config.Toolchain.Compiler = "gcc"
 	config.Dependencies = []string{
 		"cmsis5@5.9.0",

@@ -16,7 +16,6 @@ type TemplateData struct {
 	CMakeMinimumRequiredMajor   int
 	CMakeMinimumRequiredMinor   int
 	ToolchainCompiler           string
-	BuildType                   string
 	TargetDevice                string
 	TargetCPU                   string
 	TargetFPU                   string
@@ -26,10 +25,13 @@ type TemplateData struct {
 	TargetSeries                string
 	TargetFlashKB               int
 	TargetRAMKB                 int
+	STM32Device                 string
 	CMSISCoreHeader             string
 	CacheDir                    string
 	Packages                    []PackageData
 	AppSources                  []string
+	DebugBuildType              string
+	ReleaseBuildType            string
 	// keep Target etc. if MCU tmpls need them later
 }
 

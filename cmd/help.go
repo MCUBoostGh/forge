@@ -11,7 +11,7 @@ Usage:
 Commands:
   new       Create a new project: forge new <name> --device <device>
   init      Generate project structure and files
-  build     Build the project
+  build     Build the project: forge build <preset>
   run       Run the project
   test      Run tests for the project
   list      List supported devices

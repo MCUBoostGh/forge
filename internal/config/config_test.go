@@ -56,9 +56,6 @@ func TestNew_GeneratesDefaultConfig(t *testing.T) {
 	if config.Build.System != "cmake" {
 		t.Errorf("Build.System = %q, want %q", config.Build.System, "cmake")
 	}
-	if config.Build.Type != "debug" {
-		t.Errorf("Build.Type = %q, want %q", config.Build.Type, "debug")
-	}
 	if config.Toolchain.Compiler != "gcc" {
 		t.Errorf("Toolchain.Compiler = %q, want %q", config.Toolchain.Compiler, "gcc")
 	}
@@ -87,8 +84,8 @@ func TestNew_GeneratesDefaultConfig(t *testing.T) {
 	if fromFile.Project.Name != projectDir {
 		t.Errorf("file Project.Name = %q, want %q", fromFile.Project.Name, projectDir)
 	}
-	if fromFile.Build.Type != "debug" {
-		t.Errorf("file Build.Type = %q, want %q", fromFile.Build.Type, "debug")
+	if fromFile.Build.System != "cmake" {
+		t.Errorf("file Build.System = %q, want %q", fromFile.Build.System, "cmake")
 	}
 }
 
@@ -157,9 +154,6 @@ func TestRead_LoadsConfigBuffer(t *testing.T) {
 	if config.Build.System != "cmake" {
 		t.Errorf("Build.System = %q, want %q", config.Build.System, "cmake")
 	}
-	if config.Build.Type != "debug" {
-		t.Errorf("Build.Type = %q, want %q", config.Build.Type, "debug")
-	}
 	if config.Toolchain.Compiler != "gcc" {
 		t.Errorf("Toolchain.Compiler = %q, want %q", config.Toolchain.Compiler, "gcc")
 	}
@@ -185,7 +179,7 @@ func TestWrite_PersistsConfigBuffer(t *testing.T) {
 		t.Fatalf("Read: %v", err)
 	}
 
-	config.Build.Type = "release"
+	config.Build.System = "ninja"
 	config.Project.Version = "1.2.3"
 	if err := Write(); err != nil {
 		t.Fatalf("Write: %v", err)
@@ -195,8 +189,8 @@ func TestWrite_PersistsConfigBuffer(t *testing.T) {
 	if err := Read(); err != nil {
 		t.Fatalf("re-Read: %v", err)
 	}
-	if config.Build.Type != "release" {
-		t.Errorf("Build.Type = %q, want %q", config.Build.Type, "release")
+	if config.Build.System != "ninja" {
+		t.Errorf("Build.System = %q, want %q", config.Build.System, "ninja")
 	}
 	if config.Project.Version != "1.2.3" {
 		t.Errorf("Project.Version = %q, want %q", config.Project.Version, "1.2.3")

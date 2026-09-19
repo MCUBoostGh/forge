@@ -10,7 +10,7 @@ forge <command> [arguments]
 |---------|--------|-------------|
 | `new` | Available | Create a project directory and `Forge.toml` (`--device` required) |
 | `init` | Available | Scaffold files, fetch `dependencies` into the user cache, generate `cmake/Package.cmake` |
-| `build` | Available | Configure and build with CMake presets |
+| `build` | Available | Configure and build a CMake preset (`forge build debug`) |
 | `help` | Available | Show usage |
 | `version` | Available | Print the version string |
 | `list` | Planned | List supported devices |
@@ -43,10 +43,10 @@ Must be run in a directory that already contains `Forge.toml`. Scaffolds folders
 ## `forge build`
 
 ```bash
-forge build
+forge build <preset>
 ```
 
-Loads `Forge.toml`, selects a CMake preset from the configured build type (falls back to `debug`), then configures and builds.
+Runs `cmake --preset <preset>` then `cmake --build --preset <preset>`. Typical presets: `debug`, `release`. Output is `build/debug` or `build/release`. Build type is not stored in `Forge.toml`.
 
 Requires CMake 3.20+.
 

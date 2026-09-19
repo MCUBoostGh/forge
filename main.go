@@ -2,12 +2,10 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"forge/cmd"
 	"forge/internal/logger"
+	"os"
 )
-
-
 
 func main() {
 	if len(os.Args) < 2 {
@@ -16,9 +14,9 @@ func main() {
 	}
 
 	switch os.Args[1] {
-		
+
 	case "new":
-		if len(os.Args) < 3{
+		if len(os.Args) < 3 {
 			logger.Error("Invalid arguments")
 			logger.Fatal("Failed to generate new project.")
 		}
@@ -35,7 +33,7 @@ func main() {
 			logger.Fatal(err)
 		}
 	case "build":
-		err := cmd.Build()
+		err := cmd.Build(os.Args[2:]...)
 		if err != nil {
 			logger.Fatal(err)
 		}

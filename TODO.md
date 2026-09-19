@@ -51,7 +51,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 ## Issue: v0.2.0 — STM32 project bootstrap
 
-> Phase 1 start. Device-aware creation for STM32 (first board: `stm32f103r8`). **In progress** — catalog anchors, `--device` new, `internal/config`, arm-none-eabi + `LinkerScript.ld`, CMSIS/HAL cache + `cmake/Package.cmake`, and GCC `startup_*.s` / `system_*.c` copy exist; STM32 presets, host path, and install seeding still open.
+> Phase 1 start. Device-aware creation for STM32 (first board: `stm32f103r8`). **In progress** — catalog anchors, `--device` new, `internal/config`, arm-none-eabi + `LinkerScript.ld`, CMSIS/HAL cache + `cmake/Package.cmake`, GCC `startup_*.s` / `system_*.c` copy, and `debug` / `release` CMake presets exist; host path and install seeding still open.
 
 ### Tasks
 
@@ -72,14 +72,14 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 - [ ] **T3 — `forge init` reads `Forge.toml`**
   - [x] Load and validate `Forge.toml` from cwd (replace in-memory-only path)
   - [x] Generate STM32-aware tree (startup/linker refs as planned) — `LinkerScript.ld` emitted; GCC `startup_*.s` and `system_*.c` copied from CMSIS-Device cache
-  - [ ] Board-specific CMake generation from config (CPU/FloatABI + flash/RAM templating; CMSIS INTERFACE and STM32F1 HAL STATIC via `cmake/Package.cmake`; STM32-named presets not done)
-  - [ ] Keep host/generic path working for non-STM32 projects (`syncTemplateData` requires MCU/STM32; presets still arm-toolchain on `host-base`)
+  - [ ] Board-specific CMake generation from config (CPU/FloatABI + flash/RAM templating; CMSIS INTERFACE and STM32F1 HAL STATIC via `cmake/Package.cmake`; `debug` / `release` CMake presets landed under T4)
+  - [ ] Keep host/generic path working for non-STM32 projects (`syncTemplateData` requires MCU/STM32; presets are STM32-named)
 
-- [ ] **T4 — gcc-arm-none-eabi + CMake presets**
+- [x] **T4 — gcc-arm-none-eabi + CMake presets**
   - [x] Toolchain template content (`internal/templates/cmake/gcc-arm-none-eabi.cmake.tmpl`)
   - [x] Emit CMake toolchain file for arm-none-eabi (`cmake/gcc-arm-none-eabi.cmake` on `init`)
-  - [ ] `CMakePresets.json` entries: `stm32-debug` / `stm32-release` (still host-named `debug` / `release`)
-  - [ ] Wire presets to board catalog fields (CPU/FloatABI in toolchain + flash/RAM in linker; catalog `presets:` unused)
+  - [x] `CMakePresets.json` entries: `debug` / `release` (`forge build <preset>`; no `build.type` in `Forge.toml`)
+  - [x] Wire presets to board catalog fields (CPU/FloatABI/FPU/STM32_DEVICE in toolchain + `FLASH_KB`/`RAM_KB` cache vars; flash/RAM lengths in `LinkerScript.ld`; catalog `presets.debug/release.build_type`)
 
 - [ ] **T5 — Config foundation**
   - [x] Harden `Forge.toml` load/save toward `internal/config/` (`New` / `Read` / `Write` / `Get` / `Set` + tests; little validation yet)
