@@ -30,7 +30,7 @@ Forge is early-stage (**v0.2.0**). Today it supports:
 | Builds | `forge build <preset>` runs a CMake preset (`debug` or `release`); output under `build/debug` or `build/release` |
 | CMSIS | `cmsis5@5.9.0` is the default Core dependency; unpacked once under `~/.cache/forge/packages/` |
 | STM32 HAL | Default `stm32f1-hal@1.1.10` plus `stm32f1-cmsis-device@4.3.5`; HAL is a cached STATIC library; device headers stay INTERFACE |
-| Targets in progress | Early STM32 bare-metal (`gcc-arm-none-eabi`); host Linux path is not a separate `new` flow yet |
+| STM32 target | Bare-metal F1 (`stm32f103r8` / `stm32f103c8`, `gcc-arm-none-eabi`); host Linux is not a separate `new` flow yet |
 | Device catalog | STM32 YAML profiles under `internal/devices/` ([how to add a board](docs/device-catalog.md)) |
 
 **Not ready yet:** `run`, `test`, `list`, `setup`, `flash`, `monitor`, and related roadmap commands.
@@ -39,7 +39,7 @@ For command details, see [docs/commands.md](docs/commands.md).
 
 ## Where is it going?
 
-Near-term work focuses on a reliable **STM32 bootstrap**: complete board profiles, arm-none-eabi toolchain files, and correct CMake presets.
+**v0.2.0** is the current STM32 bootstrap (`new` → `init` → `build debug`). Next is **v0.3.0**: host tools (`forge setup` / `sync`) and a host Linux path.
 
 Toward **v1.0.0**:
 

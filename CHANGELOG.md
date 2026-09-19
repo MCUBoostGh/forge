@@ -2,7 +2,7 @@
 
 All notable user-visible changes to Forge are listed here.
 
-## [0.2.0] — in progress
+## [0.2.0] — 2026-09-19
 
 ### Added
 

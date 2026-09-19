@@ -8,7 +8,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 |--------|---------|
 | `[x]` | Done in tree / shipped |
 | `[ ]` | Not done |
-| **In progress** | Partially implemented on branch (e.g. `V0.2.0`) |
+| **In progress** | Partially implemented on branch (e.g. `V0.3.0`) |
 
 ---
 
@@ -51,7 +51,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 ## Issue: v0.2.0 — STM32 project bootstrap
 
-> Phase 1 start. Device-aware creation for STM32 (first board: `stm32f103r8`). **In progress** — catalog anchors, `--device` new, `internal/config`, arm-none-eabi + `LinkerScript.ld`, CMSIS/HAL cache + `cmake/Package.cmake`, GCC `startup_*.s` / `system_*.c` copy, and `debug` / `release` CMake presets exist; host path and install seeding still open.
+> Phase 1 start. Device-aware creation for STM32 (first board: `stm32f103r8`). **Delivered** — catalog, `forge new <name> <device>`, `internal/config`, arm-none-eabi + `LinkerScript.ld`, CMSIS/HAL cache + `cmake/Package.cmake`, GCC `startup_*.s` / `system_*.c` copy, and `debug` / `release` CMake presets. v0.2.0 does not install host tools (`gcc-arm-none-eabi` / CMake must already be on `PATH`). Host Linux, `[install]` / `forge setup`, and schema fields for tools are v0.3.0.
 
 ### Tasks
 
@@ -62,18 +62,16 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
   - [x] First complete board profile: `stm32f103r8` (CPU, flash/RAM, linker, OpenOCD target, aliases) — plus YAML anchors + `stm32f103c8`
   - [x] Document catalog keys and how to add a board (`docs/device-catalog.md`)
 
-- [ ] **T2 — Device-aware `forge new <name> <device>`**
+- [x] **T2 — Device-aware `forge new <name> <device>`**
   - [x] Accept device argument / `--device` path
   - [x] Resolve device via catalog; fail clearly on unknown device (positional `<device>` or `--device`; aliases via `Resolve`)
-  - [x] Write device id and toolchain compiler into `Forge.toml` (`config.New` keeps fields set before defaults; board / extra catalog keys still open)
-  - [ ] Seed `[install].packages` from target kind when applicable
+  - [x] Write device id and toolchain compiler into `Forge.toml` (`config.New` keeps fields set before defaults)
   - [x] Usage/examples: `forge new blink stm32f103r8` and `forge new blink --device stm32f103r8`
 
-- [ ] **T3 — `forge init` reads `Forge.toml`**
+- [x] **T3 — `forge init` reads `Forge.toml`**
   - [x] Load and validate `Forge.toml` from cwd (replace in-memory-only path)
   - [x] Generate STM32-aware tree (startup/linker refs as planned) — `LinkerScript.ld` emitted; GCC `startup_*.s` and `system_*.c` copied from CMSIS-Device cache
-  - [ ] Board-specific CMake generation from config (CPU/FloatABI + flash/RAM templating; CMSIS INTERFACE and STM32F1 HAL STATIC via `cmake/Package.cmake`; `debug` / `release` CMake presets landed under T4)
-  - [ ] Keep host/generic path working for non-STM32 projects (`syncTemplateData` requires MCU/STM32; presets are STM32-named)
+  - [x] Board-specific CMake generation from config (CPU/FloatABI + flash/RAM templating; CMSIS INTERFACE and STM32F1 HAL STATIC via `cmake/Package.cmake`; `debug` / `release` CMake presets under T4)
 
 - [x] **T4 — gcc-arm-none-eabi + CMake presets**
   - [x] Toolchain template content (`internal/templates/cmake/gcc-arm-none-eabi.cmake.tmpl`)
@@ -81,15 +79,14 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
   - [x] `CMakePresets.json` entries: `debug` / `release` (`forge build <preset>`; no `build.type` in `Forge.toml`)
   - [x] Wire presets to board catalog fields (CPU/FloatABI/FPU/STM32_DEVICE in toolchain + `FLASH_KB`/`RAM_KB` cache vars; flash/RAM lengths in `LinkerScript.ld`; catalog `presets.debug/release.build_type`)
 
-- [ ] **T5 — Config foundation**
+- [x] **T5 — Config foundation**
   - [x] Harden `Forge.toml` load/save toward `internal/config/` (`New` / `Read` / `Write` / `Get` / `Set` + tests; little validation yet)
-  - [ ] Align schema fields with ROADMAP (`target.kind`, `board`, toolchain, `[install]` / `[tools]`)
 
-- [ ] **T6 — Docs**
+- [x] **T6 — Docs**
   - [x] Update README for device-aware `new` / STM32 init (getting-started + create-a-project docs)
   - [x] Document CMSIS cache, STM32F1 HAL, `cmake/Package.cmake`, and default `dependencies`
   - [x] Document catalog keys and how to add a board (`docs/device-catalog.md`)
-  - [ ] Mark v0.2.0 delivered in ROADMAP when complete
+  - [x] Mark v0.2.0 delivered in ROADMAP when complete
 
 **Done when:** `forge new blink stm32f103r8` → `init` → CMake STM32 presets work; issue closed.
 
@@ -97,7 +94,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 ## Issue: v0.3.0 — Host tools, setup, and multi-target build
 
-> Install/detect toolchains; host Linux presets; smarter `build`.
+> Install/detect toolchains; host Linux presets; smarter `build`. v0.2.0 assumes CMake and `gcc-arm-none-eabi` are already installed.
 
 ### Tasks
 
@@ -105,6 +102,8 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
   - [ ] Map target kind (`host` / `stm32`) to apt package lists
   - [ ] Package manifest per target kind
   - [ ] Detect already-installed tools vs missing
+  - [ ] Seed `[install].packages` in `Forge.toml` from target kind when `forge new` runs (consumed by `forge setup`)
+  - [ ] Align `Forge.toml` schema with ROADMAP (`[install]`, `[tools]`; `target.kind` / `board` vs current `kind` / `device`)
 
 - [ ] **T2 — `forge setup`**
   - [ ] Read `Forge.toml` (`[target]`, `[install]`, `[tools]`)
@@ -121,6 +120,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
   - [ ] Host preset (`host-debug`)
   - [ ] Select preset from `Forge.toml`
   - [ ] Enhance `forge build` beyond bare configure/build
+  - [ ] Keep host/generic `forge new` / `init` path for non-STM32 projects (`syncTemplateData` requires MCU/STM32; presets are STM32-named)
 
 - [ ] **T5 — Docs**
   - [ ] Document setup/sync workflow and apt-only host constraint
