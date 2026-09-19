@@ -65,6 +65,20 @@ forge init
 forge build debug
 ```
 
+### Tests
+
+Unit tests:
+
+```bash
+go test ./...
+```
+
+Integration tests (`new` → `init` → `build debug` for STM32F1 and STM32G4). Needs CMake, `gcc-arm-none-eabi`, `make`, and network the first time packages are cached:
+
+```bash
+go test -tags=integration ./cmd -count=1 -timeout 20m
+```
+
 ### Tutorials and docs
 
 | Guide | Description |

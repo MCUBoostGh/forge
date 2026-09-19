@@ -93,12 +93,12 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
   - [x] Cover F1 / F7 / G4 catalog and package registration paths
   - [x] Unit-test root `forge` dispatch, `internal/logger`, and `internal/templates`
 
-- [ ] **T8 — Integration tests for the Forge CLI**
-  - [ ] End-to-end `forge new` → `init` → `build` against a generated project
-  - [ ] Exercise more than one family (at least F1 plus F7 or G4)
+- [x] **T8 — Integration tests for the Forge CLI**
+  - [x] End-to-end `forge new` → `init` → `build` against a generated project
+  - [x] Exercise more than one family (at least F1 plus F7 or G4)
 
 - [ ] **T9 — GitHub Actions CI**
-  - [ ] Workflow on push / pull request
+  - [ ] Workflow on push / pull request (`go test ./...` and `go test -tags=integration ./cmd`)
   - [ ] Run unit tests (and integration tests when they exist)
 
 **Done when:** `forge new blink stm32f103r8` → `init` → CMake STM32 presets work; unit tests, integration tests, and GitHub Actions CI are in place; issue closed.

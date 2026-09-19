@@ -40,16 +40,18 @@ What happens:
 
 `forge new` requires a catalog id or alias (`stm32f103r8`, `bluepill`, `stm32f746zg`, `nucleo-g431rb`). A host-only `new` path is not implemented.
 
-## Helper script
+## Tests from a checkout
 
-From the Forge repo root, `run.sh` builds Forge and runs the full create/init/build flow under `examples/`:
+Unit tests:
 
 ```bash
-./run.sh blink --device stm32f103r8
+go test ./...
 ```
 
+End-to-end `new` → `init` → `build debug` (STM32F1 and STM32G4). Requires CMake, `gcc-arm-none-eabi`, `make`, and network on the first package download:
+
 ```bash
-./run.sh --help
+go test -tags=integration ./cmd -count=1 -timeout 20m
 ```
 
 ## Next steps

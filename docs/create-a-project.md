@@ -108,10 +108,10 @@ go run ../. init
 go run ../. build debug
 ```
 
-Or use the repo helper:
+To smoke-test the same flow from the repo (F1 and G4):
 
 ```bash
-./run.sh my_app --device stm32f103r8
+go test -tags=integration ./cmd -count=1 -timeout 20m
 ```
 
 ## Tips
