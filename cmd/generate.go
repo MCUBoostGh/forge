@@ -80,6 +80,12 @@ func syncTemplateData(cfg *config.Config) (templates.TemplateData, error) {
 	tmplData.TargetFloatABI = catalog.FloatABI
 	tmplData.CMSISCoreHeader = cmsisCoreHeader(catalog.CPU)
 
+	cacheDir, err := thirdparty.PackagesDir()
+	if err != nil {
+		return templates.TemplateData{}, err
+	}
+	tmplData.CacheDir = filepath.ToSlash(cacheDir)
+
 	for _, spec := range cfg.Dependencies {
 		name, version, err := thirdparty.ParseSpec(spec)
 		if err != nil {
@@ -89,13 +95,46 @@ func syncTemplateData(cfg *config.Config) (templates.TemplateData, error) {
 		if err != nil {
 			return templates.TemplateData{}, err
 		}
+		sources, err := pkg.SourceFiles()
+		if err != nil {
+			return templates.TemplateData{}, err
+		}
+		if len(pkg.Sources) > 0 && len(sources) == 0 {
+			return templates.TemplateData{}, fmt.Errorf("no C sources found for package %s in cache", pkg.Name)
+		}
+		kind := "INTERFACE"
+		if len(sources) > 0 {
+			kind = "STATIC"
+		}
+		var defines []string
+		if catalog.STM32Device != "" && (kind == "STATIC" || len(pkg.ProjectSources) > 0 || pkg.StartupDir != "") {
+			defines = []string{"USE_HAL_DRIVER", catalog.STM32Device}
+		}
 		tmplData.Packages = append(tmplData.Packages, templates.PackageData{
 			Name:        pkg.Name,
-			IncludeDirs: pkg.IncludeDirs(),
+			Kind:        kind,
+			IncludeDirs: relCachePaths(cacheDir, pkg.IncludeDirs()),
+			Sources:     relCachePaths(cacheDir, sources),
+			Defines:     defines,
+			Depends:     pkg.Depends,
 		})
+		tmplData.AppSources = append(tmplData.AppSources, pkg.ProjectFileNames(catalog.STM32Device)...)
 	}
 
 	return tmplData, nil
+}
+
+func relCachePaths(cacheDir string, paths []string) []string {
+	out := make([]string, 0, len(paths))
+	for _, p := range paths {
+		rel, err := filepath.Rel(cacheDir, p)
+		if err != nil {
+			out = append(out, filepath.ToSlash(p))
+			continue
+		}
+		out = append(out, filepath.ToSlash(rel))
+	}
+	return out
 }
 
 func downloadDependencies(cfg *config.Config) error {
@@ -116,6 +155,63 @@ func downloadDependencies(cfg *config.Config) error {
 			return err
 		}
 		if err := pkg.Extract(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func copyHalConf(cfg *config.Config) error {
+	for _, spec := range cfg.Dependencies {
+		name, version, err := thirdparty.ParseSpec(spec)
+		if err != nil {
+			return err
+		}
+		pkg, err := thirdparty.Register(name, version)
+		if err != nil {
+			return err
+		}
+		confs, err := pkg.ConfTemplates()
+		if err != nil {
+			return err
+		}
+		for _, src := range confs {
+			destName := strings.Replace(filepath.Base(src), "_template", "", 1)
+			dest := filepath.Join("include", destName)
+			if _, err := os.Stat(dest); err == nil {
+				continue
+			}
+			data, err := os.ReadFile(src)
+			if err != nil {
+				return err
+			}
+			if err := os.MkdirAll("include", 0755); err != nil {
+				return err
+			}
+			if err := os.WriteFile(dest, data, 0644); err != nil {
+				return err
+			}
+			logger.Infof("Copied %s", dest)
+		}
+	}
+	return nil
+}
+
+func copyProjectSources(cfg *config.Config) error {
+	catalog, err := devices.Lookup(cfg.Target.Device)
+	if err != nil {
+		return err
+	}
+	for _, spec := range cfg.Dependencies {
+		name, version, err := thirdparty.ParseSpec(spec)
+		if err != nil {
+			return err
+		}
+		pkg, err := thirdparty.Register(name, version)
+		if err != nil {
+			return err
+		}
+		if err := pkg.CopyProjectFiles(".", catalog.STM32Device); err != nil {
 			return err
 		}
 	}
@@ -246,6 +342,16 @@ func Init() error {
 	}
 
 	if err := downloadDependencies(&cfg); err != nil {
+		logger.Error(err)
+		return msgErr
+	}
+
+	if err := copyHalConf(&cfg); err != nil {
+		logger.Error(err)
+		return msgErr
+	}
+
+	if err := copyProjectSources(&cfg); err != nil {
 		logger.Error(err)
 		return msgErr
 	}

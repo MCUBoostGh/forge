@@ -131,7 +131,7 @@ baud = "115200"
 
 [dependencies]
 # v1 target shape (table). v0.2.0 writes a top-level array instead:
-# dependencies = ["cmsis5@5.9.0"]
+# dependencies = ["cmsis5@5.9.0", "stm32f1-cmsis-device@4.3.5", "stm32f1-hal@1.1.10"]
 ```
 
 `[install].packages` is derived from `[target]` and `[tools]` requirements in the device catalog when `forge new` runs. `forge setup` reads this section to install missing dependencies.
@@ -210,7 +210,7 @@ Known limitation: `forge init` uses in-memory config and does not read `Forge.to
 **Phase 1 start.** Device-aware project creation for STM32.
 
 1. **`forge new <name> <device>`** — device-aware `Forge.toml` (first board: `stm32f103r8`; e.g. `forge new blink stm32f103r8`)
-2. **`forge init`** — read `Forge.toml` from cwd; generate STM32 project tree (linker + CMake; startup `.s` still open); fetch `dependencies` into `~/.cache/forge/packages/` and emit `cmake/Package.cmake`
+2. **`forge init`** — read `Forge.toml` from cwd; generate STM32 project tree (linker + CMake; GCC `startup_*.s` and `system_*.c` copied from CMSIS-Device); fetch remaining `dependencies` into `~/.cache/forge/packages/` and emit `cmake/Package.cmake` (CMSIS INTERFACE, STM32F1 HAL STATIC)
 3. **gcc-arm-none-eabi + CMake preset** — toolchain file and `CMakePresets.json` entries for `stm32-debug` / `stm32-release` (presets still use host-named `debug` / `release`)
 
 ---
@@ -234,7 +234,7 @@ Known limitation: `forge init` uses in-memory config and does not read `Forge.to
 ## v0.5.0 — Libraries and third-party code
 
 1. **`forge lib <name>`** — scaffold static/shared library (`lib/<name>/CMakeLists.txt`, `include/`, `src/`)
-2. **`forge add <package>`** — CLI to add further third-party sources (STM32 HAL, FreeRTOS); CMSIS Core is already fetched on `init` from `dependencies`
+2. **`forge add <package>`** — CLI to add further third-party sources (FreeRTOS); CMSIS Core and STM32F1 HAL are already fetched on `init` from `dependencies`
 3. **CMake library targets** — wire `forge lib` output into root build graph
 
 ---

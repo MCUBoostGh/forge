@@ -27,11 +27,17 @@ type TemplateData struct {
 	TargetFlashKB               int
 	TargetRAMKB                 int
 	CMSISCoreHeader             string
+	CacheDir                    string
 	Packages                    []PackageData
+	AppSources                  []string
 	// keep Target etc. if MCU tmpls need them later
 }
 
 type PackageData struct {
 	Name        string
+	Kind        string
 	IncludeDirs []string
+	Sources     []string
+	Defines     []string
+	Depends     []string
 }

@@ -68,8 +68,16 @@ func TestNew_GeneratesDefaultConfig(t *testing.T) {
 	if config.CMake.MinimumRequiredVersion != "3.20" {
 		t.Errorf("CMake.MinimumRequiredVersion = %q, want %q", config.CMake.MinimumRequiredVersion, "3.20")
 	}
-	if len(config.Dependencies) != 1 || config.Dependencies[0] != "cmsis5@5.9.0" {
-		t.Errorf("Dependencies = %v, want [cmsis5@5.9.0]", config.Dependencies)
+	wantDeps := []string{"cmsis5@5.9.0", "stm32f1-cmsis-device@4.3.5", "stm32f1-hal@1.1.10"}
+	if len(config.Dependencies) != len(wantDeps) {
+		t.Errorf("Dependencies = %v, want %v", config.Dependencies, wantDeps)
+	} else {
+		for i, dep := range wantDeps {
+			if config.Dependencies[i] != dep {
+				t.Errorf("Dependencies = %v, want %v", config.Dependencies, wantDeps)
+				break
+			}
+		}
 	}
 
 	var fromFile Config
@@ -81,6 +89,41 @@ func TestNew_GeneratesDefaultConfig(t *testing.T) {
 	}
 	if fromFile.Build.Type != "debug" {
 		t.Errorf("file Build.Type = %q, want %q", fromFile.Build.Type, "debug")
+	}
+}
+
+func TestNew_PreservesTargetDevice(t *testing.T) {
+	root := chdirTemp(t)
+	resetConfig()
+	config.Target.Kind = "mcu"
+	config.Target.Device = "stm32f103r8"
+	config.Toolchain.Compiler = "gcc-arm-none-eabi"
+
+	projectDir := filepath.Join(root, "blink")
+	if err := os.Mkdir(projectDir, 0755); err != nil {
+		t.Fatalf("mkdir: %v", err)
+	}
+	if err := New(projectDir); err != nil {
+		t.Fatalf("New: %v", err)
+	}
+
+	if config.Target.Device != "stm32f103r8" {
+		t.Errorf("Target.Device = %q, want stm32f103r8", config.Target.Device)
+	}
+	if config.Toolchain.Compiler != "gcc-arm-none-eabi" {
+		t.Errorf("Toolchain.Compiler = %q, want gcc-arm-none-eabi", config.Toolchain.Compiler)
+	}
+
+	raw, err := os.ReadFile(filepath.Join(projectDir, forgeTOMLName))
+	if err != nil {
+		t.Fatalf("read Forge.toml: %v", err)
+	}
+	var fromFile Config
+	if err := toml.Unmarshal(raw, &fromFile); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if fromFile.Target.Device != "stm32f103r8" {
+		t.Errorf("file Target.Device = %q, want stm32f103r8", fromFile.Target.Device)
 	}
 }
 

@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -17,14 +18,17 @@ import (
 )
 
 type Package struct {
-	Name        string   `yaml:"name"`
-	Version     string   `yaml:"version"`
-	URL         string   `yaml:"url"`
-	TagPrefix   string   `yaml:"tag_prefix"`
-	ArchiveRoot string   `yaml:"archive_root"`
-	Include     []string `yaml:"include"`
-	Sources     []string `yaml:"sources"`
-	Size        int64    `yaml:"size"`
+	Name           string   `yaml:"name"`
+	Version        string   `yaml:"version"`
+	URL            string   `yaml:"url"`
+	TagPrefix      string   `yaml:"tag_prefix"`
+	ArchiveRoot    string   `yaml:"archive_root"`
+	Include        []string `yaml:"include"`
+	Sources        []string `yaml:"sources"`
+	ProjectSources []string `yaml:"project_sources"`
+	StartupDir     string   `yaml:"startup_dir"`
+	Depends        []string `yaml:"depends"`
+	Size           int64    `yaml:"size"`
 }
 type progressReader struct {
 	name  string
@@ -232,8 +236,9 @@ func Register(name string, version string) (Package, error) {
 
 	pkg.Version = version
 	tag := tagFor(pkg, version)
+	// GitHub tag URLs use the tag (often vX.Y.Z); archive directories drop the leading v.
 	pkg.URL = strings.ReplaceAll(pkg.URL, "{version}", tag)
-	pkg.ArchiveRoot = strings.ReplaceAll(pkg.ArchiveRoot, "{version}", tag)
+	pkg.ArchiveRoot = strings.ReplaceAll(pkg.ArchiveRoot, "{version}", version)
 	return pkg, nil
 }
 
@@ -245,12 +250,16 @@ func ParseSpec(spec string) (name string, version string, err error) {
 	return parts[0], parts[1], nil
 }
 
-func (pkg Package) packagesDir() (string, error) {
+func PackagesDir() (string, error) {
 	base, err := os.UserCacheDir()
 	if err != nil {
 		return "", err
 	}
 	return filepath.Join(base, "forge", "packages"), nil
+}
+
+func (pkg Package) packagesDir() (string, error) {
+	return PackagesDir()
 }
 
 func (pkg Package) tmpArchivePath() string {
@@ -287,6 +296,147 @@ func (pkg Package) IncludeDirs() []string {
 		dirs = append(dirs, filepath.ToSlash(filepath.Join(root, inc)))
 	}
 	return dirs
+}
+
+func skipCachedSource(path string) bool {
+	base := strings.ToLower(filepath.Base(path))
+	if !strings.HasSuffix(base, ".c") {
+		return true
+	}
+	if strings.Contains(base, "_template") {
+		return true
+	}
+	if strings.Contains(base, "_ll_") {
+		return true
+	}
+	return false
+}
+
+// SourceFiles expands yaml sources (file, directory, or glob) under the extracted cache root.
+func (pkg Package) SourceFiles() ([]string, error) {
+	if len(pkg.Sources) == 0 {
+		return nil, nil
+	}
+	root, err := pkg.extractedRoot()
+	if err != nil {
+		return nil, err
+	}
+
+	seen := make(map[string]struct{})
+	var files []string
+	for _, spec := range pkg.Sources {
+		pattern := filepath.Join(root, filepath.FromSlash(spec))
+		info, err := os.Stat(pattern)
+		var matches []string
+		if err == nil && info.IsDir() {
+			matches, err = filepath.Glob(filepath.Join(pattern, "*.c"))
+		} else {
+			matches, err = filepath.Glob(pattern)
+		}
+		if err != nil {
+			return nil, err
+		}
+		for _, match := range matches {
+			if skipCachedSource(match) {
+				continue
+			}
+			slash := filepath.ToSlash(match)
+			if _, ok := seen[slash]; ok {
+				continue
+			}
+			seen[slash] = struct{}{}
+			files = append(files, slash)
+		}
+	}
+	sort.Strings(files)
+	return files, nil
+}
+
+func (pkg Package) ConfTemplates() ([]string, error) {
+	var templates []string
+	for _, dir := range pkg.IncludeDirs() {
+		matches, err := filepath.Glob(filepath.Join(dir, "*hal_conf_template.h"))
+		if err != nil {
+			return nil, err
+		}
+		templates = append(templates, matches...)
+	}
+	return templates, nil
+}
+
+func (pkg Package) StartupFileName(stm32Device string) string {
+	if pkg.StartupDir == "" || stm32Device == "" {
+		return ""
+	}
+	return "startup_" + strings.ToLower(stm32Device) + ".s"
+}
+
+func (pkg Package) ProjectFileNames(stm32Device string) []string {
+	names := make([]string, 0, len(pkg.ProjectSources)+1)
+	for _, src := range pkg.ProjectSources {
+		names = append(names, filepath.Base(src))
+	}
+	if name := pkg.StartupFileName(stm32Device); name != "" {
+		names = append(names, name)
+	}
+	return names
+}
+
+func copyFileIfMissing(src, dest string) error {
+	if _, err := os.Stat(dest); err == nil {
+		return nil
+	}
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+	out, err := os.OpenFile(dest, os.O_CREATE|os.O_WRONLY|os.O_EXCL, 0644)
+	if err != nil {
+		if os.IsExist(err) {
+			return nil
+		}
+		return err
+	}
+	_, copyErr := io.Copy(out, in)
+	closeErr := out.Close()
+	if copyErr != nil {
+		_ = os.Remove(dest)
+		return copyErr
+	}
+	if closeErr != nil {
+		return closeErr
+	}
+	logger.Infof("Copied %s", dest)
+	return nil
+}
+
+func (pkg Package) CopyProjectFiles(destDir, stm32Device string) error {
+	if len(pkg.ProjectSources) == 0 && pkg.StartupDir == "" {
+		return nil
+	}
+	root, err := pkg.extractedRoot()
+	if err != nil {
+		return err
+	}
+	if err := os.MkdirAll(destDir, 0755); err != nil {
+		return err
+	}
+	for _, rel := range pkg.ProjectSources {
+		src := filepath.Join(root, filepath.FromSlash(rel))
+		dest := filepath.Join(destDir, filepath.Base(rel))
+		if err := copyFileIfMissing(src, dest); err != nil {
+			return fmt.Errorf("copy %s: %w", rel, err)
+		}
+	}
+	if name := pkg.StartupFileName(stm32Device); name != "" {
+		src := filepath.Join(root, filepath.FromSlash(pkg.StartupDir), name)
+		dest := filepath.Join(destDir, name)
+		if err := copyFileIfMissing(src, dest); err != nil {
+			return fmt.Errorf("copy startup %s: %w", name, err)
+		}
+	}
+	return nil
 }
 
 func (pkg Package) Download() error {

@@ -48,7 +48,11 @@ func setConfigDefaults() {
 	config.Build.System = "cmake"
 	config.Build.Type = "debug"
 	config.Toolchain.Compiler = "gcc"
-	config.Dependencies = []string{"cmsis5@5.9.0"}
+	config.Dependencies = []string{
+		"cmsis5@5.9.0",
+		"stm32f1-cmsis-device@4.3.5",
+		"stm32f1-hal@1.1.10",
+	}
 	config.CMake.Version = "3.30"
 	config.CMake.MinimumRequiredVersion = "3.20"
 }
@@ -63,8 +67,15 @@ func New(path string) error {
 		return msgErr
 	}
 
+	existing := config
 	setConfigDefaults()
 	config.Project.Name = path
+	if existing.Target.Device != "" {
+		config.Target = existing.Target
+	}
+	if existing.Toolchain.Compiler != "" {
+		config.Toolchain.Compiler = existing.Toolchain.Compiler
+	}
 
 	data, err := toml.Marshal(config)
 	if err != nil {

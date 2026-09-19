@@ -16,3 +16,16 @@ cmsis6:
   include:
     - CMSIS/Core/Include
     - CMSIS/Core/Include/m-profile
+
+stm32f1-cmsis-device:
+  name: stm32f1-cmsis-device
+  url: https://github.com/STMicroelectronics/cmsis-device-f1/archive/refs/tags/{version}.tar.gz
+  tag_prefix: v
+  archive_root: cmsis-device-f1-{version}
+  include:
+    - Include
+  project_sources:
+    - Source/Templates/system_stm32f1xx.c
+  startup_dir: Source/Templates/gcc
+  depends:
+    - cmsis5

@@ -30,7 +30,7 @@ Creates `<name>/` and writes `Forge.toml`. `--device` is required.
 | `<name>` | Project directory name (required) |
 | `--device <device>` | Device catalog id (for example `stm32f103r8`) |
 
-Default `Forge.toml` includes `dependencies = ["cmsis5@5.9.0"]`.
+Default `Forge.toml` includes `cmsis5@5.9.0`, `stm32f1-cmsis-device@4.3.5`, and `stm32f1-hal@1.1.10`.
 
 ## `forge init`
 
@@ -38,7 +38,7 @@ Default `Forge.toml` includes `dependencies = ["cmsis5@5.9.0"]`.
 forge init
 ```
 
-Must be run in a directory that already contains `Forge.toml`. Scaffolds folders, `main.c`, CMake files, `LinkerScript.ld`, and `cmake/Package.cmake`. Downloads each `dependencies` entry (`name@version`) into `~/.cache/forge/packages/` when that version is not already extracted.
+Must be run in a directory that already contains `Forge.toml`. Scaffolds folders, `main.c`, CMake files, `LinkerScript.ld`, and `cmake/Package.cmake`. Downloads each `dependencies` entry (`name@version`) into `~/.cache/forge/packages/` when that version is not already extracted. Copies `include/stm32f1xx_hal_conf.h` from the HAL template when missing. Copies device `system_*.c` and the matching GCC `startup_*.s` into the project root.
 
 ## `forge build`
 

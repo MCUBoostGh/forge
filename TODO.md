@@ -51,7 +51,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 ## Issue: v0.2.0 — STM32 project bootstrap
 
-> Phase 1 start. Device-aware creation for STM32 (first board: `stm32f103r8`). **In progress** — catalog anchors, `--device` new, `internal/config`, arm-none-eabi + `LinkerScript.ld`, CMSIS cache + `cmake/Package.cmake` exist; startup, STM32 presets, host path, and install seeding still open.
+> Phase 1 start. Device-aware creation for STM32 (first board: `stm32f103r8`). **In progress** — catalog anchors, `--device` new, `internal/config`, arm-none-eabi + `LinkerScript.ld`, CMSIS/HAL cache + `cmake/Package.cmake`, and GCC `startup_*.s` / `system_*.c` copy exist; STM32 presets, host path, and install seeding still open.
 
 ### Tasks
 
@@ -65,14 +65,14 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 - [ ] **T2 — Device-aware `forge new <name> <device>`**
   - [x] Accept device argument / `--device` path
   - [ ] Resolve device via catalog; fail clearly on unknown device (`Lookup` only today; aliases / `Resolve` not wired; positional `<device>` not supported)
-  - [ ] Write device-aware `Forge.toml` (`[target]`, board, toolchain hints) — `config.New` still resets via `setConfigDefaults()` and drops device fields
+  - [x] Write device id and toolchain compiler into `Forge.toml` (`config.New` keeps fields set before defaults; board / extra catalog keys still open)
   - [ ] Seed `[install].packages` from target kind when applicable
   - [x] Usage/examples: docs/README use `forge new blink --device stm32f103r8` (flag form; positional form still open)
 
 - [ ] **T3 — `forge init` reads `Forge.toml`**
   - [x] Load and validate `Forge.toml` from cwd (replace in-memory-only path)
-  - [ ] Generate STM32-aware tree (startup/linker refs as planned) — `LinkerScript.ld` emitted; startup `.s` not yet
-  - [ ] Board-specific CMake generation from config (CPU/FloatABI + flash/RAM templating; CMSIS INTERFACE via `cmake/Package.cmake`; STM32 presets / startup not done)
+  - [x] Generate STM32-aware tree (startup/linker refs as planned) — `LinkerScript.ld` emitted; GCC `startup_*.s` and `system_*.c` copied from CMSIS-Device cache
+  - [ ] Board-specific CMake generation from config (CPU/FloatABI + flash/RAM templating; CMSIS INTERFACE and STM32F1 HAL STATIC via `cmake/Package.cmake`; STM32-named presets not done)
   - [ ] Keep host/generic path working for non-STM32 projects (`syncTemplateData` requires MCU/STM32; presets still arm-toolchain on `host-base`)
 
 - [ ] **T4 — gcc-arm-none-eabi + CMake presets**
@@ -87,7 +87,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 - [ ] **T6 — Docs**
   - [x] Update README for device-aware `new` / STM32 init (getting-started + create-a-project docs)
-  - [x] Document CMSIS cache, `cmake/Package.cmake`, and default `dependencies`
+  - [x] Document CMSIS cache, STM32F1 HAL, `cmake/Package.cmake`, and default `dependencies`
   - [ ] Mark v0.2.0 delivered in ROADMAP when complete
 
 **Done when:** `forge new blink stm32f103r8` → `init` → CMake STM32 presets work; issue closed.
@@ -172,9 +172,10 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 - [ ] **T3 — `forge add <package>`**
   - [x] Integrate CMSIS Core on `forge init` from `Forge.toml` `dependencies` (cache + INTERFACE library; not a `forge add` command yet)
-  - [ ] Integrate STM32 HAL, FreeRTOS, and a dedicated `forge add` command
+  - [x] Integrate STM32F1 HAL on `forge init` (`stm32f1-hal` STATIC library from cache; other families cataloged, not defaulted)
+  - [ ] Integrate FreeRTOS and a dedicated `forge add` command
   - [ ] Update root `CMakeLists.txt` for additional packages
-  - [x] Record CMSIS under `dependencies` in new `Forge.toml` (`cmsis5@5.9.0`)
+  - [x] Record CMSIS and STM32F1 HAL under `dependencies` in new `Forge.toml`
 
 - [ ] **T4 — Docs**
   - [ ] Examples for lib + add workflows

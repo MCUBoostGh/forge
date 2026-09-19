@@ -4,7 +4,7 @@ Forge uses a two-step setup, then a CMake-backed build.
 
 ```text
 forge new  →  Forge.toml
-forge init →  CMSIS cache + sources + CMake
+forge init →  package cache + sources + CMake
 forge build → ELF / HEX / BIN
 ```
 
@@ -22,13 +22,17 @@ forge new blink --device stm32f103r8
 
 `--device` is required. `Lookup` is by catalog id (`stm32f103r8`); aliases such as `bluepill` are not wired yet.
 
-`new` creates `<name>/` and writes `Forge.toml` with project metadata and a default dependency:
+`new` creates `<name>/` and writes `Forge.toml` with project metadata and default dependencies:
 
 ```toml
-dependencies = ["cmsis5@5.9.0"]
+dependencies = [
+  "cmsis5@5.9.0",
+  "stm32f1-cmsis-device@4.3.5",
+  "stm32f1-hal@1.1.10",
+]
 ```
 
-Change the spec (for example `cmsis6@6.1.0`) before `init` if you want the CMSIS 6 catalog entry. Version is taken from this list; URLs live in Forge’s package YAML, not in the project.
+Change a spec before `init` if you want another catalog entry (for example `cmsis6@6.1.0`, or another `stm32*-hal` family from the HAL YAML). Version is taken from this list; URLs live in Forge’s package YAML, not in the project.
 
 Then enter the project:
 
@@ -54,21 +58,23 @@ forge init
 ├── Forge.toml
 ├── LinkerScript.ld
 ├── main.c
+├── system_stm32f1xx.c
+├── startup_stm32f103xb.s
 ├── CMakeLists.txt
 └── CMakePresets.json
 ```
 
-`main.c` is a Cortex-M CMSIS smoke test (not Hello World). `cmake/Package.cmake` defines an INTERFACE library per dependency and points include paths at the cache. `CMakeLists.txt` links those targets with `PRIVATE`.
+`main.c` is a Cortex-M CMSIS smoke test (not Hello World). `cmake/Package.cmake` sets `cache_dir` to the shared package cache and references headers/HAL sources as `${cache_dir}/...`. CMSIS Core and CMSIS-Device are INTERFACE libraries; STM32F1 HAL is STATIC. `system_stm32f1xx.c` and the device GCC `startup_*.s` are copied into the project root and added to the firmware executable with `main.c`. `include/stm32f1xx_hal_conf.h` is copied from the HAL template if it is not already present.
 
-CMSIS is **not** copied into the project. Shared layout:
+HAL/CMSIS archives stay in the cache. Shared layout:
 
 ```text
 ~/.cache/forge/packages/CMSIS_5-5.9.0/CMSIS/Core/Include
+~/.cache/forge/packages/cmsis-device-f1-4.3.5/Include
+~/.cache/forge/packages/stm32f1xx-hal-driver-1.1.10/Inc
 ```
 
 A later project that uses `cmsis5@5.9.0` reuses that directory.
-
-The linker may warn about a missing `Reset_Handler` until startup files exist.
 
 ## 3. Build
 

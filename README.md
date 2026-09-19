@@ -26,9 +26,10 @@ Forge is early-stage (**v0.2.0**). Today it supports:
 | Capability | Details |
 |------------|---------|
 | Project creation | `forge new <name> --device <device>` writes a project dir and `Forge.toml` |
-| Scaffolding | `forge init` generates CMake files, a Cortex-M smoke-test `main.c`, and `cmake/Package.cmake` |
+| Scaffolding | `forge init` generates CMake files, a Cortex-M smoke-test `main.c`, device `startup_*.s` / `system_*.c`, and `cmake/Package.cmake` |
 | Builds | `forge build` loads config and runs CMake presets |
-| CMSIS | `cmsis5@5.9.0` is the default dependency; unpacked once under `~/.cache/forge/packages/` |
+| CMSIS | `cmsis5@5.9.0` is the default Core dependency; unpacked once under `~/.cache/forge/packages/` |
+| STM32 HAL | Default `stm32f1-hal@1.1.10` plus `stm32f1-cmsis-device@4.3.5`; HAL is a cached STATIC library; device headers stay INTERFACE |
 | Targets in progress | Early STM32 bare-metal (`gcc-arm-none-eabi`); host Linux path is not a separate `new` flow yet |
 | Device catalog | STM32 YAML profiles under `internal/devices/` (still expanding) |
 
