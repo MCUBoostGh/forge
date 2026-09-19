@@ -68,6 +68,9 @@ func TestNew_GeneratesDefaultConfig(t *testing.T) {
 	if config.CMake.MinimumRequiredVersion != "3.20" {
 		t.Errorf("CMake.MinimumRequiredVersion = %q, want %q", config.CMake.MinimumRequiredVersion, "3.20")
 	}
+	if len(config.Dependencies) != 1 || config.Dependencies[0] != "cmsis5@5.9.0" {
+		t.Errorf("Dependencies = %v, want [cmsis5@5.9.0]", config.Dependencies)
+	}
 
 	var fromFile Config
 	if err := toml.Unmarshal(raw, &fromFile); err != nil {

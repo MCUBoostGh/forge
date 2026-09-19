@@ -6,6 +6,7 @@ import (
 	"forge/internal/config"
 	"forge/internal/devices"
 	"forge/internal/logger"
+	thirdparty "forge/internal/package"
 	"forge/internal/templates"
 	"html/template"
 	"os"
@@ -13,8 +14,26 @@ import (
 	"strings"
 )
 
-func createNewProject(nameProject string) error {
+func cmsisCoreHeader(cpu string) string {
+	switch strings.ToLower(strings.TrimSpace(cpu)) {
+	case "cortex-m0":
+		return "core_cm0.h"
+	case "cortex-m0plus", "cortex-m0+":
+		return "core_cm0plus.h"
+	case "cortex-m1":
+		return "core_cm1.h"
+	case "cortex-m3":
+		return "core_cm3.h"
+	case "cortex-m4":
+		return "core_cm4.h"
+	case "cortex-m7":
+		return "core_cm7.h"
+	default:
+		return "core_cm3.h"
+	}
+}
 
+func createNewProject(nameProject string) error {
 	err := os.MkdirAll(nameProject, 0755)
 	if err != nil {
 		return err
@@ -59,8 +78,48 @@ func syncTemplateData(cfg *config.Config) (templates.TemplateData, error) {
 	tmplData.TargetFlashKB = catalog.FlashKB
 	tmplData.TargetRAMKB = catalog.RAMKB
 	tmplData.TargetFloatABI = catalog.FloatABI
+	tmplData.CMSISCoreHeader = cmsisCoreHeader(catalog.CPU)
+
+	for _, spec := range cfg.Dependencies {
+		name, version, err := thirdparty.ParseSpec(spec)
+		if err != nil {
+			return templates.TemplateData{}, err
+		}
+		pkg, err := thirdparty.Register(name, version)
+		if err != nil {
+			return templates.TemplateData{}, err
+		}
+		tmplData.Packages = append(tmplData.Packages, templates.PackageData{
+			Name:        pkg.Name,
+			IncludeDirs: pkg.IncludeDirs(),
+		})
+	}
 
 	return tmplData, nil
+}
+
+func downloadDependencies(cfg *config.Config) error {
+
+	logger.Info("Start downloading dependenceis ...")
+	for _, spec := range cfg.Dependencies {
+
+		name, version, err := thirdparty.ParseSpec(spec)
+		if err != nil {
+			return err
+		}
+		pkg, err := thirdparty.Register(name, version)
+		if err != nil {
+			return err
+		}
+
+		if err := pkg.Download(); err != nil {
+			return err
+		}
+		if err := pkg.Extract(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func generateFiles(cfg *config.Config) error {
@@ -186,30 +245,16 @@ func Init() error {
 		}
 	}
 
+	if err := downloadDependencies(&cfg); err != nil {
+		logger.Error(err)
+		return msgErr
+	}
+
 	if err := generateFiles(&cfg); err != nil {
 		logger.Error(err)
 		return msgErr
 	}
 
-	dep, ok := registry["cmsis"]
-	if !ok {
-		logger.Error("Failed to load registery")
-		return msgErr
-	}
-
-	logger.Info("Start downloading dependency.")
-
-	cacheDir, err := download(dep)
-	if err != nil {
-		logger.Error(err)
-		return msgErr
-	}
-
-	logger.Success(dep.Name + " downaloed in to " + cacheDir + " successfully.")
-
-	cfg = config.Get()
-	cfg.Dependencies = append(cfg.Dependencies, dep.Name+"@"+dep.Version)
-	config.Set(cfg)
-	return config.Write()
+	return nil
 
 }

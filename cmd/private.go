@@ -12,6 +12,7 @@ var listFilesContentMap = map[string]string{
 	"CMakeLists.txt":                "cmake/CMakeLists.txt.tmpl",
 	"CMakePresets.json":             "cmake/CMakePresets.json.tmpl",
 	"cmake/gcc-arm-none-eabi.cmake": "cmake/gcc-arm-none-eabi.cmake.tmpl",
+	"cmake/Package.cmake":           "cmake/Package.cmake.tmpl",
 	"LinkerScript.ld":               "ld/LinkerScript.ld.tmpl",
 }
 

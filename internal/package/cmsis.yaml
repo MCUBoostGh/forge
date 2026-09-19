@@ -1,0 +1,18 @@
+# CMSIS download catalog. Version is not pinned here; Forge.toml supplies it
+# and {version} is substituted into url and archive_root (see tag_prefix).
+
+cmsis5:
+  name: cmsis5
+  url: https://github.com/ARM-software/CMSIS_5/archive/refs/tags/{version}.tar.gz
+  archive_root: CMSIS_5-{version}
+  include:
+    - CMSIS/Core/Include
+
+cmsis6:
+  name: cmsis6
+  url: https://github.com/ARM-software/CMSIS_6/archive/refs/tags/{version}.tar.gz
+  tag_prefix: v
+  archive_root: CMSIS_6-{version}
+  include:
+    - CMSIS/Core/Include
+    - CMSIS/Core/Include/m-profile

@@ -1,0 +1,8 @@
+{{range .Packages}}
+add_library({{.Name}} INTERFACE)
+target_include_directories({{.Name}} INTERFACE
+{{- range .IncludeDirs}}
+	"{{.}}"
+{{- end}}
+)
+{{end}}

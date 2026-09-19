@@ -1,6 +1,56 @@
-#include <stdio.h>
+/*
+ * Forge CMSIS smoke test for {{.TargetDevice}} ({{.TargetCPU}}).
+ * Minimal device contract required by CMSIS-Core (IRQn_Type + feature macros).
+ */
+#include <stdint.h>
+#include "cmsis_version.h"
 
-int main() {
-	printf("Hello, World!\n");
-	return 0;
+typedef enum {
+	NonMaskableInt_IRQn   = -14,
+	HardFault_IRQn        = -13,
+	MemoryManagement_IRQn = -12,
+	BusFault_IRQn         = -11,
+	UsageFault_IRQn       = -10,
+	SVCall_IRQn           = -5,
+	DebugMonitor_IRQn     = -4,
+	PendSV_IRQn           = -2,
+	SysTick_IRQn          = -1
+} IRQn_Type;
+
+#ifndef __CM3_REV
+#define __CM3_REV 0x0201U
+#endif
+#ifndef __MPU_PRESENT
+#define __MPU_PRESENT 0U
+#endif
+#ifndef __VTOR_PRESENT
+#define __VTOR_PRESENT 1U
+#endif
+#ifndef __NVIC_PRIO_BITS
+#define __NVIC_PRIO_BITS 4U
+#endif
+#ifndef __Vendor_SysTickConfig
+#define __Vendor_SysTickConfig 0U
+#endif
+#ifndef __FPU_PRESENT
+#define __FPU_PRESENT 0U
+#endif
+
+#include "{{.CMSISCoreHeader}}"
+
+int main(void)
+{
+	volatile uint32_t cmsis_ver = __CM_CMSIS_VERSION;
+	volatile uint32_t cpuid = SCB->CPUID;
+
+	(void)cmsis_ver;
+	(void)cpuid;
+
+	__DSB();
+	__ISB();
+	__NOP();
+
+	for (;;) {
+		__NOP();
+	}
 }

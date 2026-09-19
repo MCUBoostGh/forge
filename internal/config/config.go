@@ -48,7 +48,7 @@ func setConfigDefaults() {
 	config.Build.System = "cmake"
 	config.Build.Type = "debug"
 	config.Toolchain.Compiler = "gcc"
-	config.Dependencies = []string{}
+	config.Dependencies = []string{"cmsis5@5.9.0"}
 	config.CMake.Version = "3.30"
 	config.CMake.MinimumRequiredVersion = "3.20"
 }
@@ -81,9 +81,9 @@ func New(path string) error {
 
 func Read() error {
 
-	msgErr:= fmt.Errorf("Failed to read Config file.")
-	
-	if err:=IsExist();err!=nil{
+	msgErr := fmt.Errorf("Failed to read Config file.")
+
+	if err := IsExist(); err != nil {
 		logger.Error(err)
 		return msgErr
 	}
@@ -93,11 +93,11 @@ func Read() error {
 		logger.Error(err)
 		return msgErr
 	}
-	
+
 	if err := toml.Unmarshal(raw, &config); err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 
@@ -121,12 +121,12 @@ func Get() Config {
 	return config
 }
 
-func Set(cfg Config){
+func Set(cfg Config) {
 	config = cfg
 }
 
 func IsExist() error {
-	
+
 	_, err := os.Stat(forgeTOMLName)
 	if errors.Is(err, os.ErrNotExist) {
 		return err
