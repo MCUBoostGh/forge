@@ -49,18 +49,20 @@ func Errorf(format string, v ...any) {
 	printFormat(os.Stderr, red, "ERROR:", format, v...)
 }
 
+var exit = os.Exit
+
 func Fatal(v ...any) {
 	printLine(os.Stderr, bold+red, "FATAL:", v...)
-	os.Exit(1)
+	exit(1)
 }
 
-func Println(v ...any){
+func Println(v ...any) {
 	log.Println(v...)
 }
 
 func Fatalf(format string, v ...any) {
 	printFormat(os.Stderr, bold+red, "FATAL:", format, v...)
-	os.Exit(1)
+	exit(1)
 }
 
 func printLine(w io.Writer, color, prefix string, v ...any) {

@@ -245,3 +245,28 @@ func TestRead_MissingFile(t *testing.T) {
 		t.Fatal("Read: expected error when Forge.toml is missing")
 	}
 }
+
+func TestGetSet(t *testing.T) {
+	resetConfig()
+	want := Config{}
+	want.Project.Name = "set-me"
+	Set(want)
+	got := Get()
+	if got.Project.Name != "set-me" {
+		t.Errorf("Get after Set = %q", got.Project.Name)
+	}
+}
+
+func TestIsExist(t *testing.T) {
+	chdirTemp(t)
+	resetConfig()
+	if err := IsExist(); err == nil {
+		t.Fatal("IsExist: expected error when Forge.toml is missing")
+	}
+	if err := os.WriteFile(forgeTOMLName, []byte("project = {}"), 0644); err != nil {
+		t.Fatalf("write: %v", err)
+	}
+	if err := IsExist(); err != nil {
+		t.Fatalf("IsExist: %v", err)
+	}
+}

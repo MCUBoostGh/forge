@@ -88,9 +88,10 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
   - [x] Document catalog keys and how to add a board (`docs/device-catalog.md`)
   - [x] Mark v0.2.0 delivered in ROADMAP when complete
 
-- [ ] **T7 — Unit tests for Forge packages**
-  - [ ] Unit-test Go packages (`internal/config`, `internal/devices`, `internal/package`, `cmd`)
-  - [ ] Cover F1 / F7 / G4 catalog and package registration paths
+- [x] **T7 — Unit tests for Forge packages**
+  - [x] Unit-test Go packages (`internal/config`, `internal/devices`, `internal/package`, `cmd`)
+  - [x] Cover F1 / F7 / G4 catalog and package registration paths
+  - [x] Unit-test root `forge` dispatch, `internal/logger`, and `internal/templates`
 
 - [ ] **T8 — Integration tests for the Forge CLI**
   - [ ] End-to-end `forge new` → `init` → `build` against a generated project
