@@ -25,10 +25,11 @@ Forge is early-stage (**v0.2.0**). Today it supports:
 
 | Capability | Details |
 |------------|---------|
-| Project creation | `forge new <name> [--device <device>]` writes a project dir and `Forge.toml` |
-| Scaffolding | `forge init` generates `src/`, `include/`, `cmake/`, `main.c`, CMake files |
+| Project creation | `forge new <name> --device <device>` writes a project dir and `Forge.toml` |
+| Scaffolding | `forge init` generates CMake files, a Cortex-M smoke-test `main.c`, and `cmake/Package.cmake` |
 | Builds | `forge build` loads config and runs CMake presets |
-| Targets in progress | Host Linux (`gcc`) and early STM32 bare-metal (`gcc-arm-none-eabi`) |
+| CMSIS | `cmsis5@5.9.0` is the default dependency; unpacked once under `~/.cache/forge/packages/` |
+| Targets in progress | Early STM32 bare-metal (`gcc-arm-none-eabi`); host Linux path is not a separate `new` flow yet |
 | Device catalog | STM32 YAML profiles under `internal/devices/` (still expanding) |
 
 **Not ready yet:** `run`, `test`, `list`, `setup`, `flash`, `monitor`, and related roadmap commands.
@@ -51,7 +52,7 @@ Full plan: [ROADMAP.md](ROADMAP.md). Task breakdown: [TODO.md](TODO.md).
 
 ## How do I try it?
 
-Requires **Go 1.26+** and **CMake 3.20+**.
+Requires **Go 1.26+**, **CMake 3.20+**, **`gcc-arm-none-eabi`**, and network access the first time CMSIS is fetched.
 
 ```bash
 go build -o forge .
@@ -70,6 +71,7 @@ forge build
 | [Getting started](docs/getting-started.md) | Install Forge and run your first project |
 | [Create a project](docs/create-a-project.md) | Walkthrough of `new` → `init` → `build` |
 | [Commands](docs/commands.md) | CLI reference |
+| [Changelog](CHANGELOG.md) | User-visible changes |
 | [Docs index](docs/README.md) | All documentation |
 
 ## License

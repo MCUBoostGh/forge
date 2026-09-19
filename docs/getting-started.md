@@ -6,7 +6,8 @@ This guide walks you from a clean checkout to a built Forge project.
 
 - **Go** 1.26 or later
 - **CMake** 3.20 or later
-- A C toolchain on `PATH` (host `gcc`, or `gcc-arm-none-eabi` for STM32 work)
+- **`gcc-arm-none-eabi`** on `PATH` (STM32 / Cortex-M)
+- Network access the first time a CMSIS version is downloaded
 
 ## Build and install Forge
 
@@ -22,7 +23,7 @@ You should see `Forge version 0.2.0` (or newer).
 
 If you prefer not to install globally, run commands with `go run .` from the repo root, or use `./forge` after `go build`.
 
-## First project (STM32-oriented)
+## First project (STM32)
 
 ```bash
 forge new blink --device stm32f103r8
@@ -33,18 +34,11 @@ forge build
 
 What happens:
 
-1. `new` creates `blink/` and writes `Forge.toml`
-2. `init` scaffolds sources and CMake files from that config
+1. `new` creates `blink/` and writes `Forge.toml` (including `dependencies = ["cmsis5@5.9.0"]`)
+2. `init` downloads CMSIS into `~/.cache/forge/packages/` if needed, then scaffolds sources and CMake files
 3. `build` configures and builds using CMake presets
 
-## First project (host / generic)
-
-```bash
-forge new demo_app
-cd demo_app
-forge init
-forge build
-```
+`forge new` currently requires `--device`. A host-only `new` path is not implemented.
 
 ## Helper script
 
@@ -60,6 +54,6 @@ From the Forge repo root, `run.sh` builds Forge and runs the full create/init/bu
 
 ## Next steps
 
-- [Create a project](create-a-project.md) — layout and workflow details
+- [Create a project](create-a-project.md) — layout, `Forge.toml` dependencies, and CMSIS cache
 - [Commands](commands.md) — full CLI reference
 - [ROADMAP.md](../ROADMAP.md) — where Forge is headed

@@ -31,7 +31,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 - [x] **T3 — `forge init`**
   - [x] Generate `src/`, `include/`
-  - [x] Generate Hello World `main.c`
+  - [x] Generate Hello World `main.c` (replaced in v0.2.0 by a Cortex-M CMSIS smoke test)
   - [x] Generate minimal `CMakeLists.txt`
   - [x] Generate `CMakePresets.json`
   - [x] Fix known limitation: init must read `Forge.toml` from disk (completed under v0.2.0)
@@ -51,7 +51,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 ## Issue: v0.2.0 — STM32 project bootstrap
 
-> Phase 1 start. Device-aware creation for STM32 (first board: `stm32f103r8`). **In progress** — catalog anchors, `--device` new, `internal/config`, arm-none-eabi + `LinkerScript.ld` emission exist; startup, STM32 presets, host path, and install seeding still open.
+> Phase 1 start. Device-aware creation for STM32 (first board: `stm32f103r8`). **In progress** — catalog anchors, `--device` new, `internal/config`, arm-none-eabi + `LinkerScript.ld`, CMSIS cache + `cmake/Package.cmake` exist; startup, STM32 presets, host path, and install seeding still open.
 
 ### Tasks
 
@@ -72,7 +72,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 - [ ] **T3 — `forge init` reads `Forge.toml`**
   - [x] Load and validate `Forge.toml` from cwd (replace in-memory-only path)
   - [ ] Generate STM32-aware tree (startup/linker refs as planned) — `LinkerScript.ld` emitted; startup `.s` not yet
-  - [ ] Board-specific CMake generation from config (CPU/FloatABI + flash/RAM templating started; STM32 presets / startup not done)
+  - [ ] Board-specific CMake generation from config (CPU/FloatABI + flash/RAM templating; CMSIS INTERFACE via `cmake/Package.cmake`; STM32 presets / startup not done)
   - [ ] Keep host/generic path working for non-STM32 projects (`syncTemplateData` requires MCU/STM32; presets still arm-toolchain on `host-base`)
 
 - [ ] **T4 — gcc-arm-none-eabi + CMake presets**
@@ -87,6 +87,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 - [ ] **T6 — Docs**
   - [x] Update README for device-aware `new` / STM32 init (getting-started + create-a-project docs)
+  - [x] Document CMSIS cache, `cmake/Package.cmake`, and default `dependencies`
   - [ ] Mark v0.2.0 delivered in ROADMAP when complete
 
 **Done when:** `forge new blink stm32f103r8` → `init` → CMake STM32 presets work; issue closed.
@@ -170,9 +171,10 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
   - [ ] CMake library targets as first-class build graph nodes
 
 - [ ] **T3 — `forge add <package>`**
-  - [ ] Integrate third-party sources (CMSIS, STM32 HAL, FreeRTOS)
-  - [ ] Update root `CMakeLists.txt`
-  - [ ] Record entries under `[dependencies]` in `Forge.toml`
+  - [x] Integrate CMSIS Core on `forge init` from `Forge.toml` `dependencies` (cache + INTERFACE library; not a `forge add` command yet)
+  - [ ] Integrate STM32 HAL, FreeRTOS, and a dedicated `forge add` command
+  - [ ] Update root `CMakeLists.txt` for additional packages
+  - [x] Record CMSIS under `dependencies` in new `Forge.toml` (`cmsis5@5.9.0`)
 
 - [ ] **T4 — Docs**
   - [ ] Examples for lib + add workflows

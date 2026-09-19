@@ -8,8 +8,8 @@ forge <command> [arguments]
 
 | Command | Status | Description |
 |---------|--------|-------------|
-| `new` | Available | Create a project directory and `Forge.toml` |
-| `init` | Available | Generate project structure and files from `Forge.toml` |
+| `new` | Available | Create a project directory and `Forge.toml` (`--device` required) |
+| `init` | Available | Scaffold files, fetch `dependencies` into the user cache, generate `cmake/Package.cmake` |
 | `build` | Available | Configure and build with CMake presets |
 | `help` | Available | Show usage |
 | `version` | Available | Print the version string |
@@ -20,15 +20,17 @@ forge <command> [arguments]
 ## `forge new`
 
 ```bash
-forge new <name> [--device <device>]
+forge new <name> --device <device>
 ```
 
-Creates `<name>/` and writes `Forge.toml`.
+Creates `<name>/` and writes `Forge.toml`. `--device` is required.
 
 | Argument / flag | Description |
 |-----------------|-------------|
 | `<name>` | Project directory name (required) |
-| `--device <device>` | Optional device id (for example `stm32f103r8`, `bluepill`) |
+| `--device <device>` | Device catalog id (for example `stm32f103r8`) |
+
+Default `Forge.toml` includes `dependencies = ["cmsis5@5.9.0"]`.
 
 ## `forge init`
 
@@ -36,7 +38,7 @@ Creates `<name>/` and writes `Forge.toml`.
 forge init
 ```
 
-Must be run in a directory that already contains `Forge.toml`. Scaffolds folders, `main.c`, `CMakeLists.txt`, `CMakePresets.json`, and related files.
+Must be run in a directory that already contains `Forge.toml`. Scaffolds folders, `main.c`, CMake files, `LinkerScript.ld`, and `cmake/Package.cmake`. Downloads each `dependencies` entry (`name@version`) into `~/.cache/forge/packages/` when that version is not already extracted.
 
 ## `forge build`
 
