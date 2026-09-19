@@ -17,6 +17,7 @@ All notable user-visible changes to Forge are listed here.
 - `forge new` writes family CMSIS/HAL `dependencies` from the device catalog (F1, F7, G4).
 - STM32F7 (`stm32f746zg`, `stm32f767zi`) and STM32G4 (`stm32g431rb`, `stm32g474re`) board profiles, CMSIS-Device packs, and HAL.
 - Integration tests: `go test -tags=integration ./cmd` runs `new` → `init` → `build debug` for STM32F1 and STM32G4.
+- GitHub Actions CI on push and pull request (unit tests and tagged integration tests).
 
 ### Changed
 

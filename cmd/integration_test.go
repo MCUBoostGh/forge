@@ -13,6 +13,9 @@ func requireSmokeTools(t *testing.T) {
 	t.Helper()
 	for _, bin := range []string{"cmake", "arm-none-eabi-gcc", "make"} {
 		if _, err := exec.LookPath(bin); err != nil {
+			if os.Getenv("CI") != "" {
+				t.Fatalf("required tool %s not on PATH", bin)
+			}
 			t.Skipf("skipping integration test: %s not on PATH", bin)
 		}
 	}

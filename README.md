@@ -79,6 +79,8 @@ Integration tests (`new` → `init` → `build debug` for STM32F1 and STM32G4). 
 go test -tags=integration ./cmd -count=1 -timeout 20m
 ```
 
+GitHub Actions (`.github/workflows/ci.yml`) runs the same commands on every push and pull request. The integration job installs CMake and `gcc-arm-none-eabi` on Ubuntu.
+
 ### Tutorials and docs
 
 | Guide | Description |

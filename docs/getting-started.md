@@ -54,6 +54,8 @@ End-to-end `new` → `init` → `build debug` (STM32F1 and STM32G4). Requires CM
 go test -tags=integration ./cmd -count=1 -timeout 20m
 ```
 
+GitHub Actions runs these on every push and pull request (`.github/workflows/ci.yml`).
+
 ## Next steps
 
 - [Create a project](create-a-project.md) — layout, `Forge.toml` dependencies, and package cache

@@ -51,7 +51,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 ## Issue: v0.2.0 — STM32 project bootstrap
 
-> Phase 1 start. Device-aware creation for STM32 (first board: `stm32f103r8`). Catalog, `forge new <name> <device>`, `internal/config`, arm-none-eabi + `LinkerScript.ld`, CMSIS/HAL cache + `cmake/Package.cmake`, GCC `startup_*.s` / `system_*.c` copy, `debug` / `release` CMake presets, and F1/F7/G4 family packages are in tree. **Open:** unit tests, integration tests, and GitHub Actions CI (T7–T9). v0.2.0 does not install host tools (`gcc-arm-none-eabi` / CMake must already be on `PATH`). Host Linux, `[install]` / `forge setup`, and schema fields for tools are v0.3.0.
+> Phase 1 start. Device-aware creation for STM32 (first board: `stm32f103r8`). Catalog, `forge new <name> <device>`, `internal/config`, arm-none-eabi + `LinkerScript.ld`, CMSIS/HAL cache + `cmake/Package.cmake`, GCC `startup_*.s` / `system_*.c` copy, `debug` / `release` CMake presets, F1/F7/G4 family packages, unit tests, tagged integration tests, and GitHub Actions CI (T7–T9) are in tree. v0.2.0 does not install host tools (`gcc-arm-none-eabi` / CMake must already be on `PATH`). Host Linux, `[install]` / `forge setup`, and schema fields for tools are v0.3.0.
 
 ### Tasks
 
@@ -97,9 +97,9 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
   - [x] End-to-end `forge new` → `init` → `build` against a generated project
   - [x] Exercise more than one family (at least F1 plus F7 or G4)
 
-- [ ] **T9 — GitHub Actions CI**
-  - [ ] Workflow on push / pull request (`go test ./...` and `go test -tags=integration ./cmd`)
-  - [ ] Run unit tests (and integration tests when they exist)
+- [x] **T9 — GitHub Actions CI**
+  - [x] Workflow on push / pull request (`go test ./...` and `go test -tags=integration ./cmd`)
+  - [x] Run unit tests (and integration tests when they exist)
 
 **Done when:** `forge new blink stm32f103r8` → `init` → CMake STM32 presets work; unit tests, integration tests, and GitHub Actions CI are in place; issue closed.
 
