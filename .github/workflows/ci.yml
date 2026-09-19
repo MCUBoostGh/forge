@@ -63,4 +63,4 @@ jobs:
           key: forge-packages-${{ runner.os }}-${{ hashFiles('internal/package/*.yaml', 'internal/devices/st/*.yaml') }}
 
       - name: Test
-        run: go test -tags=integration ./cmd -count=1 -timeout 20m
+        run: go test -tags=integration ./cmd -count=1 -timeout 20m -v
