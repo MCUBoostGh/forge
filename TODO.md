@@ -51,7 +51,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 ## Issue: v0.2.0 — STM32 project bootstrap
 
-> Phase 1 start. Device-aware creation for STM32 (first board: `stm32f103r8`). **Delivered** — catalog, `forge new <name> <device>`, `internal/config`, arm-none-eabi + `LinkerScript.ld`, CMSIS/HAL cache + `cmake/Package.cmake`, GCC `startup_*.s` / `system_*.c` copy, and `debug` / `release` CMake presets. v0.2.0 does not install host tools (`gcc-arm-none-eabi` / CMake must already be on `PATH`). Host Linux, `[install]` / `forge setup`, and schema fields for tools are v0.3.0.
+> Phase 1 start. Device-aware creation for STM32 (first board: `stm32f103r8`). **Delivered** — catalog, `forge new <name> <device>`, `internal/config`, arm-none-eabi + `LinkerScript.ld`, CMSIS/HAL cache + `cmake/Package.cmake`, GCC `startup_*.s` / `system_*.c` copy, `debug` / `release` CMake presets, and F1/F7/G4 family packages. v0.2.0 does not install host tools (`gcc-arm-none-eabi` / CMake must already be on `PATH`). Host Linux, `[install]` / `forge setup`, and schema fields for tools are v0.3.0.
 
 ### Tasks
 
@@ -173,10 +173,10 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 - [ ] **T3 — `forge add <package>`**
   - [x] Integrate CMSIS Core on `forge init` from `Forge.toml` `dependencies` (cache + INTERFACE library; not a `forge add` command yet)
-  - [x] Integrate STM32F1 HAL on `forge init` (`stm32f1-hal` STATIC library from cache; other families cataloged, not defaulted)
+  - [x] Integrate STM32F1 HAL on `forge init` (`stm32f1-hal` STATIC library from cache; F7/G4 HAL is selected when those devices are used)
   - [ ] Integrate FreeRTOS and a dedicated `forge add` command
   - [ ] Update root `CMakeLists.txt` for additional packages
-  - [x] Record CMSIS and STM32F1 HAL under `dependencies` in new `Forge.toml`
+  - [x] Record CMSIS and family HAL under `dependencies` in new `Forge.toml`
 
 - [ ] **T4 — Docs**
   - [ ] Examples for lib + add workflows
@@ -273,7 +273,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 Per ROADMAP — track separately only if needed later:
 
 - Windows/macOS host support
-- Full STM32 family catalog beyond F103 (expand post-1.0)
+- Full STM32 family catalog beyond F1 / F7 / G4 (expand post-1.0)
 - IDE plugins (VS Code extension)
 - Cloud CI templates
 

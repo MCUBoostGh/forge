@@ -1,0 +1,42 @@
+x-stm32f7: &stm32f7
+  vendor: ST
+  family: STM32F7
+  architecture: cortex-m7
+  cpu: cortex-m7
+  float_abi: hard
+  openocd_target: stm32f7x
+  packages:
+    - cmsis5@5.9.0
+    - stm32f7-cmsis-device@1.2.10
+    - stm32f7-hal@1.3.3
+  presets:
+    debug: { build_type: Debug }
+    release: { build_type: Release }
+
+stm32f746zg:
+  <<: *stm32f7
+  id: stm32f746zg
+  series: STM32F746XX
+  flash_kb: 1024
+  ram_kb: 320
+  pins: 144
+  package: LQFP144
+  fpu: fpv5-sp-d16
+  stm32_device: STM32F746xx
+  linker_script: STM32F746ZGTX_FLASH.ld
+  aliases:
+    - nucleo-f746zg
+
+stm32f767zi:
+  <<: *stm32f7
+  id: stm32f767zi
+  series: STM32F767XX
+  flash_kb: 2048
+  ram_kb: 512
+  pins: 144
+  package: LQFP144
+  fpu: fpv5-d16
+  stm32_device: STM32F767xx
+  linker_script: STM32F767ZITX_FLASH.ld
+  aliases:
+    - nucleo-f767zi

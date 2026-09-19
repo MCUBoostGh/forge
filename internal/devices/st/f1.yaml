@@ -7,6 +7,10 @@ x-stm32f1: &stm32f1
   fpu: ""
   float_abi: soft
   openocd_target: stm32f1x
+  packages:
+    - cmsis5@5.9.0
+    - stm32f1-cmsis-device@4.3.5
+    - stm32f1-hal@1.1.10
   presets:
     debug: { build_type: Debug }
     release: { build_type: Release }

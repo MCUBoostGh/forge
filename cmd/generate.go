@@ -94,6 +94,10 @@ func syncTemplateData(cfg *config.Config) (templates.TemplateData, error) {
 	tmplData.TargetFloatABI = catalog.FloatABI
 	tmplData.STM32Device = catalog.STM32Device
 	tmplData.CMSISCoreHeader = cmsisCoreHeader(catalog.CPU)
+	tmplData.FPUPresent = "0U"
+	if strings.TrimSpace(catalog.FPU) != "" {
+		tmplData.FPUPresent = "1U"
+	}
 
 	cacheDir, err := thirdparty.PackagesDir()
 	if err != nil {
@@ -323,11 +327,18 @@ func New(args ...string) error {
 		return err
 	}
 
+	deps, err := catalog.DefaultDependencies()
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
+
 	cfg := config.Get()
 	cfg.Project.Name = nameProject
 	cfg.Target.Device = catalog.ID
 	cfg.Target.Kind = "mcu"
 	cfg.Toolchain.Compiler = compiler
+	cfg.Dependencies = deps
 	config.Set(cfg)
 
 	if err := createNewProject(nameProject); err != nil {

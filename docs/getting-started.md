@@ -34,11 +34,11 @@ forge build debug
 
 What happens:
 
-1. `new` creates `blink/` and writes `Forge.toml` (including CMSIS Core, STM32F1 CMSIS-Device, and `stm32f1-hal`)
+1. `new` creates `blink/` and writes `Forge.toml` (CMSIS Core plus the family’s CMSIS-Device and HAL, for example STM32F1)
 2. `init` downloads those packages into `~/.cache/forge/packages/` if needed, then scaffolds sources and CMake files
 3. `build debug` configures and builds the `debug` CMake preset
 
-`forge new` requires a catalog id or alias (`stm32f103r8`, `bluepill`). A host-only `new` path is not implemented.
+`forge new` requires a catalog id or alias (`stm32f103r8`, `bluepill`, `stm32f746zg`, `nucleo-g431rb`). A host-only `new` path is not implemented.
 
 ## Helper script
 

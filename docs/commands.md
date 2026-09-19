@@ -29,12 +29,12 @@ Creates `<name>/` and writes `Forge.toml`. A device is required (catalog id or a
 | Argument / flag | Description |
 |-----------------|-------------|
 | `<name>` | Project directory name (required) |
-| `<device>` | Catalog id or alias (for example `stm32f103r8`, `bluepill`) |
+| `<device>` | Catalog id or alias (for example `stm32f103r8`, `bluepill`, `stm32f746zg`, `nucleo-g431rb`) |
 | `--device <device>` | Same as positional `<device>` |
 
 Unknown devices fail with `unknown device "..."`. See [Device catalog](device-catalog.md).
 
-Default `Forge.toml` includes `cmsis5@5.9.0`, `stm32f1-cmsis-device@4.3.5`, and `stm32f1-hal@1.1.10`.
+`Forge.toml` `dependencies` come from the device catalog family: F1 uses `cmsis5@5.9.0`, `stm32f1-cmsis-device@4.3.5`, `stm32f1-hal@1.1.10`; F7 and G4 use their matching CMSIS-Device and HAL packs.
 
 ## `forge init`
 
@@ -42,7 +42,7 @@ Default `Forge.toml` includes `cmsis5@5.9.0`, `stm32f1-cmsis-device@4.3.5`, and 
 forge init
 ```
 
-Must be run in a directory that already contains `Forge.toml`. Scaffolds folders, `main.c`, CMake files, `LinkerScript.ld`, and `cmake/Package.cmake`. Downloads each `dependencies` entry (`name@version`) into `~/.cache/forge/packages/` when that version is not already extracted. Copies `include/stm32f1xx_hal_conf.h` from the HAL template when missing. Copies device `system_*.c` and the matching GCC `startup_*.s` into the project root.
+Must be run in a directory that already contains `Forge.toml`. Scaffolds folders, `main.c`, CMake files, `LinkerScript.ld`, and `cmake/Package.cmake`. Downloads each `dependencies` entry (`name@version`) into `~/.cache/forge/packages/` when that version is not already extracted. Copies `include/*hal_conf.h` from the HAL template when missing. Copies device `system_*.c` and the matching GCC `startup_*.s` into the project root.
 
 ## `forge build`
 

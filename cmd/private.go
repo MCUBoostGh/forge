@@ -19,6 +19,8 @@ var listFilesContentMap = map[string]string{
 var compilersMap = map[string]string{
 	"cortex-m0": "gcc-arm-none-eabi",
 	"cortex-m3": "gcc-arm-none-eabi",
+	"cortex-m4": "gcc-arm-none-eabi",
+	"cortex-m7": "gcc-arm-none-eabi",
 	"x86_64":    "gcc",
 }
 

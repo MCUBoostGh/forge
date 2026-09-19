@@ -1,0 +1,41 @@
+x-stm32g4: &stm32g4
+  vendor: ST
+  family: STM32G4
+  architecture: cortex-m4
+  cpu: cortex-m4
+  fpu: fpv4-sp-d16
+  float_abi: hard
+  openocd_target: stm32g4x
+  packages:
+    - cmsis5@5.9.0
+    - stm32g4-cmsis-device@1.2.6
+    - stm32g4-hal@1.2.6
+  presets:
+    debug: { build_type: Debug }
+    release: { build_type: Release }
+
+stm32g431rb:
+  <<: *stm32g4
+  id: stm32g431rb
+  series: STM32G431XX
+  flash_kb: 128
+  ram_kb: 32
+  pins: 64
+  package: LQFP64
+  stm32_device: STM32G431xx
+  linker_script: STM32G431RBTX_FLASH.ld
+  aliases:
+    - nucleo-g431rb
+
+stm32g474re:
+  <<: *stm32g4
+  id: stm32g474re
+  series: STM32G474XX
+  flash_kb: 512
+  ram_kb: 128
+  pins: 64
+  package: LQFP64
+  stm32_device: STM32G474xx
+  linker_script: STM32G474RETX_FLASH.ld
+  aliases:
+    - nucleo-g474re

@@ -210,7 +210,7 @@ Known limitation (fixed in v0.2.0): `forge init` used in-memory config and did n
 **Phase 1 start.** Device-aware project creation for STM32.
 
 1. **`forge new <name> <device>`** — device-aware `Forge.toml` (first board: `stm32f103r8`; e.g. `forge new blink stm32f103r8`)
-2. **`forge init`** — read `Forge.toml` from cwd; generate STM32 project tree (linker + CMake; GCC `startup_*.s` and `system_*.c` copied from CMSIS-Device); fetch remaining `dependencies` into `~/.cache/forge/packages/` and emit `cmake/Package.cmake` (CMSIS INTERFACE, STM32F1 HAL STATIC)
+2. **`forge init`** — read `Forge.toml` from cwd; generate STM32 project tree (linker + CMake; GCC `startup_*.s` and `system_*.c` copied from CMSIS-Device); fetch remaining `dependencies` into `~/.cache/forge/packages/` and emit `cmake/Package.cmake` (CMSIS INTERFACE, family HAL STATIC)
 3. **gcc-arm-none-eabi + CMake preset** — toolchain file and `CMakePresets.json` entries `debug` / `release` (CPU/FloatABI/`STM32_DEVICE` from the device catalog; `FLASH_KB`/`RAM_KB` on the preset; flash/RAM in `LinkerScript.ld`; `forge build debug`)
 
 Does **not** install host tools. CMake and `gcc-arm-none-eabi` must already be on `PATH`. `[install].packages` / `forge setup` are v0.3.0.
@@ -248,7 +248,7 @@ Next: [v0.3.0](#v030--host-tools-setup-and-multi-target-build).
 ## v0.5.0 — Libraries and third-party code
 
 1. **`forge lib <name>`** — scaffold static/shared library (`lib/<name>/CMakeLists.txt`, `include/`, `src/`)
-2. **`forge add <package>`** — CLI to add further third-party sources (FreeRTOS); CMSIS Core and STM32F1 HAL are already fetched on `init` from `dependencies`
+2. **`forge add <package>`** — CLI to add further third-party sources (FreeRTOS); CMSIS Core and family HAL are already fetched on `init` from `dependencies`
 3. **CMake library targets** — wire `forge lib` output into root build graph
 
 ---
@@ -290,7 +290,7 @@ Cross-compilation for ARM Linux targets. Deferred from v1.0.0.
 
 - Embedded Linux / Raspberry Pi (planned v2.0.0)
 - Windows/macOS host support
-- Full STM32 family catalog (start with F103, expand post-1.0)
+- Full STM32 family catalog (F1 / F7 / G4 starter set; expand further post-1.0)
 - IDE plugins (VS Code extension)
 - Cloud CI templates
 

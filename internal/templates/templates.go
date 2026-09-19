@@ -27,6 +27,7 @@ type TemplateData struct {
 	TargetRAMKB                 int
 	STM32Device                 string
 	CMSISCoreHeader             string
+	FPUPresent                  string
 	CacheDir                    string
 	Packages                    []PackageData
 	AppSources                  []string

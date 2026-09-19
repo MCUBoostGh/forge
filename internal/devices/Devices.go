@@ -26,6 +26,7 @@ type Catalog struct {
 	STM32Device   string            `yaml:"stm32_device"`
 	LinkerScript  string            `yaml:"linker_script"`
 	OpenOCDTarget string            `yaml:"openocd_target"`
+	Packages      []string          `yaml:"packages"`
 	Presets       map[string]Preset `yaml:"presets"`
 	Aliases       []string          `yaml:"aliases"`
 }
@@ -147,4 +148,11 @@ func Resolve(input string) (Catalog, error) {
 		return Catalog{}, fmt.Errorf("unknown device %q (not a catalog id or alias)", input)
 	}
 	return catalog[id], nil
+}
+
+func (c Catalog) DefaultDependencies() ([]string, error) {
+	if len(c.Packages) == 0 {
+		return nil, fmt.Errorf("device %s has no default packages in the catalog", c.ID)
+	}
+	return append([]string(nil), c.Packages...), nil
 }

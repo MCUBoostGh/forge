@@ -124,6 +124,46 @@ func TestNew_PreservesTargetDevice(t *testing.T) {
 	}
 }
 
+func TestNew_PreservesDependencies(t *testing.T) {
+	root := chdirTemp(t)
+	resetConfig()
+	config.Dependencies = []string{
+		"cmsis5@5.9.0",
+		"stm32g4-cmsis-device@1.2.6",
+		"stm32g4-hal@1.2.6",
+	}
+
+	projectDir := filepath.Join(root, "g4app")
+	if err := os.Mkdir(projectDir, 0755); err != nil {
+		t.Fatalf("mkdir: %v", err)
+	}
+	if err := New(projectDir); err != nil {
+		t.Fatalf("New: %v", err)
+	}
+
+	want := []string{"cmsis5@5.9.0", "stm32g4-cmsis-device@1.2.6", "stm32g4-hal@1.2.6"}
+	if len(config.Dependencies) != len(want) {
+		t.Fatalf("Dependencies = %v, want %v", config.Dependencies, want)
+	}
+	for i, spec := range want {
+		if config.Dependencies[i] != spec {
+			t.Fatalf("Dependencies = %v, want %v", config.Dependencies, want)
+		}
+	}
+
+	raw, err := os.ReadFile(filepath.Join(projectDir, forgeTOMLName))
+	if err != nil {
+		t.Fatalf("read Forge.toml: %v", err)
+	}
+	var fromFile Config
+	if err := toml.Unmarshal(raw, &fromFile); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if len(fromFile.Dependencies) != len(want) || fromFile.Dependencies[2] != want[2] {
+		t.Errorf("file Dependencies = %v, want %v", fromFile.Dependencies, want)
+	}
+}
+
 func TestRead_LoadsConfigBuffer(t *testing.T) {
 	root := chdirTemp(t)
 	resetConfig()

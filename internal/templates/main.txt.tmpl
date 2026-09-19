@@ -17,9 +17,28 @@ typedef enum {
 	SysTick_IRQn          = -1
 } IRQn_Type;
 
+{{- if eq .TargetCPU "cortex-m7"}}
+#ifndef __CM7_REV
+#define __CM7_REV 0x0100U
+#endif
+#ifndef __ICACHE_PRESENT
+#define __ICACHE_PRESENT 1U
+#endif
+#ifndef __DCACHE_PRESENT
+#define __DCACHE_PRESENT 1U
+#endif
+#ifndef __DTCM_PRESENT
+#define __DTCM_PRESENT 1U
+#endif
+{{- else if eq .TargetCPU "cortex-m4"}}
+#ifndef __CM4_REV
+#define __CM4_REV 0x0001U
+#endif
+{{- else}}
 #ifndef __CM3_REV
 #define __CM3_REV 0x0201U
 #endif
+{{- end}}
 #ifndef __MPU_PRESENT
 #define __MPU_PRESENT 0U
 #endif
@@ -33,7 +52,7 @@ typedef enum {
 #define __Vendor_SysTickConfig 0U
 #endif
 #ifndef __FPU_PRESENT
-#define __FPU_PRESENT 0U
+#define __FPU_PRESENT {{.FPUPresent}}
 #endif
 
 #include "{{.CMSISCoreHeader}}"

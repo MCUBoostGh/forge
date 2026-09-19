@@ -21,11 +21,13 @@ Examples:
 forge new blink stm32f103r8
 forge new blink --device stm32f103r8
 forge new blink --device bluepill
+forge new blink stm32f746zg
+forge new blink stm32g431rb
 ```
 
-A device is required. `Resolve` accepts the catalog id (`stm32f103r8`, `stm32f103c8`) or an alias (`bluepill`). Unknown names fail with a clear error. Catalog keys and how to add a board: [Device catalog](device-catalog.md).
+A device is required. `Resolve` accepts the catalog id (`stm32f103r8`, `stm32f746zg`, `stm32g431rb`, …) or an alias (`bluepill`, `nucleo-f746zg`). Unknown names fail with a clear error. Catalog keys and how to add a board: [Device catalog](device-catalog.md).
 
-`new` creates `<name>/` and writes `Forge.toml` with project metadata and default dependencies:
+`new` creates `<name>/` and writes `Forge.toml` with project metadata and **family** default dependencies from the catalog. STM32F1 example:
 
 ```toml
 dependencies = [
@@ -34,6 +36,8 @@ dependencies = [
   "stm32f1-hal@1.1.10",
 ]
 ```
+
+STM32F7 uses `stm32f7-cmsis-device@1.2.10` and `stm32f7-hal@1.3.3`. STM32G4 uses `stm32g4-cmsis-device@1.2.6` and `stm32g4-hal@1.2.6`.
 
 Change a spec before `init` if you want another catalog entry (for example `cmsis6@6.1.0`, or another `stm32*-hal` family from the HAL YAML). Version is taken from this list; URLs live in Forge’s package YAML, not in the project.
 
@@ -67,7 +71,9 @@ forge init
 └── CMakePresets.json
 ```
 
-`main.c` is a Cortex-M CMSIS smoke test (not Hello World). `cmake/Package.cmake` sets `cache_dir` to the shared package cache and references headers/HAL sources as `${cache_dir}/...`. CMSIS Core and CMSIS-Device are INTERFACE libraries; STM32F1 HAL is STATIC. `system_stm32f1xx.c` and the device GCC `startup_*.s` are copied into the project root and added to the firmware executable with `main.c`. `include/stm32f1xx_hal_conf.h` is copied from the HAL template if it is not already present.
+(F7/G4 projects get `system_stm32f7xx.c` / `system_stm32g4xx.c` and the matching `startup_*.s` instead.)
+
+`main.c` is a Cortex-M CMSIS smoke test (not Hello World). `cmake/Package.cmake` sets `cache_dir` to the shared package cache and references headers/HAL sources as `${cache_dir}/...`. CMSIS Core and CMSIS-Device are INTERFACE libraries; the family HAL is STATIC. `system_*.c` and the device GCC `startup_*.s` are copied into the project root and added to the firmware executable with `main.c`. `include/*hal_conf.h` is copied from the HAL template if it is not already present.
 
 HAL/CMSIS archives stay in the cache. Shared layout:
 

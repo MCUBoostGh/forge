@@ -14,7 +14,8 @@ All notable user-visible changes to Forge are listed here.
 - Document device catalog YAML keys and how to add a board ([docs/device-catalog.md](docs/device-catalog.md)).
 - `CMakePresets.json` entries `debug` / `release` (plus relwithdebinfo/minsizerel), with catalog CPU, float ABI, FPU, `STM32_DEVICE`, `FLASH_KB`, and `RAM_KB`. Output directories are `build/debug` and `build/release`.
 - `forge build <preset>` runs that CMake preset (`forge build debug`). Build type is not stored in `Forge.toml`.
-- `forge new <name> <device>` (or `--device`) resolves catalog ids and aliases (`bluepill`) and fails clearly on unknown devices.
+- `forge new` writes family CMSIS/HAL `dependencies` from the device catalog (F1, F7, G4).
+- STM32F7 (`stm32f746zg`, `stm32f767zi`) and STM32G4 (`stm32g431rb`, `stm32g474re`) board profiles, CMSIS-Device packs, and HAL.
 
 ### Changed
 
@@ -25,4 +26,4 @@ All notable user-visible changes to Forge are listed here.
 
 ### Notes
 
-- `forge new` requires a catalog id or alias (for example `stm32f103r8` or `bluepill`).
+- `forge new` requires a catalog id or alias (for example `stm32f103r8`, `bluepill`, `stm32f746zg`, `nucleo-g431rb`).

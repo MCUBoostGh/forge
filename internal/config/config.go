@@ -74,6 +74,9 @@ func New(path string) error {
 	if existing.Toolchain.Compiler != "" {
 		config.Toolchain.Compiler = existing.Toolchain.Compiler
 	}
+	if len(existing.Dependencies) > 0 {
+		config.Dependencies = existing.Dependencies
+	}
 
 	data, err := toml.Marshal(config)
 	if err != nil {
