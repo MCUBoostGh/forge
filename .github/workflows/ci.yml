@@ -50,8 +50,11 @@ jobs:
             cmake \
             make \
             gcc-arm-none-eabi \
-            g++-arm-none-eabi \
             libnewlib-arm-none-eabi
+          command -v cmake
+          command -v make
+          command -v arm-none-eabi-gcc
+          command -v arm-none-eabi-g++
 
       - name: Cache CMSIS and HAL packages
         uses: actions/cache@v4

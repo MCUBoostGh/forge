@@ -26,6 +26,10 @@ All notable user-visible changes to Forge are listed here.
 - `forge init` reads `dependencies` from `Forge.toml` (`name@version`) before scaffolding.
 - Remove `build.type` from `Forge.toml`. `CMAKE_BUILD_TYPE` lives only in CMake presets.
 
+### Fixed
+
+- GitHub Actions ARM toolchain install on Ubuntu 24.04: use `gcc-arm-none-eabi` (it provides `arm-none-eabi-g++`; there is no `g++-arm-none-eabi` package).
+
 ### Notes
 
 - `forge new` requires a catalog id or alias (for example `stm32f103r8`, `bluepill`, `stm32f746zg`, `nucleo-g431rb`).
