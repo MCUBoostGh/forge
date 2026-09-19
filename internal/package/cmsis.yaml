@@ -1,0 +1,57 @@
+# CMSIS download catalog. Version is not pinned here; Forge.toml supplies it
+# and {version} is substituted into url and archive_root (see tag_prefix).
+
+cmsis5:
+  name: cmsis5
+  url: https://github.com/ARM-software/CMSIS_5/archive/refs/tags/{version}.tar.gz
+  archive_root: CMSIS_5-{version}
+  include:
+    - CMSIS/Core/Include
+
+cmsis6:
+  name: cmsis6
+  url: https://github.com/ARM-software/CMSIS_6/archive/refs/tags/{version}.tar.gz
+  tag_prefix: v
+  archive_root: CMSIS_6-{version}
+  include:
+    - CMSIS/Core/Include
+    - CMSIS/Core/Include/m-profile
+
+stm32f1-cmsis-device:
+  name: stm32f1-cmsis-device
+  url: https://github.com/STMicroelectronics/cmsis-device-f1/archive/refs/tags/{version}.tar.gz
+  tag_prefix: v
+  archive_root: cmsis-device-f1-{version}
+  include:
+    - Include
+  project_sources:
+    - Source/Templates/system_stm32f1xx.c
+  startup_dir: Source/Templates/gcc
+  depends:
+    - cmsis5
+
+stm32f7-cmsis-device:
+  name: stm32f7-cmsis-device
+  url: https://github.com/STMicroelectronics/cmsis-device-f7/archive/refs/tags/{version}.tar.gz
+  tag_prefix: v
+  archive_root: cmsis-device-f7-{version}
+  include:
+    - Include
+  project_sources:
+    - Source/Templates/system_stm32f7xx.c
+  startup_dir: Source/Templates/gcc
+  depends:
+    - cmsis5
+
+stm32g4-cmsis-device:
+  name: stm32g4-cmsis-device
+  url: https://github.com/STMicroelectronics/cmsis-device-g4/archive/refs/tags/{version}.tar.gz
+  tag_prefix: v
+  archive_root: cmsis-device-g4-{version}
+  include:
+    - Include
+  project_sources:
+    - Source/Templates/system_stm32g4xx.c
+  startup_dir: Source/Templates/gcc
+  depends:
+    - cmsis5

@@ -1,0 +1,43 @@
+# Base profiles (anchors only — not looked up as devices if you keep them as merge sources)
+x-stm32f1: &stm32f1
+  vendor: ST
+  family: STM32F1
+  architecture: cortex-m3
+  cpu: cortex-m3
+  fpu: ""
+  float_abi: soft
+  openocd_target: stm32f1x
+  packages:
+    - cmsis5@5.9.0
+    - stm32f1-cmsis-device@4.3.5
+    - stm32f1-hal@1.1.10
+  presets:
+    debug: { build_type: Debug }
+    release: { build_type: Release }
+
+x-stm32f103: &stm32f103
+  <<: *stm32f1
+  series: STM32F103XX
+
+stm32f103r8:
+  <<: *stm32f103
+  id: stm32f103r8
+  flash_kb: 64
+  ram_kb: 20
+  pins: 64
+  package: LQFP64
+  stm32_device: STM32F103xB
+  linker_script: STM32F103R8Tx_FLASH.ld
+  aliases:
+    - stm32f103r
+    - bluepill
+
+stm32f103c8:
+  <<: *stm32f103
+  id: stm32f103c8
+  flash_kb: 64
+  ram_kb: 20
+  pins: 48
+  package: LQFP48
+  stm32_device: STM32F103xB
+  linker_script: STM32F103C8Tx_FLASH.ld

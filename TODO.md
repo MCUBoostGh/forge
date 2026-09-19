@@ -1,0 +1,308 @@
+# Forge TODO
+
+Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
+
+**Convention:** each version is one **GitHub Issue**. Nested items are tasks and subtasks for that issue. Check boxes as work lands; close the issue when every task for that version is done.
+
+| Status | Meaning |
+|--------|---------|
+| `[x]` | Done in tree / shipped |
+| `[ ]` | Not done |
+| **In progress** | Partially implemented on branch (e.g. `V0.3.0`) |
+
+---
+
+## Issue: v0.1.0 — Prototype CLI skeleton
+
+> Basic CLI and generic project scaffolding (README current commands: `new`, `init`, `build`, `help`, `version`).
+
+### Tasks
+
+- [x] **T1 — CLI entry and dispatch**
+  - [x] `main.go` command switch (`new`, `init`, `build`, `help`, `version`)
+  - [x] `forge help` usage text
+  - [x] `forge version` string
+  - [ ] Remove or clearly mark stub help entries for unimplemented `run` / `test` (README notes they appear in help but are not implemented)
+
+- [x] **T2 — `forge new <project_name>`**
+  - [x] Create project directory
+  - [x] Write generic `Forge.toml` (now via `internal/config.New`; legacy `contents/` removed)
+  - [x] Project metadata defaults (name, version, toolchain, CMake settings)
+
+- [x] **T3 — `forge init`**
+  - [x] Generate `src/`, `include/`
+  - [x] Generate Hello World `main.c` (replaced in v0.2.0 by a Cortex-M CMSIS smoke test)
+  - [x] Generate minimal `CMakeLists.txt`
+  - [x] Generate `CMakePresets.json`
+  - [x] Fix known limitation: init must read `Forge.toml` from disk (completed under v0.2.0)
+
+- [x] **T4 — `forge build`**
+  - [x] `cmake -S . -B build`
+  - [x] `cmake --build build`
+  - [x] Document CMake 3.20+ requirement
+
+- [x] **T5 — Docs for prototype**
+  - [x] README overview, commands table, usage, example
+  - [x] ROADMAP v0.1.0 section
+
+**Done when:** Issue closed; README prototype workflow works end-to-end.
+
+---
+
+## Issue: v0.2.0 — STM32 project bootstrap
+
+> Phase 1 start. Device-aware creation for STM32 (first board: `stm32f103r8`). Catalog, `forge new <name> <device>`, `internal/config`, arm-none-eabi + `LinkerScript.ld`, CMSIS/HAL cache + `cmake/Package.cmake`, GCC `startup_*.s` / `system_*.c` copy, `debug` / `release` CMake presets, F1/F7/G4 family packages, unit tests, tagged integration tests, and GitHub Actions CI (T7–T9) are in tree. v0.2.0 does not install host tools (`gcc-arm-none-eabi` / CMake must already be on `PATH`). Host Linux, `[install]` / `forge setup`, and schema fields for tools are v0.3.0.
+
+### Tasks
+
+- [x] **T1 — Device catalog**
+  - [x] `internal/devices/` package skeleton
+  - [x] Embed / load ST YAML catalog
+  - [x] `Lookup` / `Resolve` / `List` APIs
+  - [x] First complete board profile: `stm32f103r8` (CPU, flash/RAM, linker, OpenOCD target, aliases) — plus YAML anchors + `stm32f103c8`
+  - [x] Document catalog keys and how to add a board (`docs/device-catalog.md`)
+
+- [x] **T2 — Device-aware `forge new <name> <device>`**
+  - [x] Accept device argument / `--device` path
+  - [x] Resolve device via catalog; fail clearly on unknown device (positional `<device>` or `--device`; aliases via `Resolve`)
+  - [x] Write device id and toolchain compiler into `Forge.toml` (`config.New` keeps fields set before defaults)
+  - [x] Usage/examples: `forge new blink stm32f103r8` and `forge new blink --device stm32f103r8`
+
+- [x] **T3 — `forge init` reads `Forge.toml`**
+  - [x] Load and validate `Forge.toml` from cwd (replace in-memory-only path)
+  - [x] Generate STM32-aware tree (startup/linker refs as planned) — `LinkerScript.ld` emitted; GCC `startup_*.s` and `system_*.c` copied from CMSIS-Device cache
+  - [x] Board-specific CMake generation from config (CPU/FloatABI + flash/RAM templating; CMSIS INTERFACE and STM32F1 HAL STATIC via `cmake/Package.cmake`; `debug` / `release` CMake presets under T4)
+
+- [x] **T4 — gcc-arm-none-eabi + CMake presets**
+  - [x] Toolchain template content (`internal/templates/cmake/gcc-arm-none-eabi.cmake.tmpl`)
+  - [x] Emit CMake toolchain file for arm-none-eabi (`cmake/gcc-arm-none-eabi.cmake` on `init`)
+  - [x] `CMakePresets.json` entries: `debug` / `release` (`forge build <preset>`; no `build.type` in `Forge.toml`)
+  - [x] Wire presets to board catalog fields (CPU/FloatABI/FPU/STM32_DEVICE in toolchain + `FLASH_KB`/`RAM_KB` cache vars; flash/RAM lengths in `LinkerScript.ld`; catalog `presets.debug/release.build_type`)
+
+- [x] **T5 — Config foundation**
+  - [x] Harden `Forge.toml` load/save toward `internal/config/` (`New` / `Read` / `Write` / `Get` / `Set` + tests; little validation yet)
+
+- [x] **T6 — Docs**
+  - [x] Update README for device-aware `new` / STM32 init (getting-started + create-a-project docs)
+  - [x] Document CMSIS cache, STM32F1 HAL, `cmake/Package.cmake`, and default `dependencies`
+  - [x] Document catalog keys and how to add a board (`docs/device-catalog.md`)
+  - [x] Mark v0.2.0 delivered in ROADMAP when complete
+
+- [x] **T7 — Unit tests for Forge packages**
+  - [x] Unit-test Go packages (`internal/config`, `internal/devices`, `internal/package`, `cmd`)
+  - [x] Cover F1 / F7 / G4 catalog and package registration paths
+  - [x] Unit-test root `forge` dispatch, `internal/logger`, and `internal/templates`
+
+- [x] **T8 — Integration tests for the Forge CLI**
+  - [x] End-to-end `forge new` → `init` → `build` against a generated project
+  - [x] Exercise more than one family (at least F1 plus F7 or G4)
+
+- [x] **T9 — GitHub Actions CI**
+  - [x] Workflow on push / pull request (`go test ./...` and `go test -tags=integration ./cmd`)
+  - [x] Run unit tests (and integration tests when they exist)
+
+**Done when:** `forge new blink stm32f103r8` → `init` → CMake STM32 presets work; unit tests, integration tests, and GitHub Actions CI are in place; issue closed.
+
+---
+
+## Issue: v0.3.0 — Host tools, setup, and multi-target build
+
+> Install/detect toolchains; host Linux presets; smarter `build`. v0.2.0 assumes CMake and `gcc-arm-none-eabi` are already installed.
+
+### Tasks
+
+- [ ] **T1 — `internal/setup/` + `internal/install/`**
+  - [ ] Map target kind (`host` / `stm32`) to apt package lists
+  - [ ] Package manifest per target kind
+  - [ ] Detect already-installed tools vs missing
+  - [ ] Seed `[install].packages` in `Forge.toml` from target kind when `forge new` runs (consumed by `forge setup`)
+  - [ ] Align `Forge.toml` schema with ROADMAP (`[install]`, `[tools]`; `target.kind` / `board` vs current `kind` / `device`)
+
+- [ ] **T2 — `forge setup`**
+  - [ ] Read `Forge.toml` (`[target]`, `[install]`, `[tools]`)
+  - [ ] Install missing packages via apt (Ubuntu/Debian only for v1)
+  - [ ] Flags: `--dry-run`, `--yes`
+  - [ ] On success, run `forge sync`
+
+- [ ] **T3 — `forge sync`**
+  - [ ] Detect installed tool paths/versions
+  - [ ] Write paths into `Forge.toml` (`[toolchain]`, `[tools]`)
+  - [ ] Clear errors when tools missing
+
+- [ ] **T4 — Host Linux + preset-driven `forge build`**
+  - [ ] Host preset (`host-debug`)
+  - [ ] Select preset from `Forge.toml`
+  - [ ] Enhance `forge build` beyond bare configure/build
+  - [ ] Keep host/generic `forge new` / `init` path for non-STM32 projects (`syncTemplateData` requires MCU/STM32; presets are STM32-named)
+
+- [ ] **T5 — Docs**
+  - [ ] Document setup/sync workflow and apt-only host constraint
+
+**Done when:** setup → sync → build works for host and STM32 toolchains; issue closed.
+
+---
+
+## Issue: v0.4.0 — STM32 on-device workflow
+
+> Flash and serial monitor driven by `Forge.toml` and board defaults.
+
+### Tasks
+
+- [ ] **T1 — Flash defaults in device catalog**
+  - [ ] ST-Link + SWD defaults for `stm32f103r8`
+  - [ ] `[flash]` schema: interface, transport
+
+- [ ] **T2 — `forge flash`**
+  - [ ] Locate `.elf` / `.bin` from build output
+  - [ ] Flash via OpenOCD (ST-Link)
+  - [ ] Fallback to `st-flash`
+  - [ ] Read flash settings from `Forge.toml`
+
+- [ ] **T3 — `forge monitor`**
+  - [ ] Attach to serial port; stream logs
+  - [ ] Port/baud from `[monitor]` in `Forge.toml`
+  - [ ] Sensible USART defaults per board in catalog
+
+- [ ] **T4 — Docs**
+  - [ ] Document flash/monitor hardware prerequisites
+
+**Done when:** build → flash → monitor works on `stm32f103r8`; issue closed.
+
+---
+
+## Issue: v0.5.0 — Libraries and third-party code
+
+> CMake library targets and third-party integration.
+
+### Tasks
+
+- [ ] **T1 — `forge lib <name>`**
+  - [ ] Scaffold `lib/<name>/` with `CMakeLists.txt`, `include/`, `src/`
+  - [ ] Support static (and shared if in scope) library layout
+
+- [ ] **T2 — Wire libraries into root build**
+  - [ ] Update root `CMakeLists.txt` to consume `forge lib` output
+  - [ ] CMake library targets as first-class build graph nodes
+
+- [ ] **T3 — `forge add <package>`**
+  - [x] Integrate CMSIS Core on `forge init` from `Forge.toml` `dependencies` (cache + INTERFACE library; not a `forge add` command yet)
+  - [x] Integrate STM32F1 HAL on `forge init` (`stm32f1-hal` STATIC library from cache; F7/G4 HAL is selected when those devices are used)
+  - [ ] Integrate FreeRTOS and a dedicated `forge add` command
+  - [ ] Update root `CMakeLists.txt` for additional packages
+  - [x] Record CMSIS and family HAL under `dependencies` in new `Forge.toml`
+
+- [ ] **T4 — Docs**
+  - [ ] Examples for lib + add workflows
+
+**Done when:** lib/add produce a linkable multi-target CMake project; issue closed.
+
+---
+
+## Issue: v0.6.0 — Reproducible builds and testing
+
+> Docker env generation and host/unit test scaffolding.
+
+### Tasks
+
+- [ ] **T1 — `forge docker`**
+  - [ ] Generate `Dockerfile` pinned to tool versions from `Forge.toml`
+  - [ ] Optional `docker-compose.yml`
+  - [ ] Document how to build inside the container
+
+- [ ] **T2 — `forge test`**
+  - [ ] Create `tests/` layout
+  - [ ] Fetch Unity + CMock via CMake `FetchContent`
+  - [ ] Implement the `test` command (replace README stub)
+  - [ ] Decide fate of undocumented `run` stub in help
+
+- [ ] **T3 — Complete CMake presets matrix**
+  - [ ] Unified presets: host/stm32 × debug/release
+  - [ ] Align preset names with `Forge.toml` and docs
+
+- [ ] **T4 — Docs**
+  - [ ] Reproducible-build and test sections in README
+
+**Done when:** docker + test + full preset matrix work; issue closed.
+
+---
+
+## Issue: v1.0.0 — First stable release
+
+> Stable Linux host + STM32 release with full v1 command set and polish.
+
+### Tasks
+
+- [ ] **T1 — `forge doc`**
+  - [ ] Generate Doxygen config from `Forge.toml` / sources
+  - [ ] Scaffold `docs/`
+
+- [ ] **T2 — `forge package`**
+  - [ ] Produce host distributable (`.tar.gz` and/or `.deb`)
+  - [ ] Include requirements manifest
+
+- [ ] **T3 — v1.0.0 checklist (from ROADMAP)**
+  - [ ] Toolchains: `gcc`, `gcc-arm-none-eabi`
+  - [ ] Infrastructure: Docker, CMake libs, CMake presets, `forge setup`
+  - [ ] Targets: host Linux, STM32 on Linux host
+  - [ ] Commands: `new`, `init`, `setup`, `sync`, `docker`, `build`, `doc`, `flash`, `monitor`, `test`, `lib`, `add`, `package`
+
+- [ ] **T4 — Release polish**
+  - [ ] Reference example: `blink` on STM32F103R8
+  - [ ] README rewritten for v1 workflow
+  - [ ] Integration smoke tests for all v1 commands
+  - [ ] Tag release `v1.0.0`
+
+**Done when:** checklist complete, example works, release tagged; issue closed.
+
+---
+
+## Issue: v2.0.0 — Embedded Linux (future)
+
+> Deferred from v1. Raspberry Pi / `gcc-arm-linux-gnueabihf`.
+
+### Tasks
+
+- [ ] **T1 — ARM Linux toolchain module**
+  - [ ] CMake toolchain file for `gcc-arm-linux-gnueabihf`
+  - [ ] Sync/setup package mapping for arm-linux kind
+
+- [ ] **T2 — Raspberry Pi target preset**
+  - [ ] `target.kind = "arm-linux"`
+  - [ ] Board profile (e.g. `raspberry-pi-4`)
+
+- [ ] **T3 — Cross-compile `forge build` path**
+  - [ ] Build Linux ARM binaries on host using synced toolchain paths
+  - [ ] Presets for arm-linux debug/release
+
+- [ ] **T4 — Docs**
+  - [ ] Document embedded Linux workflow and scope vs STM32
+
+**Done when:** Pi-style cross-build documented and working; issue closed.
+
+---
+
+## Out of scope (do not file as v1 issues)
+
+Per ROADMAP — track separately only if needed later:
+
+- Windows/macOS host support
+- Full STM32 family catalog beyond F1 / F7 / G4 (expand post-1.0)
+- IDE plugins (VS Code extension)
+- Cloud CI templates
+
+---
+
+## Suggested GitHub issue titles
+
+Copy-paste when opening issues:
+
+1. `v0.1.0: Prototype CLI skeleton`
+2. `v0.2.0: STM32 project bootstrap`
+3. `v0.3.0: Host tools, setup, and multi-target build`
+4. `v0.4.0: STM32 on-device workflow (flash/monitor)`
+5. `v0.5.0: Libraries and third-party code (lib/add)`
+6. `v0.6.0: Reproducible builds and testing (docker/test)`
+7. `v1.0.0: First stable release`
+8. `v2.0.0: Embedded Linux (Raspberry Pi)`
+
+Paste the matching section from this file into each issue body. Optionally add each issue to a GitHub Project board (Todo → In Progress → Done).

@@ -1,6 +1,6 @@
 # Forge Development Roadmap
 
-Forge is a Go CLI for embedded C/C++ projects built on **CMake**, **CMake presets**, and cross-compilation toolchains. Development proceeds from the current prototype through incremental releases to **v1.0.0**.
+Forge is a Go CLI for embedded C/C++ projects built on **CMake**, **CMake presets**, and cross-compilation toolchains. **v0.2.0** (STM32 project bootstrap) is delivered. Development continues through incremental releases to **v1.0.0**.
 
 ## Vision
 
@@ -27,7 +27,7 @@ cd blink
 forge init
 forge setup    # install missing toolchains + host tools
 forge sync     # detect paths, write into Forge.toml
-forge build
+forge build debug
 forge flash
 forge monitor
 ```
@@ -85,6 +85,7 @@ flowchart TB
 | `internal/setup/` | Map `Forge.toml` targets to distro packages; run apt (with `--dry-run` flag) |
 | `internal/install/` | Package manifest per target kind (`host`, `stm32`) |
 | `internal/templates/` | Target-aware project templates (evolved from `contents/`) |
+| `internal/package/` | Download and extract third-party archives (CMSIS) into the user cache |
 | `cmd/<command>.go` | One file per CLI command |
 
 ## Forge.toml schema
@@ -129,10 +130,11 @@ port = "/dev/ttyUSB0"
 baud = "115200"
 
 [dependencies]
-# populated by forge add
+# v1 target shape (table). v0.2.0 writes a top-level array instead:
+# dependencies = ["cmsis5@5.9.0", "stm32f1-cmsis-device@4.3.5", "stm32f1-hal@1.1.10"]
 ```
 
-`[install].packages` is derived from `[target]` and `[tools]` requirements in the device catalog when `forge new` runs. `forge setup` reads this section to install missing dependencies.
+`[install].packages` is derived from `[target]` and `[tools]` requirements in the device catalog when `forge new` runs (v0.3.0). `forge setup` reads this section to install missing dependencies.
 
 ## forge setup behavior
 
@@ -181,7 +183,7 @@ flowchart LR
 
 ---
 
-## v0.1.0 — Prototype (current)
+## v0.1.0 — Prototype (delivered)
 
 Basic CLI skeleton and generic project scaffolding.
 
@@ -191,7 +193,7 @@ Basic CLI skeleton and generic project scaffolding.
 
 ```mermaid
 flowchart LR
-  subgraph current [v0.1.0]
+  subgraph v010 [v0.1.0]
     newCmd[forge new]
     initCmd[forge init]
     buildCmd[forge build]
@@ -199,25 +201,39 @@ flowchart LR
   end
 ```
 
-Known limitation: `forge init` uses in-memory config and does not read `Forge.toml` from disk. Fixed in v0.2.0.
+Known limitation (fixed in v0.2.0): `forge init` used in-memory config and did not read `Forge.toml` from disk.
 
 ---
 
-## v0.2.0 — STM32 project bootstrap
+## v0.2.0 — STM32 project bootstrap (delivered, current)
 
 **Phase 1 start.** Device-aware project creation for STM32.
 
 1. **`forge new <name> <device>`** — device-aware `Forge.toml` (first board: `stm32f103r8`; e.g. `forge new blink stm32f103r8`)
-2. **`forge init`** — read `Forge.toml` from cwd; generate STM32 project tree (startup/linker refs, board-specific CMake)
-3. **gcc-arm-none-eabi + CMake preset** — toolchain file and `CMakePresets.json` entries for `stm32-debug` / `stm32-release`
+2. **`forge init`** — read `Forge.toml` from cwd; generate STM32 project tree (linker + CMake; GCC `startup_*.s` and `system_*.c` copied from CMSIS-Device); fetch remaining `dependencies` into `~/.cache/forge/packages/` and emit `cmake/Package.cmake` (CMSIS INTERFACE, family HAL STATIC)
+3. **gcc-arm-none-eabi + CMake preset** — toolchain file and `CMakePresets.json` entries `debug` / `release` (CPU/FloatABI/`STM32_DEVICE` from the device catalog; `FLASH_KB`/`RAM_KB` on the preset; flash/RAM in `LinkerScript.ld`; `forge build debug`)
+
+Does **not** install host tools. CMake and `gcc-arm-none-eabi` must already be on `PATH`. `[install].packages` / `forge setup` are v0.3.0.
+
+```mermaid
+flowchart LR
+  subgraph current [v0.2.0]
+    newCmd2["forge new <name> <device>"]
+    initCmd2[forge init]
+    buildCmd2[forge build debug]
+    newCmd2 --> initCmd2 --> buildCmd2
+  end
+```
+
+Next: [v0.3.0](#v030--host-tools-setup-and-multi-target-build).
 
 ---
 
 ## v0.3.0 — Host tools, setup, and multi-target build
 
-1. **`forge setup`** — read `Forge.toml`; install missing toolchains and host tools via apt (`build-essential`, `cmake`, `ninja-build`, `gcc-arm-none-eabi`, `openocd`, `stlink-tools` for STM32 projects); support `--dry-run`; re-run `forge sync` after success
+1. **`forge setup`** — seed `[install].packages` from target kind (on `forge new` or first setup); read `Forge.toml`; install missing toolchains and host tools via apt (`build-essential`, `cmake`, `ninja-build`, `gcc-arm-none-eabi`, `openocd`, `stlink-tools` for STM32 projects); support `--dry-run`; re-run `forge sync` after success
 2. **`forge sync`** — detect installed tools; write paths and versions into `Forge.toml`
-3. **Host Linux + preset-driven `forge build`** — host preset (`host-debug`) and preset selection from `Forge.toml`
+3. **Host Linux + preset-driven `forge build`** — host preset (`host-debug`) and preset selection from `Forge.toml`; keep a host/generic `new` / `init` path for non-STM32 projects
 
 ---
 
@@ -232,7 +248,7 @@ Known limitation: `forge init` uses in-memory config and does not read `Forge.to
 ## v0.5.0 — Libraries and third-party code
 
 1. **`forge lib <name>`** — scaffold static/shared library (`lib/<name>/CMakeLists.txt`, `include/`, `src/`)
-2. **`forge add <package>`** — integrate third-party sources (CMSIS, STM32 HAL, FreeRTOS); update root `CMakeLists.txt`
+2. **`forge add <package>`** — CLI to add further third-party sources (FreeRTOS); CMSIS Core and family HAL are already fetched on `init` from `dependencies`
 3. **CMake library targets** — wire `forge lib` output into root build graph
 
 ---
@@ -274,7 +290,7 @@ Cross-compilation for ARM Linux targets. Deferred from v1.0.0.
 
 - Embedded Linux / Raspberry Pi (planned v2.0.0)
 - Windows/macOS host support
-- Full STM32 family catalog (start with F103, expand post-1.0)
+- Full STM32 family catalog (F1 / F7 / G4 starter set; expand further post-1.0)
 - IDE plugins (VS Code extension)
 - Cloud CI templates
 

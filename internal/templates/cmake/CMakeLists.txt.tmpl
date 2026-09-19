@@ -1,0 +1,27 @@
+cmake_minimum_required(VERSION {{.CMakeMinimumRequiredVersion}})
+
+project({{.ProjectName}}
+    LANGUAGES C CXX ASM
+    VERSION {{.ProjectVersion}}
+    DESCRIPTION "{{.ProjectDescription}}"
+)
+
+set(CMAKE_C_STANDARD {{.CStandard}})
+
+include(cmake/Package.cmake)
+
+add_executable(${PROJECT_NAME}
+	main.c
+{{- range .AppSources}}
+	{{.}}
+{{- end}}
+)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+{{- range .Packages}}
+	{{.Name}}
+{{- end}}
+)
+
+if(COMMAND forge_post_build_hex_size)
+  forge_post_build_hex_size(${PROJECT_NAME})
+endif()

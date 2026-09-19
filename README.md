@@ -1,111 +1,97 @@
 # Forge
 
-Forge is a lightweight Go CLI for scaffolding simple embedded C/C++ projects and generating a basic CMake-based build setup.
+**A unified development workflow for modern embedded C/C++.**
 
-## Overview
+## What is Forge?
 
-Forge creates a minimal project structure for new embedded or bare-metal style applications. It currently supports a two-step project setup (`new` then `init`) and a basic CMake build step.
+Forge is a lightweight CLI for embedded C/C++ projects. It ties project creation, configuration, and CMake-based builds into one consistent workflow so firmware work starts from a clear, repeatable baseline instead of ad-hoc copy-paste setups.
 
-## Commands
+At the center is `Forge.toml`: the project’s source of truth. Forge commands read it to scaffold sources, generate CMake files, and drive builds.
 
-| Command | Description |
-|---------|-------------|
-| `forge new <project_name>` | Create a new project directory and `Forge.toml` |
-| `forge init` | Generate starter folders and source/build files |
-| `forge build` | Configure and build the project with CMake |
-| `forge help` | Print CLI usage information |
-| `forge version` | Print the current version string |
+## Why does it exist?
 
-`run` and `test` are listed in the help output but are not implemented yet.
+Embedded projects often begin with fragile CMake snippets, unclear toolchain paths, and board-specific one-offs that are hard to reproduce. Forge exists to make that setup a first-class workflow:
 
-## Repository layout
+- **One config** — project and target settings live in `Forge.toml`
+- **One scaffold** — generate a clean, readable CMake layout from that config
+- **One build path** — configure and build through CMake presets
+- **Device-aware** — start from a named device (for example STM32) instead of a blank folder
 
-- `main.go` — CLI entry point and command dispatch
-- `cmd/generate.go` — `new` and `init` scaffolding logic
-- `cmd/build.go` — build command implementation
-- `cmd/private.go` — shared config and helpers
-- `contents/` — template content used to generate project files
-- `go.mod` — Go module definition
+The goal is not to hide CMake or replace vendor ecosystems. It is to give embedded engineers a unified path from an empty directory to a buildable project — and eventually through flash and monitor.
 
-## Generated project layout
+## What does it currently do?
 
-After running `forge new` and `forge init`, a project looks like this:
+Forge is early-stage (**v0.2.0**). Today it supports:
 
-```text
-my_project/
-├── src/
-├── include/
-├── Forge.toml
-├── main.c
-├── CMakeLists.txt
-└── CMakePresets.json
-```
+| Capability | Details |
+|------------|---------|
+| Project creation | `forge new <name> <device>` (or `--device`) writes a project dir and `Forge.toml` |
+| Scaffolding | `forge init` generates CMake files, a Cortex-M smoke-test `main.c`, device `startup_*.s` / `system_*.c`, and `cmake/Package.cmake` |
+| Builds | `forge build <preset>` runs a CMake preset (`debug` or `release`); output under `build/debug` or `build/release` |
+| CMSIS | `cmsis5@5.9.0` is the default Core dependency; unpacked once under `~/.cache/forge/packages/` |
+| STM32 HAL | Family HAL from the catalog (`stm32f1-hal`, `stm32f7-hal`, or `stm32g4-hal`) is a cached STATIC library; device headers stay INTERFACE |
+| STM32 target | Bare-metal F1, F7, and G4 (`gcc-arm-none-eabi`); host Linux is not a separate `new` flow yet |
+| Device catalog | STM32 YAML profiles under `internal/devices/` ([how to add a board](docs/device-catalog.md)) |
 
-Generated projects include a Hello World `main.c`, a minimal `CMakeLists.txt`, and a `Forge.toml` with project metadata (name, version, toolchain, CMake settings).
+**Not ready yet:** `run`, `test`, `list`, `setup`, `flash`, `monitor`, and related roadmap commands.
 
-## Usage
+For command details, see [docs/commands.md](docs/commands.md).
 
-### Build the CLI
+## Where is it going?
 
-Requires Go 1.26 or later.
+**v0.2.0** is the current STM32 bootstrap (`new` → `init` → `build debug`). Next is **v0.3.0**: host tools (`forge setup` / `sync`) and a host Linux path.
+
+Toward **v1.0.0**:
+
+- Stable host Linux + STM32 bare-metal support
+- `setup`, `sync`, `flash`, `monitor`, and related workflow commands
+- CMake library targets and Docker-based reproducible environments
+
+**v2.0.0** looks at embedded Linux targets (for example Raspberry Pi).
+
+Full plan: [ROADMAP.md](ROADMAP.md). Task breakdown: [TODO.md](TODO.md).
+
+## How do I try it?
+
+Requires **Go 1.26+**, **CMake 3.20+**, **`gcc-arm-none-eabi`**, and network access the first time CMSIS is fetched.
 
 ```bash
 go build -o forge .
-```
-
-### Install globally
-
-```bash
 sudo install -m 755 forge /usr/local/bin/forge
-```
 
-### Create a new project
-
-Project setup is a two-step process:
-
-```bash
-forge new demo_app
-cd demo_app
+forge new blink stm32f103r8
+cd blink
 forge init
+forge build debug
 ```
 
-1. `forge new` creates the project directory and writes `Forge.toml`.
-2. `forge init` generates `src/`, `include/`, `main.c`, `CMakeLists.txt`, and `CMakePresets.json`.
+### Tests
 
-### Build the generated project
-
-From the project directory (requires CMake 3.20+):
+Unit tests:
 
 ```bash
-forge build
+go test ./...
 ```
 
-This runs `cmake -S . -B build` and then `cmake --build build`. Output is placed in `build/`.
-
-## Example
+Integration tests (`new` → `init` → `build debug` for STM32F1 and STM32G4). Needs CMake, `gcc-arm-none-eabi`, `make`, and network the first time packages are cached:
 
 ```bash
-go run . new my_app
-cd my_app
-go run ../. init
-go run ../. build
+go test -tags=integration ./cmd -count=1 -timeout 20m
 ```
 
-Or, with the binary installed:
+GitHub Actions (`.github/workflows/ci.yml`) runs the same commands on every push and pull request. The integration job installs CMake and `gcc-arm-none-eabi` on Ubuntu.
 
-```bash
-forge new my_app
-cd my_app
-forge init
-forge build
-```
+### Tutorials and docs
 
-## Roadmap
+| Guide | Description |
+|-------|-------------|
+| [Getting started](docs/getting-started.md) | Install Forge and run your first project |
+| [Create a project](docs/create-a-project.md) | Walkthrough of `new` → `init` → `build` |
+| [Commands](docs/commands.md) | CLI reference |
+| [Device catalog](docs/device-catalog.md) | YAML keys and how to add a board |
+| [Changelog](CHANGELOG.md) | User-visible changes |
+| [Docs index](docs/README.md) | All documentation |
 
-Development is tracked in [ROADMAP.md](ROADMAP.md). The plan moves from the current **v0.1.0** prototype through incremental releases to **v1.0.0**, focused on STM32 bare-metal and host Linux development.
+## License
 
-Planned commands include `setup` (install toolchains and host tools from `Forge.toml`), `sync`, `docker`, `flash`, `monitor`, `test`, `lib`, `add`, `doc`, and `package`. v1.0.0 targets host Linux (`gcc`) and STM32 (`gcc-arm-none-eabi`) with CMake presets and Docker-based reproducible builds. Embedded Linux (Raspberry Pi) is planned for **v2.0.0** — see [ROADMAP.md](ROADMAP.md).
-
-## Notes
-
-This repository is an early-stage starter project. See [ROADMAP.md](ROADMAP.md) for the full version plan.
+See [LICENSE](LICENSE).

@@ -1,59 +1,60 @@
 package main
 
-
-import(
-	"os"
-	"log"
+import (
+	"fmt"
 	"forge/cmd"
+	"forge/internal/logger"
+	"os"
 )
 
-func help() {
-	log.Println("Forge is a tool for managing your embedded c/c++ projects.")
-	log.Println("Usage: forge <command> [arguments]")
-	log.Println("Commands:")
-	log.Println("  init      Initialize a new project")
-	log.Println("  build     Build the project")
-	log.Println("  run       Run the project")
-	log.Println("  test      Run tests for the project")
-	log.Println("  help      Show this help message")
-}	
+func main() {
+	code, err := run(os.Args[1:])
+	if err != nil {
+		logger.Fatal(err)
+	}
+	os.Exit(code)
+}
 
-func main(){
-	
-	log.SetPrefix("")
-	log.SetFlags(0)
-
-
-	if len(os.Args) < 2 {
-		help()
-		log.Fatal("Usage: forge <command> [arguments]")
+func run(args []string) (int, error) {
+	if len(args) < 1 {
+		cmd.Help()
+		return 1, nil
 	}
 
-	switch os.Args[1] {
+	switch args[0] {
+
 	case "new":
-		if len(os.Args) < 3 {
-			log.Fatal("Usage: forge new <project_name>")
+		if len(args) < 2 {
+			logger.Error("Invalid arguments")
+			return 1, fmt.Errorf("Failed to generate new project.")
 		}
-		err := cmd.New(os.Args[2])
-		if err != nil {
-			log.Fatal(err)
+		if err := cmd.New(args[1:]...); err != nil {
+			return 1, err
 		}
-		log.Println("Use forge init to generate project structure and files.")
+		logger.Info("Use forge init to generate project structure and files.")
+		return 0, nil
+
 	case "init":
-		err := cmd.Init()
-		if err != nil {
-			log.Fatal(err)
+		if err := cmd.Init(); err != nil {
+			return 1, err
 		}
+		return 0, nil
+
 	case "build":
-		err := cmd.Build()
-		if err != nil {
-			log.Fatal(err)
+		if err := cmd.Build(args[1:]...); err != nil {
+			return 1, err
 		}
+		return 0, nil
+
 	case "help":
-		help()
+		cmd.Help()
+		return 0, nil
+
 	case "version":
-		log.Println("Forge version 0.1.0")
+		fmt.Println("Forge version 0.2.0")
+		return 0, nil
+
 	default:
-		log.Fatal("Unknown command. Use 'forge help' to see available commands.")
+		return 1, fmt.Errorf("Unknown command. Use 'forge help' to see available commands.")
 	}
 }

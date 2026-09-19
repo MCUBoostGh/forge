@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Test
+        run: go test ./...
+
+  integration:
+    name: Integration tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Install CMake and ARM GCC
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake \
+            make \
+            gcc-arm-none-eabi \
+            libnewlib-arm-none-eabi
+          command -v cmake
+          command -v make
+          command -v arm-none-eabi-gcc
+          command -v arm-none-eabi-g++
+
+      - name: Cache CMSIS and HAL packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/forge/packages
+          key: forge-packages-${{ runner.os }}-${{ hashFiles('internal/package/*.yaml', 'internal/devices/st/*.yaml') }}
+
+      - name: Test
+        run: go test -tags=integration ./cmd -count=1 -timeout 20m -v

@@ -1,0 +1,80 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": {{.CMakeMinimumRequiredMajor}},
+    "minor": {{.CMakeMinimumRequiredMinor}}
+  },
+  "configurePresets": [
+    {
+      "name": "stm32-base",
+      "hidden": true,
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "toolchainFile": "${sourceDir}/cmake/gcc-arm-none-eabi.cmake",
+      "cacheVariables": {
+        "CMAKE_PROJECT_NAME": "{{.ProjectName}}",
+        "CMAKE_PROJECT_VERSION": "{{.ProjectVersion}}",
+        "CMAKE_PROJECT_DESCRIPTION": "{{.ProjectDescription}}",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_C_STANDARD": "{{.CStandard}}",
+        "CMAKE_C_STANDARD_REQUIRED": "ON",
+        "CPU": "{{.TargetCPU}}",
+        "FLOAT_ABI": "{{.TargetFloatABI}}",
+        "FPU": "{{.TargetFPU}}",
+        "STM32_DEVICE": "{{.STM32Device}}",
+        "FLASH_KB": "{{.TargetFlashKB}}",
+        "RAM_KB": "{{.TargetRAMKB}}"
+      }
+    },
+    {
+      "name": "debug",
+      "inherits": "stm32-base",
+      "displayName": "Debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "{{.DebugBuildType}}"
+      }
+    },
+    {
+      "name": "release",
+      "inherits": "stm32-base",
+      "displayName": "Release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "{{.ReleaseBuildType}}"
+      }
+    },
+    {
+      "name": "relwithdebinfo",
+      "inherits": "stm32-base",
+      "displayName": "RelWithDebInfo",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "minsizerel",
+      "inherits": "stm32-base",
+      "displayName": "MinSizeRel",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "debug"
+    },
+    {
+      "name": "release",
+      "configurePreset": "release"
+    },
+    {
+      "name": "relwithdebinfo",
+      "configurePreset": "relwithdebinfo"
+    },
+    {
+      "name": "minsizerel",
+      "configurePreset": "minsizerel"
+    }
+  ]
+}

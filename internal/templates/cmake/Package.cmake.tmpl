@@ -1,0 +1,33 @@
+set(cache_dir "{{.CacheDir}}")
+
+{{range .Packages}}
+{{- if eq .Kind "STATIC"}}
+add_library({{.Name}} STATIC
+{{- range .Sources}}
+	"${cache_dir}/{{.}}"
+{{- end}}
+)
+target_include_directories({{.Name}} PUBLIC
+	"${CMAKE_SOURCE_DIR}/include"
+{{- range .IncludeDirs}}
+	"${cache_dir}/{{.}}"
+{{- end}}
+)
+{{- if .Defines}}
+target_compile_definitions({{.Name}} PUBLIC{{range .Defines}} {{.}}{{end}})
+{{- end}}
+{{- else}}
+add_library({{.Name}} INTERFACE)
+target_include_directories({{.Name}} INTERFACE
+{{- range .IncludeDirs}}
+	"${cache_dir}/{{.}}"
+{{- end}}
+)
+{{- if .Defines}}
+target_compile_definitions({{.Name}} INTERFACE{{range .Defines}} {{.}}{{end}})
+{{- end}}
+{{- end}}
+{{- if .Depends}}
+target_link_libraries({{.Name}} {{if eq .Kind "STATIC"}}PUBLIC{{else}}INTERFACE{{end}}{{range .Depends}} {{.}}{{end}})
+{{- end}}
+{{end}}
