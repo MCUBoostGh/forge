@@ -51,7 +51,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 ## Issue: v0.2.0 — STM32 project bootstrap
 
-> Phase 1 start. Device-aware creation for STM32 (first board: `stm32f103r8`). **Delivered** — catalog, `forge new <name> <device>`, `internal/config`, arm-none-eabi + `LinkerScript.ld`, CMSIS/HAL cache + `cmake/Package.cmake`, GCC `startup_*.s` / `system_*.c` copy, `debug` / `release` CMake presets, and F1/F7/G4 family packages. v0.2.0 does not install host tools (`gcc-arm-none-eabi` / CMake must already be on `PATH`). Host Linux, `[install]` / `forge setup`, and schema fields for tools are v0.3.0.
+> Phase 1 start. Device-aware creation for STM32 (first board: `stm32f103r8`). Catalog, `forge new <name> <device>`, `internal/config`, arm-none-eabi + `LinkerScript.ld`, CMSIS/HAL cache + `cmake/Package.cmake`, GCC `startup_*.s` / `system_*.c` copy, `debug` / `release` CMake presets, and F1/F7/G4 family packages are in tree. **Open:** unit tests, integration tests, and GitHub Actions CI (T7–T9). v0.2.0 does not install host tools (`gcc-arm-none-eabi` / CMake must already be on `PATH`). Host Linux, `[install]` / `forge setup`, and schema fields for tools are v0.3.0.
 
 ### Tasks
 
@@ -88,7 +88,19 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
   - [x] Document catalog keys and how to add a board (`docs/device-catalog.md`)
   - [x] Mark v0.2.0 delivered in ROADMAP when complete
 
-**Done when:** `forge new blink stm32f103r8` → `init` → CMake STM32 presets work; issue closed.
+- [ ] **T7 — Unit tests for Forge packages**
+  - [ ] Unit-test Go packages (`internal/config`, `internal/devices`, `internal/package`, `cmd`)
+  - [ ] Cover F1 / F7 / G4 catalog and package registration paths
+
+- [ ] **T8 — Integration tests for the Forge CLI**
+  - [ ] End-to-end `forge new` → `init` → `build` against a generated project
+  - [ ] Exercise more than one family (at least F1 plus F7 or G4)
+
+- [ ] **T9 — GitHub Actions CI**
+  - [ ] Workflow on push / pull request
+  - [ ] Run unit tests (and integration tests when they exist)
+
+**Done when:** `forge new blink stm32f103r8` → `init` → CMake STM32 presets work; unit tests, integration tests, and GitHub Actions CI are in place; issue closed.
 
 ---
 
