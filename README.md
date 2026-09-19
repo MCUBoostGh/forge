@@ -31,7 +31,7 @@ Forge is early-stage (**v0.2.0**). Today it supports:
 | CMSIS | `cmsis5@5.9.0` is the default Core dependency; unpacked once under `~/.cache/forge/packages/` |
 | STM32 HAL | Default `stm32f1-hal@1.1.10` plus `stm32f1-cmsis-device@4.3.5`; HAL is a cached STATIC library; device headers stay INTERFACE |
 | Targets in progress | Early STM32 bare-metal (`gcc-arm-none-eabi`); host Linux path is not a separate `new` flow yet |
-| Device catalog | STM32 YAML profiles under `internal/devices/` (still expanding) |
+| Device catalog | STM32 YAML profiles under `internal/devices/` ([how to add a board](docs/device-catalog.md)) |
 
 **Not ready yet:** `run`, `test`, `list`, `setup`, `flash`, `monitor`, and related roadmap commands.
 
@@ -72,6 +72,7 @@ forge build
 | [Getting started](docs/getting-started.md) | Install Forge and run your first project |
 | [Create a project](docs/create-a-project.md) | Walkthrough of `new` → `init` → `build` |
 | [Commands](docs/commands.md) | CLI reference |
+| [Device catalog](docs/device-catalog.md) | YAML keys and how to add a board |
 | [Changelog](CHANGELOG.md) | User-visible changes |
 | [Docs index](docs/README.md) | All documentation |
 

@@ -55,5 +55,6 @@ From the Forge repo root, `run.sh` builds Forge and runs the full create/init/bu
 ## Next steps
 
 - [Create a project](create-a-project.md) — layout, `Forge.toml` dependencies, and package cache
+- [Device catalog](device-catalog.md) — YAML keys and how to add a board
 - [Commands](commands.md) — full CLI reference
 - [ROADMAP.md](../ROADMAP.md) — where Forge is headed

@@ -28,7 +28,7 @@ Creates `<name>/` and writes `Forge.toml`. `--device` is required.
 | Argument / flag | Description |
 |-----------------|-------------|
 | `<name>` | Project directory name (required) |
-| `--device <device>` | Device catalog id (for example `stm32f103r8`) |
+| `--device <device>` | Device catalog id (for example `stm32f103r8`). See [Device catalog](device-catalog.md). |
 
 Default `Forge.toml` includes `cmsis5@5.9.0`, `stm32f1-cmsis-device@4.3.5`, and `stm32f1-hal@1.1.10`.
 
@@ -74,3 +74,4 @@ These appear in help or the roadmap but are not implemented yet: `run`, `test`, 
 
 - [Getting started](getting-started.md)
 - [Create a project](create-a-project.md)
+- [Device catalog](device-catalog.md)

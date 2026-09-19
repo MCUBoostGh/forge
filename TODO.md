@@ -55,12 +55,12 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 ### Tasks
 
-- [ ] **T1 — Device catalog**
+- [x] **T1 — Device catalog**
   - [x] `internal/devices/` package skeleton
   - [x] Embed / load ST YAML catalog
   - [x] `Lookup` / `Resolve` / `List` APIs
   - [x] First complete board profile: `stm32f103r8` (CPU, flash/RAM, linker, OpenOCD target, aliases) — plus YAML anchors + `stm32f103c8`
-  - [ ] Document catalog keys and how to add a board
+  - [x] Document catalog keys and how to add a board (`docs/device-catalog.md`)
 
 - [ ] **T2 — Device-aware `forge new <name> <device>`**
   - [x] Accept device argument / `--device` path
@@ -88,6 +88,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 - [ ] **T6 — Docs**
   - [x] Update README for device-aware `new` / STM32 init (getting-started + create-a-project docs)
   - [x] Document CMSIS cache, STM32F1 HAL, `cmake/Package.cmake`, and default `dependencies`
+  - [x] Document catalog keys and how to add a board (`docs/device-catalog.md`)
   - [ ] Mark v0.2.0 delivered in ROADMAP when complete
 
 **Done when:** `forge new blink stm32f103r8` → `init` → CMake STM32 presets work; issue closed.

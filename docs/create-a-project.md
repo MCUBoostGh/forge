@@ -20,7 +20,7 @@ Examples:
 forge new blink --device stm32f103r8
 ```
 
-`--device` is required. `Lookup` is by catalog id (`stm32f103r8`); aliases such as `bluepill` are not wired yet.
+`--device` is required. `Lookup` is by catalog id (`stm32f103r8`, `stm32f103c8`); aliases such as `bluepill` are not wired yet. Catalog keys and how to add a board: [Device catalog](device-catalog.md).
 
 `new` creates `<name>/` and writes `Forge.toml` with project metadata and default dependencies:
 
@@ -114,4 +114,5 @@ Or use the repo helper:
 ## See also
 
 - [Getting started](getting-started.md)
+- [Device catalog](device-catalog.md)
 - [Commands](commands.md)

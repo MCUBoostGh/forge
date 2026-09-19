@@ -11,6 +11,7 @@ All notable user-visible changes to Forge are listed here.
 - Copy device `system_stm32f1xx.c` and the matching GCC `startup_*.s` into the project root and add them to the firmware executable.
 - Generated `main.c` is a Cortex-M CMSIS smoke test (CMSIS version + `SCB->CPUID`), not Hello World.
 - Copy `stm32f1xx_hal_conf.h` into `include/` from the HAL template when missing.
+- Document device catalog YAML keys and how to add a board ([docs/device-catalog.md](docs/device-catalog.md)).
 
 ### Changed
 
