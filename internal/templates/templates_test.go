@@ -2,6 +2,7 @@ package templates
 
 import (
 	"bytes"
+	"encoding/json"
 	"html/template"
 	"strings"
 	"testing"
@@ -103,6 +104,12 @@ func TestRender_CMakeListsAndPresets(t *testing.T) {
 	}
 	if !strings.Contains(presets, `"FLASH_KB": "64"`) || !strings.Contains(presets, `"RAM_KB": "20"`) {
 		t.Error("preset flash/ram")
+	}
+	if !strings.Contains(presets, `"generator": "Ninja"`) || !strings.Contains(presets, `"name": "debug"`) {
+		t.Errorf("preset generator:\n%s", presets)
+	}
+	if !json.Valid([]byte(presets)) {
+		t.Errorf("STM32 presets are not JSON:\n%s", presets)
 	}
 }
 

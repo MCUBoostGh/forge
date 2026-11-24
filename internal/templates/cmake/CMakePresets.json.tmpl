@@ -5,10 +5,44 @@
     "minor": {{.CMakeMinimumRequiredMinor}}
   },
   "configurePresets": [
+{{- if .Host }}
+    {
+      "name": "host-debug",
+      "displayName": "Host debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "host-release",
+      "displayName": "Host release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "host-debug",
+      "configurePreset": "host-debug"
+    },
+    {
+      "name": "host-release",
+      "configurePreset": "host-release"
+    }
+  ]
+}
+{{- else }}
     {
       "name": "stm32-base",
       "hidden": true,
-      "generator": "Unix Makefiles",
+      "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "toolchainFile": "${sourceDir}/cmake/gcc-arm-none-eabi.cmake",
       "cacheVariables": {
@@ -78,3 +112,4 @@
     }
   ]
 }
+{{- end }}

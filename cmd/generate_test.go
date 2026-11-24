@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"forge/internal/config"
@@ -103,6 +105,93 @@ func TestNew_WritesFamilyDependencies(t *testing.T) {
 				t.Errorf("file Dependencies = %v, want %v", fromFile.Dependencies, tc.wantDeps)
 			}
 		})
+	}
+}
+
+func TestNew_NestedDirectoryUsesFolderName(t *testing.T) {
+	chdirTemp(t)
+	resetCmdConfig()
+	if err := New("examples/blink", "stm32f103r8"); err != nil {
+		t.Fatalf("New: %v", err)
+	}
+	raw, err := os.ReadFile(filepath.Join("examples", "blink", "Forge.toml"))
+	if err != nil {
+		t.Fatalf("read Forge.toml: %v", err)
+	}
+	var fromFile config.Config
+	if err := toml.Unmarshal(raw, &fromFile); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if fromFile.Project.Name != "blink" {
+		t.Fatalf("project name = %q, want blink", fromFile.Project.Name)
+	}
+}
+
+func TestNewAndInit_HostProject(t *testing.T) {
+	chdirTemp(t)
+	resetCmdConfig()
+	if err := New("hostapp"); err != nil {
+		t.Fatalf("New: %v", err)
+	}
+	raw, err := os.ReadFile(filepath.Join("hostapp", "Forge.toml"))
+	if err != nil {
+		t.Fatalf("read Forge.toml: %v", err)
+	}
+	text := string(raw)
+	if strings.Contains(text, "cmsis5") || strings.Contains(text, "stm32") {
+		t.Fatalf("host Forge.toml includes MCU dependencies:\n%s", text)
+	}
+	var fromFile config.Config
+	if err := toml.Unmarshal(raw, &fromFile); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if fromFile.Target.Kind != "host" || fromFile.Toolchain.Compiler != "gcc" {
+		t.Fatalf("host config = %+v", fromFile)
+	}
+	if fromFile.CMake.MinimumRequiredVersion != "3.20" {
+		t.Fatalf("minimum cmake = %q", fromFile.CMake.MinimumRequiredVersion)
+	}
+	if len(fromFile.Dependencies) != 0 {
+		t.Fatalf("dependencies = %v", fromFile.Dependencies)
+	}
+
+	if err := os.Chdir("hostapp"); err != nil {
+		t.Fatalf("chdir: %v", err)
+	}
+	if err := Init(); err != nil {
+		t.Fatalf("Init: %v", err)
+	}
+	presets, err := os.ReadFile("CMakePresets.json")
+	if err != nil {
+		t.Fatalf("read presets: %v", err)
+	}
+	body := string(presets)
+	if !json.Valid(presets) {
+		t.Fatalf("host presets are not JSON:\n%s", body)
+	}
+	if !strings.Contains(body, `"name": "host-debug"`) || !strings.Contains(body, `"name": "host-release"`) {
+		t.Fatalf("host presets:\n%s", body)
+	}
+	if !strings.Contains(body, `"generator": "Ninja"`) {
+		t.Fatalf("host generator:\n%s", body)
+	}
+	if strings.Contains(body, "stm32") || strings.Contains(body, "gcc-arm-none-eabi") {
+		t.Fatalf("host presets mention an MCU toolchain:\n%s", body)
+	}
+	lists, err := os.ReadFile("CMakeLists.txt")
+	if err != nil {
+		t.Fatalf("read CMakeLists: %v", err)
+	}
+	if !strings.Contains(string(lists), "cmake_minimum_required(VERSION 3.20)") {
+		t.Fatalf("CMakeLists:\n%s", lists)
+	}
+	if strings.Contains(string(lists), "Package.cmake") {
+		t.Fatalf("host CMakeLists includes Package.cmake:\n%s", lists)
+	}
+	for _, missing := range []string{"cmake/gcc-arm-none-eabi.cmake", "cmake/Package.cmake", "LinkerScript.ld"} {
+		if _, err := os.Stat(missing); !os.IsNotExist(err) {
+			t.Fatalf("%s should not be generated", missing)
+		}
 	}
 }
 

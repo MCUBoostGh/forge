@@ -44,6 +44,9 @@ func createNewProject(nameProject string) error {
 }
 
 func syncTemplateData(cfg *config.Config) (templates.TemplateData, error) {
+	if cfg.Target.Kind == "host" {
+		return syncHostTemplateData(cfg), nil
+	}
 
 	catalog, err := devices.Lookup(cfg.Target.Device)
 	if err != nil {
@@ -141,6 +144,29 @@ func syncTemplateData(cfg *config.Config) (templates.TemplateData, error) {
 	}
 
 	return tmplData, nil
+}
+
+func syncHostTemplateData(cfg *config.Config) templates.TemplateData {
+	minVer := cfg.CMake.MinimumRequiredVersion
+	if minVer == "" {
+		minVer = "3.20"
+	}
+	major, minor := parseCMakeVersion(minVer)
+	name := cfg.Project.Name
+	if name == "" {
+		name = "app"
+	}
+	return templates.TemplateData{
+		ProjectName:                 name,
+		ProjectVersion:              cfg.Project.Version,
+		ProjectDescription:          name,
+		CStandard:                   "11",
+		CMakeMinimumRequiredVersion: minVer,
+		CMakeMinimumRequiredMajor:   major,
+		CMakeMinimumRequiredMinor:   minor,
+		ToolchainCompiler:           "gcc",
+		Host:                        true,
+	}
 }
 
 func parseCMakeVersion(v string) (major, minor int) {
@@ -258,6 +284,9 @@ func generateFiles(cfg *config.Config) error {
 	msgErr := fmt.Errorf("Falied to generate project files.")
 
 	for outName, tmplPath := range listFilesContentMap {
+		if cfg.Target.Kind == "host" && hostSkipFile(outName) {
+			continue
+		}
 		if err := os.MkdirAll(filepath.Dir(outName), 0755); err != nil && filepath.Dir(outName) != "." {
 			logger.Error(err)
 			return msgErr
@@ -297,6 +326,15 @@ func generateFiles(cfg *config.Config) error {
 	return nil
 }
 
+func hostSkipFile(name string) bool {
+	switch name {
+	case "cmake/gcc-arm-none-eabi.cmake", "cmake/Package.cmake", "LinkerScript.ld":
+		return true
+	default:
+		return false
+	}
+}
+
 func New(args ...string) error {
 
 	msgErr := fmt.Errorf("Failed to generate new project.")
@@ -314,29 +352,35 @@ func New(args ...string) error {
 		return msgErr
 	}
 
-	catalog, err := devices.Resolve(deviceInput)
-	if err != nil {
-		logger.Error(err)
-		return err
-	}
-
-	compiler := compilersMap[catalog.CPU]
-	if compiler == "" {
-		err := fmt.Errorf("no toolchain mapping for cpu %q (device %s)", catalog.CPU, catalog.ID)
-		logger.Error(err)
-		return err
-	}
-
-	deps, err := catalog.DefaultDependencies()
-	if err != nil {
-		logger.Error(err)
-		return err
+	compiler := "gcc"
+	var deps []string
+	kind := "host"
+	device := ""
+	if deviceInput != "" {
+		catalog, err := devices.Resolve(deviceInput)
+		if err != nil {
+			logger.Error(err)
+			return err
+		}
+		compiler = compilersMap[catalog.CPU]
+		if compiler == "" {
+			err := fmt.Errorf("no toolchain mapping for cpu %q (device %s)", catalog.CPU, catalog.ID)
+			logger.Error(err)
+			return err
+		}
+		deps, err = catalog.DefaultDependencies()
+		if err != nil {
+			logger.Error(err)
+			return err
+		}
+		kind = "mcu"
+		device = catalog.ID
 	}
 
 	cfg := config.Get()
-	cfg.Project.Name = nameProject
-	cfg.Target.Device = catalog.ID
-	cfg.Target.Kind = "mcu"
+	cfg.Project.Name = filepath.Base(nameProject)
+	cfg.Target.Device = device
+	cfg.Target.Kind = kind
 	cfg.Toolchain.Compiler = compiler
 	cfg.Dependencies = deps
 	config.Set(cfg)
@@ -361,7 +405,7 @@ func parseNewArgs(args []string) (name, device string, err error) {
 	name = args[0]
 	rest := args[1:]
 	if len(rest) == 0 {
-		return "", "", fmt.Errorf("device not specified; use forge new <name> <device> or forge new <name> --device <device>")
+		return name, "", nil
 	}
 	if rest[0] == "--device" {
 		if len(rest) < 2 || strings.TrimSpace(rest[1]) == "" {
@@ -391,6 +435,20 @@ func Init() error {
 		return msgErr
 	}
 	cfg := config.Get()
+
+	if cfg.Target.Kind == "host" {
+		for _, nameFolder := range listFolders {
+			if err := os.MkdirAll(nameFolder, 0755); err != nil {
+				logger.Error(err)
+				return msgErr
+			}
+		}
+		if err := generateFiles(&cfg); err != nil {
+			logger.Error(err)
+			return msgErr
+		}
+		return nil
+	}
 
 	// Scaffold into the project cwd (where Forge.toml lives), not Project.Name.
 	for _, nameFolder := range listFolders {

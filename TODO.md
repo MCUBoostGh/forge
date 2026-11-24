@@ -133,11 +133,11 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
   - [x] Report path, detected version, and status (`ok`, `missing`, `version mismatch`)
   - [x] Non-zero exit when a catalog tool is missing
 
-- [ ] **T4 — Build uses the cache**
-  - [ ] Host preset (`host-debug`) on Windows and Linux
-  - [ ] `forge build` prepends the cache `bin` directory to the child-process `PATH`, resolved from the YAML install root
-  - [ ] Keep host/generic `forge new` / `init` path for non-STM32 projects (`syncTemplateData` requires MCU/STM32; presets are STM32-named)
-  - [ ] `cmake_minimum_required` stays `CMake.MinimumRequiredVersion` (`3.20`); the CMake download version stays in `tools.yaml`
+- [x] **T4 — Build uses the cache**
+  - [x] Host preset (`host-debug`) on Windows and Linux
+  - [x] `forge build` prepends the cache `bin` directory to the child-process `PATH`, resolved from the YAML install root
+  - [x] Keep host/generic `forge new` / `init` path for non-STM32 projects (`syncTemplateData` requires MCU/STM32; presets are STM32-named)
+  - [x] `cmake_minimum_required` stays `CMake.MinimumRequiredVersion` (`3.20`); the CMake download version stays in `tools.yaml`
 
 - [ ] **T5 — Docs**
   - [ ] Document cache paths, the YAML catalog, and `install` / `check`
