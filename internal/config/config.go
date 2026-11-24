@@ -33,7 +33,6 @@ type Config struct {
 	Dependencies []string `toml:"dependencies"`
 
 	CMake struct {
-		Version                string `toml:"version"`
 		MinimumRequiredVersion string `toml:"minimum_required_version"`
 	} `toml:"cmake"`
 }
@@ -51,7 +50,6 @@ func setConfigDefaults() {
 		"stm32f1-cmsis-device@4.3.5",
 		"stm32f1-hal@1.1.10",
 	}
-	config.CMake.Version = "3.30"
 	config.CMake.MinimumRequiredVersion = "3.20"
 }
 
@@ -59,11 +57,12 @@ func New(path string) error {
 
 	msgErr := fmt.Errorf("Failed to generate config file.")
 
-	_, err := os.Create(filepath.Join(path, forgeTOMLName))
+	f, err := os.Create(filepath.Join(path, forgeTOMLName))
 	if err != nil {
 		logger.Error(err)
 		return msgErr
 	}
+	f.Close()
 
 	existing := config
 	setConfigDefaults()

@@ -72,7 +72,7 @@ Prints the Forge version (currently `0.2.0`).
 
 ## Planned commands
 
-These appear in help or the roadmap but are not implemented yet: `run`, `test`, `list`, and later `setup`, `sync`, `flash`, `monitor`, and others. See [ROADMAP.md](../ROADMAP.md).
+These appear in help or the roadmap but are not implemented yet: `run`, `test`, `list`, and later `toolchain`, `flash`, `monitor`, and others. See [ROADMAP.md](../ROADMAP.md).
 
 ## See also
 

@@ -51,7 +51,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 ## Issue: v0.2.0 — STM32 project bootstrap
 
-> Phase 1 start. Device-aware creation for STM32 (first board: `stm32f103r8`). Catalog, `forge new <name> <device>`, `internal/config`, arm-none-eabi + `LinkerScript.ld`, CMSIS/HAL cache + `cmake/Package.cmake`, GCC `startup_*.s` / `system_*.c` copy, `debug` / `release` CMake presets, F1/F7/G4 family packages, unit tests, tagged integration tests, and GitHub Actions CI (T7–T9) are in tree. v0.2.0 does not install host tools (`gcc-arm-none-eabi` / CMake must already be on `PATH`). Host Linux, `[install]` / `forge setup`, and schema fields for tools are v0.3.0.
+> Phase 1 start. Device-aware creation for STM32 (first board: `stm32f103r8`). Catalog, `forge new <name> <device>`, `internal/config`, arm-none-eabi + `LinkerScript.ld`, CMSIS/HAL cache + `cmake/Package.cmake`, GCC `startup_*.s` / `system_*.c` copy, `debug` / `release` CMake presets, F1/F7/G4 family packages, unit tests, tagged integration tests, and GitHub Actions CI (T7–T9) are in tree. v0.2.0 does not install host tools (`gcc-arm-none-eabi` / CMake must already be on `PATH`). Downloading those binaries into the user cache on Windows and Linux (`forge toolchain install` / `check`, from `internal/toolchain/tools.yaml`) is v0.3.0.
 
 ### Tasks
 
@@ -105,40 +105,44 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 ---
 
-## Issue: v0.3.0 — Host tools, setup, and multi-target build
+## Issue: v0.3.0 — Toolchain install and check (Windows and Linux)
 
-> Install/detect toolchains; host Linux presets; smarter `build`. v0.2.0 assumes CMake and `gcc-arm-none-eabi` are already installed.
+> Download pinned toolchain binaries into the Forge user cache on Windows and Linux. `forge toolchain install` and `forge toolchain check` read an embedded YAML catalog, not `Forge.toml`. v0.2.0 assumes CMake and `gcc-arm-none-eabi` are already on `PATH`. macOS stays out of scope.
 
 ### Tasks
 
-- [ ] **T1 — `internal/setup/` + `internal/install/`**
-  - [ ] Map target kind (`host` / `stm32`) to apt package lists
-  - [ ] Package manifest per target kind
-  - [ ] Detect already-installed tools vs missing
-  - [ ] Seed `[install].packages` in `Forge.toml` from target kind when `forge new` runs (consumed by `forge setup`)
-  - [ ] Align `Forge.toml` schema with ROADMAP (`[install]`, `[tools]`; `target.kind` / `board` vs current `kind` / `device`)
+- [ ] **T1 — `internal/toolchain/tools.yaml`**
+  - [ ] Embedded catalog (same pattern as `internal/package` YAML): name, version, per-OS URL, sha256, archive root, binary relative path
+  - [ ] Entries: `cmake`, `ninja`, `gcc-arm-none-eabi`, `openocd` (host `gcc` is not downloaded)
+  - [ ] `{version}` substitution in URLs; tar.gz on Linux, zip on Windows
+  - [ ] `install all` means every key in the file
+  - [ ] Cache: `%LOCALAPPDATA%\forge\toolchains\<name>\<version>\` on Windows, `~/.cache/forge/toolchains\<name>\<version>\` on Linux (`os.UserCacheDir`)
+  - [ ] Extract zip and tar.gz; recreate tar symlinks; reuse the zip-slip guard
 
-- [ ] **T2 — `forge setup`**
-  - [ ] Read `Forge.toml` (`[target]`, `[install]`, `[tools]`)
-  - [ ] Install missing packages via apt (Ubuntu/Debian only for v1)
-  - [ ] Flags: `--dry-run`, `--yes`
-  - [ ] On success, run `forge sync`
+- [ ] **T2 — `forge toolchain install`**
+  - [ ] `forge toolchain install <name>` and `forge toolchain install all`
+  - [ ] Resolve the tool from YAML only; do not read or write `Forge.toml`
+  - [ ] Skip a version whose binary is already in the cache
+  - [ ] `--dry-run` prints URL and destination without downloading
+  - [ ] Do not call apt and do not change the system `PATH`
 
-- [ ] **T3 — `forge sync`**
-  - [ ] Detect installed tool paths/versions
-  - [ ] Write paths into `Forge.toml` (`[toolchain]`, `[tools]`)
-  - [ ] Clear errors when tools missing
+- [ ] **T3 — `forge toolchain check`**
+  - [ ] Walk the YAML catalog
+  - [ ] Probe the cache, then `PATH`
+  - [ ] Run `<tool> --version`
+  - [ ] Report path, detected version, and status (`ok`, `missing`, `version mismatch`)
+  - [ ] Non-zero exit when a catalog tool is missing
 
-- [ ] **T4 — Host Linux + preset-driven `forge build`**
-  - [ ] Host preset (`host-debug`)
-  - [ ] Select preset from `Forge.toml`
-  - [ ] Enhance `forge build` beyond bare configure/build
+- [ ] **T4 — Build uses the cache**
+  - [ ] Host preset (`host-debug`) on Windows and Linux
+  - [ ] `forge build` prepends the cache `bin` directory to the child-process `PATH`, resolved from the YAML install root
   - [ ] Keep host/generic `forge new` / `init` path for non-STM32 projects (`syncTemplateData` requires MCU/STM32; presets are STM32-named)
+  - [ ] `cmake_minimum_required` stays `CMake.MinimumRequiredVersion` (`3.20`); the CMake download version stays in `tools.yaml`
 
 - [ ] **T5 — Docs**
-  - [ ] Document setup/sync workflow and apt-only host constraint
+  - [ ] Document cache paths, the YAML catalog, and `install` / `check`
 
-**Done when:** setup → sync → build works for host and STM32 toolchains; issue closed.
+**Done when:** `forge toolchain install all` → `forge toolchain check` → `forge build` works for a host project and an STM32 project on Windows and on Linux, without those toolchain commands reading `Forge.toml`; issue closed.
 
 ---
 
@@ -242,9 +246,9 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 - [ ] **T3 — v1.0.0 checklist (from ROADMAP)**
   - [ ] Toolchains: `gcc`, `gcc-arm-none-eabi`
-  - [ ] Infrastructure: Docker, CMake libs, CMake presets, `forge setup`
-  - [ ] Targets: host Linux, STM32 on Linux host
-  - [ ] Commands: `new`, `init`, `setup`, `sync`, `docker`, `build`, `doc`, `flash`, `monitor`, `test`, `lib`, `add`, `package`
+  - [ ] Infrastructure: Docker, CMake libs, CMake presets, `forge toolchain`
+  - [ ] Targets: host Windows and Linux, STM32
+  - [ ] Commands: `new`, `init`, `toolchain`, `docker`, `build`, `doc`, `flash`, `monitor`, `test`, `lib`, `add`, `package`
 
 - [ ] **T4 — Release polish**
   - [ ] Reference example: `blink` on STM32F103R8
@@ -264,14 +268,14 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 - [ ] **T1 — ARM Linux toolchain module**
   - [ ] CMake toolchain file for `gcc-arm-linux-gnueabihf`
-  - [ ] Sync/setup package mapping for arm-linux kind
+  - [ ] Toolchain catalog entry for the arm-linux kind
 
 - [ ] **T2 — Raspberry Pi target preset**
   - [ ] `target.kind = "arm-linux"`
   - [ ] Board profile (e.g. `raspberry-pi-4`)
 
 - [ ] **T3 — Cross-compile `forge build` path**
-  - [ ] Build Linux ARM binaries on host using synced toolchain paths
+  - [ ] Build Linux ARM binaries on the host using the toolchain cache
   - [ ] Presets for arm-linux debug/release
 
 - [ ] **T4 — Docs**
@@ -285,7 +289,7 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 Per ROADMAP — track separately only if needed later:
 
-- Windows/macOS host support
+- macOS host support
 - Full STM32 family catalog beyond F1 / F7 / G4 (expand post-1.0)
 - IDE plugins (VS Code extension)
 - Cloud CI templates
@@ -298,7 +302,7 @@ Copy-paste when opening issues:
 
 1. `v0.1.0: Prototype CLI skeleton`
 2. `v0.2.0: STM32 project bootstrap`
-3. `v0.3.0: Host tools, setup, and multi-target build`
+3. `v0.3.0: Toolchain install and check (Windows and Linux)`
 4. `v0.4.0: STM32 on-device workflow (flash/monitor)`
 5. `v0.5.0: Libraries and third-party code (lib/add)`
 6. `v0.6.0: Reproducible builds and testing (docker/test)`

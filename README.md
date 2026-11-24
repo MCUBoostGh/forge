@@ -33,18 +33,18 @@ Forge is early-stage (**v0.2.0**). Today it supports:
 | STM32 target | Bare-metal F1, F7, and G4 (`gcc-arm-none-eabi`); host Linux is not a separate `new` flow yet |
 | Device catalog | STM32 YAML profiles under `internal/devices/` ([how to add a board](docs/device-catalog.md)) |
 
-**Not ready yet:** `run`, `test`, `list`, `setup`, `flash`, `monitor`, and related roadmap commands.
+**Not ready yet:** `run`, `test`, `list`, `toolchain`, `flash`, `monitor`, and related roadmap commands.
 
 For command details, see [docs/commands.md](docs/commands.md).
 
 ## Where is it going?
 
-**v0.2.0** is the current STM32 bootstrap (`new` → `init` → `build debug`). Next is **v0.3.0**: host tools (`forge setup` / `sync`) and a host Linux path.
+**v0.2.0** is the current STM32 bootstrap (`new` → `init` → `build debug`). Next is **v0.3.0**: `forge toolchain install` / `check` on Windows and Linux, plus a host build path.
 
 Toward **v1.0.0**:
 
-- Stable host Linux + STM32 bare-metal support
-- `setup`, `sync`, `flash`, `monitor`, and related workflow commands
+- Stable Windows and Linux host + STM32 bare-metal support
+- `toolchain`, `flash`, `monitor`, and related workflow commands
 - CMake library targets and Docker-based reproducible environments
 
 **v2.0.0** looks at embedded Linux targets (for example Raspberry Pi).

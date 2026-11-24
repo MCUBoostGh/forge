@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/pelletier/go-toml/v2"
@@ -59,8 +60,8 @@ func TestNew_GeneratesDefaultConfig(t *testing.T) {
 	if config.Toolchain.Compiler != "gcc" {
 		t.Errorf("Toolchain.Compiler = %q, want %q", config.Toolchain.Compiler, "gcc")
 	}
-	if config.CMake.Version != "3.30" {
-		t.Errorf("CMake.Version = %q, want %q", config.CMake.Version, "3.30")
+	if strings.Contains(string(raw), "3.30") {
+		t.Errorf("generated Forge.toml still pins CMake 3.30:\n%s", raw)
 	}
 	if config.CMake.MinimumRequiredVersion != "3.20" {
 		t.Errorf("CMake.MinimumRequiredVersion = %q, want %q", config.CMake.MinimumRequiredVersion, "3.20")
