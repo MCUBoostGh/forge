@@ -23,8 +23,12 @@ func TestParseNewArgs_Positional(t *testing.T) {
 }
 
 func TestParseNewArgs_MissingDevice(t *testing.T) {
-	if _, _, err := parseNewArgs([]string{"blink"}); err == nil {
-		t.Fatal("expected error when device is missing")
+	name, device, err := parseNewArgs([]string{"blink"})
+	if err != nil {
+		t.Fatalf("parseNewArgs: %v", err)
+	}
+	if name != "blink" || device != "" {
+		t.Fatalf("got %q %q", name, device)
 	}
 }
 

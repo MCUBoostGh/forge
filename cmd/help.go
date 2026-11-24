@@ -9,9 +9,10 @@ Usage:
   forge <command> [arguments]
 
 Commands:
-  new       Create a new project: forge new <name> <device>
+  new       Create a new project: forge new <name> [<device>]
   init      Generate project structure and files
   build     Build the project: forge build <preset>
+  toolchain Install or check catalog tools: forge toolchain install <name|all>
   run       Run the project
   test      Run tests for the project
   list      List supported devices

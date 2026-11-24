@@ -67,13 +67,21 @@ func New(path string) error {
 	existing := config
 	setConfigDefaults()
 	config.Project.Name = path
-	if existing.Target.Device != "" {
+	if existing.Project.Name != "" {
+		config.Project.Name = existing.Project.Name
+	}
+	if existing.Target.Device != "" || existing.Target.Kind == "host" {
 		config.Target = existing.Target
 	}
 	if existing.Toolchain.Compiler != "" {
 		config.Toolchain.Compiler = existing.Toolchain.Compiler
 	}
-	if len(existing.Dependencies) > 0 {
+	if existing.Target.Kind == "host" {
+		config.Dependencies = nil
+		if config.Toolchain.Compiler == "" {
+			config.Toolchain.Compiler = "gcc"
+		}
+	} else if len(existing.Dependencies) > 0 {
 		config.Dependencies = existing.Dependencies
 	}
 

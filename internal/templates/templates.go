@@ -33,6 +33,7 @@ type TemplateData struct {
 	AppSources                  []string
 	DebugBuildType              string
 	ReleaseBuildType            string
+	Host                        bool
 	// keep Target etc. if MCU tmpls need them later
 }
 

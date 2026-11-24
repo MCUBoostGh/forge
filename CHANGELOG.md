@@ -2,6 +2,30 @@
 
 All notable user-visible changes to Forge are listed here.
 
+`forge version` still prints `0.2.0`.
+
+## [0.3.0] — 2026-11-24
+
+### Added
+
+- `forge toolchain install <name|all>` downloads pinned `cmake` 4.5.1, `ninja` 1.13.1-1, `gcc-arm-none-eabi` 15.2.1-1.1, and `openocd` 0.12.0-7 from the embedded catalog [internal/toolchain/tools.yaml](internal/toolchain/tools.yaml). `install all` is every catalog key. Host `gcc` is not downloaded.
+- Install root is `%LOCALAPPDATA%\forge\toolchains\<name>\<version>\` on Windows and `~/.cache/forge/toolchains/<name>/<version>/` on Linux. `--dry-run` prints the URL and destination. A tool whose binary is already present is skipped.
+- `forge toolchain check` reports `ok`, `missing`, or `version mismatch` from the cache, then `PATH`. A cache mismatch does not fall through to `PATH`. Any non-ok tool exits non-zero.
+- `forge new <name>` with no device creates a host project (`target.kind` is `host`, compiler `gcc`, no dependencies). `forge init` emits `host-debug` and `host-release`.
+- Host and STM32 presets use the Ninja generator.
+
+### Changed
+
+- `forge toolchain` does not read or write `Forge.toml`, does not call apt, and does not change the user `PATH`.
+- `forge build` starts the cached `cmake` by absolute path and prepends installed toolchain `bin` directories on that process only, so CMake can find `ninja` and `arm-none-eabi-gcc`.
+- Generated `cmake_minimum_required` stays `3.20`. The downloaded CMake version stays in `tools.yaml`.
+- A nested `forge new` path such as `examples/blink` uses the folder name `blink` as the project name.
+
+### Notes
+
+- Projects generated with `Unix Makefiles` keep that generator until `forge init` is run again.
+- macOS is out of scope. Host builds still use the system `gcc`.
+
 ## [0.2.0] — 2026-09-19
 
 ### Added

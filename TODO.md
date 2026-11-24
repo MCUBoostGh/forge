@@ -111,36 +111,36 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 ### Tasks
 
-- [ ] **T1 — `internal/toolchain/tools.yaml`**
-  - [ ] Embedded catalog (same pattern as `internal/package` YAML): name, version, per-OS URL, sha256, archive root, binary relative path
-  - [ ] Entries: `cmake`, `ninja`, `gcc-arm-none-eabi`, `openocd` (host `gcc` is not downloaded)
-  - [ ] `{version}` substitution in URLs; tar.gz on Linux, zip on Windows
-  - [ ] `install all` means every key in the file
-  - [ ] Cache: `%LOCALAPPDATA%\forge\toolchains\<name>\<version>\` on Windows, `~/.cache/forge/toolchains\<name>\<version>\` on Linux (`os.UserCacheDir`)
-  - [ ] Extract zip and tar.gz; recreate tar symlinks; reuse the zip-slip guard
+- [x] **T1 — `internal/toolchain/tools.yaml`**
+  - [x] Embedded catalog (same pattern as `internal/package` YAML): name, version, per-OS URL, sha256, archive root, binary relative path
+  - [x] Entries: `cmake`, `ninja`, `gcc-arm-none-eabi`, `openocd` (host `gcc` is not downloaded)
+  - [x] `{version}` substitution in URLs; tar.gz on Linux, zip on Windows
+  - [x] `install all` means every key in the file
+  - [x] Cache: `%LOCALAPPDATA%\forge\toolchains\<name>\<version>\` on Windows, `~/.cache/forge/toolchains\<name>\<version>\` on Linux (`os.UserCacheDir`)
+  - [x] Extract zip and tar.gz; recreate tar symlinks; reuse the zip-slip guard
 
-- [ ] **T2 — `forge toolchain install`**
-  - [ ] `forge toolchain install <name>` and `forge toolchain install all`
-  - [ ] Resolve the tool from YAML only; do not read or write `Forge.toml`
-  - [ ] Skip a version whose binary is already in the cache
-  - [ ] `--dry-run` prints URL and destination without downloading
-  - [ ] Do not call apt and do not change the system `PATH`
+- [x] **T2 — `forge toolchain install`**
+  - [x] `forge toolchain install <name>` and `forge toolchain install all`
+  - [x] Resolve the tool from YAML only; do not read or write `Forge.toml`
+  - [x] Skip a version whose binary is already in the cache
+  - [x] `--dry-run` prints URL and destination without downloading
+  - [x] Do not call apt and do not change the system `PATH`
 
-- [ ] **T3 — `forge toolchain check`**
-  - [ ] Walk the YAML catalog
-  - [ ] Probe the cache, then `PATH`
-  - [ ] Run `<tool> --version`
-  - [ ] Report path, detected version, and status (`ok`, `missing`, `version mismatch`)
-  - [ ] Non-zero exit when a catalog tool is missing
+- [x] **T3 — `forge toolchain check`**
+  - [x] Walk the YAML catalog
+  - [x] Probe the cache, then `PATH`
+  - [x] Run `<tool> --version`
+  - [x] Report path, detected version, and status (`ok`, `missing`, `version mismatch`)
+  - [x] Non-zero exit when a catalog tool is missing
 
-- [ ] **T4 — Build uses the cache**
-  - [ ] Host preset (`host-debug`) on Windows and Linux
-  - [ ] `forge build` prepends the cache `bin` directory to the child-process `PATH`, resolved from the YAML install root
-  - [ ] Keep host/generic `forge new` / `init` path for non-STM32 projects (`syncTemplateData` requires MCU/STM32; presets are STM32-named)
-  - [ ] `cmake_minimum_required` stays `CMake.MinimumRequiredVersion` (`3.20`); the CMake download version stays in `tools.yaml`
+- [x] **T4 — Build uses the cache**
+  - [x] Host preset (`host-debug`) on Windows and Linux
+  - [x] `forge build` prepends the cache `bin` directory to the child-process `PATH`, resolved from the YAML install root
+  - [x] Keep host/generic `forge new` / `init` path for non-STM32 projects (`syncTemplateData` requires MCU/STM32; presets are STM32-named)
+  - [x] `cmake_minimum_required` stays `CMake.MinimumRequiredVersion` (`3.20`); the CMake download version stays in `tools.yaml`
 
-- [ ] **T5 — Docs**
-  - [ ] Document cache paths, the YAML catalog, and `install` / `check`
+- [x] **T5 — Docs**
+  - [x] Document cache paths, the YAML catalog, and `install` / `check`
 
 **Done when:** `forge toolchain install all` → `forge toolchain check` → `forge build` works for a host project and an STM32 project on Windows and on Linux, without those toolchain commands reading `Forge.toml`; issue closed.
 

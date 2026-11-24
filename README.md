@@ -21,30 +21,31 @@ The goal is not to hide CMake or replace vendor ecosystems. It is to give embedd
 
 ## What does it currently do?
 
-Forge is early-stage (**v0.2.0**). Today it supports:
+Forge is early-stage. The tree includes the v0.3.0 toolchain cache. `forge version` still prints `0.2.0`. Today it supports:
 
 | Capability | Details |
 |------------|---------|
-| Project creation | `forge new <name> <device>` (or `--device`) writes a project dir and `Forge.toml` |
-| Scaffolding | `forge init` generates CMake files, a Cortex-M smoke-test `main.c`, device `startup_*.s` / `system_*.c`, and `cmake/Package.cmake` |
-| Builds | `forge build <preset>` runs a CMake preset (`debug` or `release`); output under `build/debug` or `build/release` |
-| CMSIS | `cmsis5@5.9.0` is the default Core dependency; unpacked once under `~/.cache/forge/packages/` |
+| Toolchain cache | `forge toolchain install` / `check` download pinned `cmake`, `ninja`, `gcc-arm-none-eabi`, and `openocd` on Windows and Linux from [internal/toolchain/tools.yaml](internal/toolchain/tools.yaml). This does not read `Forge.toml` or change your `PATH` |
+| Project creation | `forge new <name> [<device>]` writes a project dir and `Forge.toml`. No device means a host project; a device means STM32 |
+| Scaffolding | `forge init` generates CMake files. STM32 projects also get a Cortex-M smoke-test `main.c`, device `startup_*.s` / `system_*.c`, and `cmake/Package.cmake` |
+| Builds | `forge build <preset>` runs a Ninja CMake preset. STM32 uses `debug` or `release`; host uses `host-debug` or `host-release`. The cached `cmake` is started by path |
+| CMSIS | `cmsis5@5.9.0` is the default Core dependency; unpacked once under the user package cache (`%LOCALAPPDATA%\forge\packages\` or `~/.cache/forge/packages/`) |
 | STM32 HAL | Family HAL from the catalog (`stm32f1-hal`, `stm32f7-hal`, or `stm32g4-hal`) is a cached STATIC library; device headers stay INTERFACE |
-| STM32 target | Bare-metal F1, F7, and G4 (`gcc-arm-none-eabi`); host Linux is not a separate `new` flow yet |
+| Targets | Bare-metal F1, F7, and G4 (`gcc-arm-none-eabi`), plus a host `gcc` project |
 | Device catalog | STM32 YAML profiles under `internal/devices/` ([how to add a board](docs/device-catalog.md)) |
 
-**Not ready yet:** `run`, `test`, `list`, `toolchain`, `flash`, `monitor`, and related roadmap commands.
+**Not ready yet:** `run`, `test`, `list`, `flash`, `monitor`, and related roadmap commands.
 
 For command details, see [docs/commands.md](docs/commands.md).
 
 ## Where is it going?
 
-**v0.2.0** is the current STM32 bootstrap (`new` → `init` → `build debug`). Next is **v0.3.0**: `forge toolchain install` / `check` on Windows and Linux, plus a host build path.
+**v0.3.0** is the current toolchain cache (`toolchain install` / `check`, Ninja presets, and a host `new` path) on top of the v0.2.0 STM32 bootstrap. Next is **v0.4.0**: `forge flash` and `forge monitor`.
 
 Toward **v1.0.0**:
 
 - Stable Windows and Linux host + STM32 bare-metal support
-- `toolchain`, `flash`, `monitor`, and related workflow commands
+- `flash`, `monitor`, and related workflow commands
 - CMake library targets and Docker-based reproducible environments
 
 **v2.0.0** looks at embedded Linux targets (for example Raspberry Pi).
@@ -53,11 +54,12 @@ Full plan: [ROADMAP.md](ROADMAP.md). Task breakdown: [TODO.md](TODO.md).
 
 ## How do I try it?
 
-Requires **Go 1.26+**, **CMake 3.20+**, **`gcc-arm-none-eabi`**, and network access the first time CMSIS is fetched.
+Requires **Go 1.26+** and network access the first time tools and CMSIS are fetched. A host project also needs a system `gcc`.
 
 ```bash
-go build -o forge .
-sudo install -m 755 forge /usr/local/bin/forge
+go install .
+forge toolchain install all
+forge toolchain check
 
 forge new blink stm32f103r8
 cd blink

@@ -1,6 +1,6 @@
 # Forge Development Roadmap
 
-Forge is a Go CLI for embedded C/C++ projects built on **CMake**, **CMake presets**, and cross-compilation toolchains. **v0.2.0** (STM32 project bootstrap) is delivered. Development continues through incremental releases to **v1.0.0**.
+Forge is a Go CLI for embedded C/C++ projects built on **CMake**, **CMake presets**, and cross-compilation toolchains. **v0.3.0** (toolchain install and check on Windows and Linux) is delivered. Development continues through incremental releases to **v1.0.0**.
 
 ## Vision
 
@@ -148,7 +148,8 @@ Install root (`os.UserCacheDir()`):
 |---------|------|
 | `forge toolchain install <name>` | Download one catalog tool (`cmake`, `ninja`, `gcc-arm-none-eabi`, `openocd`) |
 | `forge toolchain install all` | Download every tool in the catalog |
-| `forge toolchain check` | Compare the cache, then `PATH`, with the YAML version |
+| `forge toolchain check` | Compare the cache, then `PATH`, with the YAML version. A cache mismatch does not fall through to `PATH` |
+| `forge build` | Start the cached `cmake` by absolute path and prepend cache `bin` directories to that process only |
 
 ## Command delivery matrix
 
@@ -191,7 +192,7 @@ Known limitation (fixed in v0.2.0): `forge init` used in-memory config and did n
 
 ---
 
-## v0.2.0 — STM32 project bootstrap (delivered, current)
+## v0.2.0 — STM32 project bootstrap (delivered)
 
 **Phase 1 start.** Device-aware project creation for STM32.
 
@@ -203,7 +204,7 @@ Does **not** install host tools. CMake and `gcc-arm-none-eabi` must already be o
 
 ```mermaid
 flowchart LR
-  subgraph current [v0.2.0]
+  subgraph v020 [v0.2.0]
     newCmd2["forge new <name> <device>"]
     initCmd2[forge init]
     buildCmd2[forge build debug]
@@ -217,10 +218,24 @@ Next: [v0.3.0](#v030--toolchain-install-and-check-windows-and-linux).
 
 ## v0.3.0 — Toolchain install and check (Windows and Linux)
 
-1. **`internal/toolchain/tools.yaml`** — embedded catalog (`cmake`, `ninja`, `gcc-arm-none-eabi`, `openocd`) with version, sha256, and per-OS URL. `{version}` is substituted the same way as package URLs. `install all` means every key in the file. Host `gcc` is not an entry.
+**Delivered. Current.**
+
+1. **`internal/toolchain/tools.yaml`** — embedded catalog (`cmake` 4.5.1, `ninja` 1.13.1-1, `gcc-arm-none-eabi` 15.2.1-1.1, `openocd` 0.12.0-7) with version, sha256, and per-OS URL. `{version}` is substituted the same way as package URLs. `install all` means every key in the file. Host `gcc` is not an entry. Hosts are Windows and Linux amd64.
 2. **`forge toolchain install <name|all>`** — download and extract into `%LOCALAPPDATA%\forge\toolchains\` on Windows and `~/.cache/forge/toolchains/` on Linux. Skip a version that is already present. `--dry-run` prints the URL and destination. Does not read or write `Forge.toml`, call apt, or change the system `PATH`.
-3. **`forge toolchain check`** — probe the cache, then `PATH`; run `--version`; report `ok`, `missing`, or `version mismatch`. Non-zero exit when a catalog tool is missing.
-4. **Build uses the cache** — host preset on Windows and Linux; `forge build` prepends the cache `bin` directory for the child process; keep a host/generic `new` / `init` path for non-STM32 projects.
+3. **`forge toolchain check`** — probe the cache, then `PATH`; run `--version`; report `ok`, `missing`, or `version mismatch`. A cache mismatch does not fall through to `PATH`. A match is the full catalog version or its leading `x.y.z`. Non-zero exit when a catalog tool is missing.
+4. **Build uses the cache** — `forge build` starts the cached `cmake` by absolute path and prepends installed cache `bin` directories to that process only, so Ninja and `arm-none-eabi-gcc` are visible. STM32 presets use the Ninja generator (`debug`, `release`, `relwithdebinfo`, `minsizerel`). `cmake_minimum_required` stays `3.20`. `forge new <name>` with no device is a host project with `host-debug` and `host-release`. `forge new <name> <device>` is unchanged.
+
+```mermaid
+flowchart LR
+  subgraph v030 [v0.3.0]
+    installCmd[toolchain install]
+    checkCmd[toolchain check]
+    buildCmd3[forge build]
+    installCmd --> checkCmd --> buildCmd3
+  end
+```
+
+Next: [v0.4.0](#v040--stm32-on-device-workflow).
 
 ---
 

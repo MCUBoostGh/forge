@@ -1,4 +1,14 @@
 cmake_minimum_required(VERSION {{.CMakeMinimumRequiredVersion}})
+{{- if .Host }}
+
+project({{.ProjectName}}
+    LANGUAGES C
+    VERSION {{.ProjectVersion}}
+    DESCRIPTION "{{.ProjectDescription}}"
+)
+
+add_executable(${PROJECT_NAME} main.c)
+{{- else }}
 
 project({{.ProjectName}}
     LANGUAGES C CXX ASM
@@ -25,3 +35,4 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 if(COMMAND forge_post_build_hex_size)
   forge_post_build_hex_size(${PROJECT_NAME})
 endif()
+{{- end }}
