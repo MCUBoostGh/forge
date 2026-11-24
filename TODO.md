@@ -126,12 +126,12 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
   - [x] `--dry-run` prints URL and destination without downloading
   - [x] Do not call apt and do not change the system `PATH`
 
-- [ ] **T3 — `forge toolchain check`**
-  - [ ] Walk the YAML catalog
-  - [ ] Probe the cache, then `PATH`
-  - [ ] Run `<tool> --version`
-  - [ ] Report path, detected version, and status (`ok`, `missing`, `version mismatch`)
-  - [ ] Non-zero exit when a catalog tool is missing
+- [x] **T3 — `forge toolchain check`**
+  - [x] Walk the YAML catalog
+  - [x] Probe the cache, then `PATH`
+  - [x] Run `<tool> --version`
+  - [x] Report path, detected version, and status (`ok`, `missing`, `version mismatch`)
+  - [x] Non-zero exit when a catalog tool is missing
 
 - [ ] **T4 — Build uses the cache**
   - [ ] Host preset (`host-debug`) on Windows and Linux

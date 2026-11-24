@@ -144,6 +144,13 @@ func TestRun_ToolchainInstallUsage(t *testing.T) {
 	}
 }
 
+func TestRun_ToolchainCheckUnknown(t *testing.T) {
+	code, err := run([]string{"toolchain", "check", "missing"})
+	if code != 1 || err == nil || !strings.Contains(err.Error(), "unknown toolchain") {
+		t.Fatalf("code=%d err=%v", code, err)
+	}
+}
+
 func TestRun_BuildRequiresPreset(t *testing.T) {
 	code, err := run([]string{"build"})
 	if code != 1 {
