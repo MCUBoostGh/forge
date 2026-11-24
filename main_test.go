@@ -118,6 +118,32 @@ func TestRun_NewCreatesProject(t *testing.T) {
 	}
 }
 
+func TestRun_ToolchainDryRun(t *testing.T) {
+	out := captureStdout(t, func() {
+		code, err := run([]string{"toolchain", "install", "cmake", "--dry-run"})
+		if err != nil {
+			t.Errorf("err = %v", err)
+		}
+		if code != 0 {
+			t.Errorf("code = %d, want 0", code)
+		}
+	})
+	if !strings.Contains(out, "https://github.com/Kitware/CMake/releases/download/v4.5.1/cmake-4.5.1-") {
+		t.Errorf("dry-run = %q", out)
+	}
+}
+
+func TestRun_ToolchainInstallUsage(t *testing.T) {
+	code, err := run([]string{"toolchain", "install"})
+	if code != 1 || err == nil || !strings.Contains(err.Error(), "usage:") {
+		t.Fatalf("code=%d err=%v", code, err)
+	}
+	code, err = run([]string{"toolchain", "install", "missing"})
+	if code != 1 || err == nil || !strings.Contains(err.Error(), "unknown toolchain") {
+		t.Fatalf("code=%d err=%v", code, err)
+	}
+}
+
 func TestRun_BuildRequiresPreset(t *testing.T) {
 	code, err := run([]string{"build"})
 	if code != 1 {

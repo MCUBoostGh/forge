@@ -119,12 +119,12 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
   - [x] Cache: `%LOCALAPPDATA%\forge\toolchains\<name>\<version>\` on Windows, `~/.cache/forge/toolchains\<name>\<version>\` on Linux (`os.UserCacheDir`)
   - [x] Extract zip and tar.gz; recreate tar symlinks; reuse the zip-slip guard
 
-- [ ] **T2 — `forge toolchain install`**
-  - [ ] `forge toolchain install <name>` and `forge toolchain install all`
-  - [ ] Resolve the tool from YAML only; do not read or write `Forge.toml`
-  - [ ] Skip a version whose binary is already in the cache
-  - [ ] `--dry-run` prints URL and destination without downloading
-  - [ ] Do not call apt and do not change the system `PATH`
+- [x] **T2 — `forge toolchain install`**
+  - [x] `forge toolchain install <name>` and `forge toolchain install all`
+  - [x] Resolve the tool from YAML only; do not read or write `Forge.toml`
+  - [x] Skip a version whose binary is already in the cache
+  - [x] `--dry-run` prints URL and destination without downloading
+  - [x] Do not call apt and do not change the system `PATH`
 
 - [ ] **T3 — `forge toolchain check`**
   - [ ] Walk the YAML catalog

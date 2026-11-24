@@ -46,6 +46,12 @@ func run(args []string) (int, error) {
 		}
 		return 0, nil
 
+	case "toolchain":
+		if err := cmd.Toolchain(args[1:]...); err != nil {
+			return 1, err
+		}
+		return 0, nil
+
 	case "help":
 		cmd.Help()
 		return 0, nil

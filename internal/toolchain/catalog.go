@@ -64,11 +64,15 @@ func BinaryPath(tool Tool) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	rel := tool.Binary
+	return executablePath(dir, tool.Binary), nil
+}
+
+func executablePath(dir, binary string) string {
+	rel := binary
 	if runtime.GOOS == "windows" && !strings.HasSuffix(strings.ToLower(rel), ".exe") {
 		rel += ".exe"
 	}
-	return filepath.Join(dir, filepath.FromSlash(rel)), nil
+	return filepath.Join(dir, filepath.FromSlash(rel))
 }
 
 func list(goos, goarch string) ([]Tool, error) {
