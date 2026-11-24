@@ -111,13 +111,13 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
 
 ### Tasks
 
-- [ ] **T1 — `internal/toolchain/tools.yaml`**
-  - [ ] Embedded catalog (same pattern as `internal/package` YAML): name, version, per-OS URL, sha256, archive root, binary relative path
-  - [ ] Entries: `cmake`, `ninja`, `gcc-arm-none-eabi`, `openocd` (host `gcc` is not downloaded)
-  - [ ] `{version}` substitution in URLs; tar.gz on Linux, zip on Windows
-  - [ ] `install all` means every key in the file
-  - [ ] Cache: `%LOCALAPPDATA%\forge\toolchains\<name>\<version>\` on Windows, `~/.cache/forge/toolchains\<name>\<version>\` on Linux (`os.UserCacheDir`)
-  - [ ] Extract zip and tar.gz; recreate tar symlinks; reuse the zip-slip guard
+- [x] **T1 — `internal/toolchain/tools.yaml`**
+  - [x] Embedded catalog (same pattern as `internal/package` YAML): name, version, per-OS URL, sha256, archive root, binary relative path
+  - [x] Entries: `cmake`, `ninja`, `gcc-arm-none-eabi`, `openocd` (host `gcc` is not downloaded)
+  - [x] `{version}` substitution in URLs; tar.gz on Linux, zip on Windows
+  - [x] `install all` means every key in the file
+  - [x] Cache: `%LOCALAPPDATA%\forge\toolchains\<name>\<version>\` on Windows, `~/.cache/forge/toolchains\<name>\<version>\` on Linux (`os.UserCacheDir`)
+  - [x] Extract zip and tar.gz; recreate tar symlinks; reuse the zip-slip guard
 
 - [ ] **T2 — `forge toolchain install`**
   - [ ] `forge toolchain install <name>` and `forge toolchain install all`
