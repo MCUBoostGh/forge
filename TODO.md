@@ -139,8 +139,8 @@ Work breakdown derived from [README.md](README.md) and [ROADMAP.md](ROADMAP.md).
   - [x] Keep host/generic `forge new` / `init` path for non-STM32 projects (`syncTemplateData` requires MCU/STM32; presets are STM32-named)
   - [x] `cmake_minimum_required` stays `CMake.MinimumRequiredVersion` (`3.20`); the CMake download version stays in `tools.yaml`
 
-- [ ] **T5 — Docs**
-  - [ ] Document cache paths, the YAML catalog, and `install` / `check`
+- [x] **T5 — Docs**
+  - [x] Document cache paths, the YAML catalog, and `install` / `check`
 
 **Done when:** `forge toolchain install all` → `forge toolchain check` → `forge build` works for a host project and an STM32 project on Windows and on Linux, without those toolchain commands reading `Forge.toml`; issue closed.
 
