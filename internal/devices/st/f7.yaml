@@ -40,3 +40,14 @@ stm32f767zi:
   linker_script: STM32F767ZITX_FLASH.ld
   aliases:
     - nucleo-f767zi
+stm32f746ng:
+  <<: *stm32f7
+  id: stm32f746ng
+  series: STM32F746XX
+  flash_kb: 1024
+  ram_kb: 320
+  pins: 216
+  package: TFBGA216
+  fpu: fpv5-sp-d16
+  stm32_device: STM32F746xx
+  linker_script: STM32F746NGHX_FLASH.ld
