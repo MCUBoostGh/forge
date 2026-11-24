@@ -21,7 +21,7 @@ The goal is not to hide CMake or replace vendor ecosystems. It is to give embedd
 
 ## What does it currently do?
 
-Forge is early-stage. The tree includes the v0.3.0 toolchain cache. `forge version` still prints `0.2.0`. Today it supports:
+Forge is early-stage (**v0.3.0**). Today it supports:
 
 | Capability | Details |
 |------------|---------|

@@ -57,7 +57,7 @@ func run(args []string) (int, error) {
 		return 0, nil
 
 	case "version":
-		fmt.Println("Forge version 0.2.0")
+		fmt.Println("Forge version 0.3.0")
 		return 0, nil
 
 	default:

@@ -1,6 +1,6 @@
 # Commands
 
-CLI reference for the current Forge commands. `forge version` prints `0.2.0`.
+CLI reference for Forge **v0.3.0**.
 
 ```text
 forge <command> [arguments]
@@ -114,7 +114,7 @@ Prints usage text.
 forge version
 ```
 
-Prints the Forge version (currently `0.2.0`).
+Prints the Forge version (currently `0.3.0`).
 
 ## Planned commands
 

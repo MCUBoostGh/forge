@@ -26,7 +26,7 @@ go build -o forge .
 sudo install -m 755 forge /usr/local/bin/forge
 ```
 
-You should see `Forge version 0.2.0`.
+You should see `Forge version 0.3.0`.
 
 If you prefer not to install, run commands with `go run .` from the repo root.
 

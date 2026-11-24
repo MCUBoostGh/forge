@@ -2,8 +2,6 @@
 
 All notable user-visible changes to Forge are listed here.
 
-`forge version` still prints `0.2.0`.
-
 ## [0.3.0] — 2026-11-24
 
 ### Added

@@ -69,7 +69,7 @@ func TestRun_Version(t *testing.T) {
 			t.Errorf("code = %d, want 0", code)
 		}
 	})
-	if !strings.Contains(out, "Forge version 0.2.0") {
+	if !strings.Contains(out, "Forge version 0.3.0") {
 		t.Errorf("version = %q", out)
 	}
 }
